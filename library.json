@@ -1,12 +1,12 @@
 {
     "id": "{7FB2B880-36E5-4418-934F-FFEB7D430935}",
-    "author": "Community",
+    "author": "schrotto",
     "name": "WLANThermo",
-    "url": "https://wlanthermo.de/",
+    "url": "https://github.com/schrotto/WLANThermo-Symcon",
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.1.0",
-    "build": 2,
+    "version": "1.2.0",
+    "build": 3,
     "date": 1792281600
 }

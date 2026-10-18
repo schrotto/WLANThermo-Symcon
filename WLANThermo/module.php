@@ -17,7 +17,9 @@ class WLANThermo extends IPSModuleStrict
         $this->RegisterPropertyBoolean('AllowWrite', true);
         $this->RegisterPropertyBoolean('Bluetooth', true);
         $this->RegisterPropertyBoolean('ExposeRaw', false);
+        // Read-only migration fallback for configurations saved by version 1.1.0.
         $this->RegisterPropertyString('DisabledVariables', '[]');
+        $this->RegisterPropertyString('VariableSelection', '[]');
         foreach (['ShowSystem', 'ShowSettings', 'ShowBluetoothDetails', 'ShowChannelDetails', 'ShowPitmaster', 'ShowDevice'] as $property) {
             $this->RegisterPropertyBoolean($property, true);
         }
@@ -30,6 +32,15 @@ class WLANThermo extends IPSModuleStrict
     public function ApplyChanges(): void
     {
         parent::ApplyChanges();
+        $this->SetTimerInterval('Poll', 0);
+        try {
+            $this->selectionOverrides();
+        } catch (Throwable $e) {
+            $this->safeSet('Online', false);
+            $this->safeSet('LastError', $e->getMessage());
+            $this->SetStatus(201);
+            return;
+        }
         $this->profiles();
         $this->variable('Online', 'Gerät erreichbar', 0, '~Switch', 0, $this->stateValue('Online', false));
         $this->variable('LastUpdate', 'Letzter erfolgreicher Datenabruf', 1, '~UnixTimestamp', 1, $this->stateValue('LastUpdate', 0));
@@ -78,24 +89,14 @@ class WLANThermo extends IPSModuleStrict
     public function GetConfigurationForm(): string
     {
         $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true, 64, JSON_THROW_ON_ERROR);
-        $groups = [];
-        $catalog = json_decode($this->ReadAttributeString('VariableCatalog'), true);
-        foreach ($catalog as $ident => $meta) {
-            $group = $this->variableGroup($ident);
-            $field = 'VAR_' . substr(sha1($ident), 0, 16);
-            $groups[$group][] = ['type' => 'CheckBox', 'name' => $field,
-                'caption' => $meta['name'] . ' [' . $ident . ']',
-                'enabled' => $this->groupEnabled($ident),
-                'value' => $this->selected($ident),
-                'onChange' => 'WLT_SetVariableEnabled($id, ' . var_export($ident, true) . ', $' . $field . ');'];
+        foreach ($form['elements'] as &$element) {
+            if (($element['name'] ?? '') === 'VariableSelection') {
+                // Merge the user's saved choices, including unknown/temporarily absent
+                // identifiers, before appending newly discovered catalog entries.
+                $element['values'] = $this->selectionRows();
+            }
         }
-        ksort($groups, SORT_NATURAL);
-        $panels = [];
-        foreach ($groups as $group => $items) {
-            $panels[] = ['type' => 'ExpansionPanel', 'caption' => $group, 'items' => $items];
-        }
-        $form['actions'][] = ['type' => 'ExpansionPanel', 'caption' => 'Einzelne Variablen auswählen',
-            'items' => array_merge([['type' => 'Label', 'caption' => 'Haken ändern wirkt sofort. Abgewählte Variablen werden gelöscht; beim erneuten Anlegen erhalten sie neue IDs. Gruppen oben mit Übernehmen schalten.']], $panels)];
+        unset($element);
         $bt = $this->cached('BluetoothData');
         foreach ($bt['devices'] ?? [] as $device) {
             $address = (string) $device['address'];
@@ -109,24 +110,6 @@ class WLANThermo extends IPSModuleStrict
             $form['actions'][] = ['type' => 'ExpansionPanel', 'caption' => 'Bluetooth: ' . $device['name'] . ' (' . $address . ')', 'items' => $items];
         }
         return WLTApi::encode($form);
-    }
-
-    public function SetVariableEnabled(string $Ident, bool $Enabled): void
-    {
-        $catalog = json_decode($this->ReadAttributeString('VariableCatalog'), true);
-        if (!isset($catalog[$Ident])) { throw new InvalidArgumentException('Unbekannte Variable.'); }
-        $key = 'WLT_' . $this->InstanceID;
-        if (!IPS_SemaphoreEnter($key, 1000)) { throw new RuntimeException('Instanz beschäftigt.'); }
-        try {
-            $disabled = json_decode($this->ReadPropertyString('DisabledVariables'), true);
-            $disabled = array_values(array_diff($disabled, [$Ident]));
-            if (!$Enabled) { $disabled[] = $Ident; }
-            IPS_SetProperty($this->InstanceID, 'DisabledVariables', WLTApi::encode($disabled));
-        } finally {
-            IPS_SemaphoreLeave($key);
-        }
-        IPS_ApplyChanges($this->InstanceID);
-        $this->ReloadForm();
     }
 
     public function Update(): bool
@@ -654,7 +637,49 @@ class WLANThermo extends IPSModuleStrict
 
     private function selected(string $ident): bool
     {
-        return $this->groupEnabled($ident) && !in_array($ident, json_decode($this->ReadPropertyString('DisabledVariables'), true), true);
+        return $this->groupEnabled($ident) && ($this->selectionOverrides()[$ident] ?? true);
+    }
+
+    private function selectionOverrides(): array
+    {
+        $legacy = json_decode($this->ReadPropertyString('DisabledVariables'), true, 64, JSON_THROW_ON_ERROR);
+        $rows = json_decode($this->ReadPropertyString('VariableSelection'), true, 64, JSON_THROW_ON_ERROR);
+        if (!is_array($legacy) || !array_is_list($legacy) || !is_array($rows) || !array_is_list($rows)) {
+            throw new InvalidArgumentException('Variablenauswahl muss eine JSON-Liste sein.');
+        }
+        $result = [];
+        foreach ($legacy as $ident) {
+            if (!is_string($ident) || !preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $ident)) {
+                throw new InvalidArgumentException('Ungültiger Variablen-Ident in bisheriger Auswahl.');
+            }
+            $result[$ident] = false;
+        }
+        $seen = [];
+        foreach ($rows as $row) {
+            if (!is_array($row) || !isset($row['Ident']) || !array_key_exists('Enabled', $row) ||
+                !is_string($row['Ident']) || !preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $row['Ident']) || !is_bool($row['Enabled'])) {
+                throw new InvalidArgumentException('Ungültiger Eintrag in der Variablenauswahl.');
+            }
+            if (isset($seen[$row['Ident']])) { throw new InvalidArgumentException('Doppelter Ident in der Variablenauswahl.'); }
+            $seen[$row['Ident']] = true;
+            $result[$row['Ident']] = $row['Enabled'];
+        }
+        return $result;
+    }
+
+    private function selectionRows(): array
+    {
+        $overrides = $this->selectionOverrides();
+        $catalog = json_decode($this->ReadAttributeString('VariableCatalog'), true);
+        $idents = array_unique(array_merge(array_keys($catalog), array_keys($overrides)));
+        $rows = [];
+        foreach ($idents as $ident) {
+            $rows[] = ['Ident' => $ident, 'Enabled' => $overrides[$ident] ?? true,
+                'Group' => $this->variableGroup($ident), 'Name' => $catalog[$ident]['name'] ?? $ident];
+        }
+        usort($rows, static fn(array $a, array $b): int =>
+            strnatcasecmp($a['Group'], $b['Group']) ?: strnatcasecmp($a['Name'], $b['Name']));
+        return $rows;
     }
 
     private function safeSet(string $ident, mixed $value): void

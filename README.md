@@ -2,17 +2,23 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
-## Update auf Version 1.1.0
+## Update auf Version 1.2.0
 
-Die Dateien im vorhandenen Modulordner durch Version 1.1.0 ersetzen, anschließend den Symcon-Dienst neu starten. Bei Installation über ein eigenes Git-Repository stattdessen die aktualisierten Dateien dort übernehmen und in Module Control aktualisieren. **Die bestehende Instanz beibehalten**: Bibliotheks-ID und Modul-ID sind unverändert, daher ist keine neue Instanz erforderlich.
+Autor und vorgesehener GitHub-Account: **schrotto**. Die Metadaten sind für das noch anzulegende Repository **`https://github.com/schrotto/WLANThermo-Symcon`** vorbereitet. Falls ein anderer Repositoryname verwendet wird, die URL in `library.json`, `WLANThermo/module.json` und den Veröffentlichungsunterlagen entsprechend ändern. Ein Repository wurde hier nicht erstellt und das Modul nicht veröffentlicht.
 
-Alarmgrenzen und Pitmaster-Solltemperaturen werden jetzt ohne Nachkommastellen und mit Schrittweite **1 Grad** bedient. Ihre vorhandenen Float-Variablen und IDs bleiben erhalten; der Wechsel betrifft das Bedienprofil. Gemessene Temperaturen behalten ihre Nachkommastelle. Neue Temperatureinstellungen akzeptieren nur ganze Grad, auch per JSON/Skript; `120` und `120.0` sind erlaubt, `120.5` wird mit einer Fehlermeldung abgewiesen. Bereits am WLANthermo gespeicherte Werte werden durch das Update nicht verändert.
+Die Dateien im vorhandenen Modulordner durch Version 1.2.0 ersetzen und den Symcon-Dienst neu starten. Bei Installation über ein eigenes Git-Repository die Dateien dort übernehmen und über Module Control aktualisieren. **Die bestehende Instanz beibehalten**: Bibliotheks-ID und Modul-ID sind unverändert.
 
-Im Formular gibt es **Variablengruppen anlegen**: zum Beispiel alle API-Einstellungen, Systemwerte oder Bluetoothdetails gemeinsam abwählen, dann **Übernehmen** drücken. Für eine deutlich kleinere Variablenliste insbesondere die zusätzlichen API-Einstellungen und API-Details deaktivieren. Bestehende Instanzen behalten zunächst die bisherigen Gruppen, bis du selbst eine Auswahl änderst.
+Alarmgrenzen und Pitmaster-Solltemperaturen bleiben ohne Nachkommastellen mit Schrittweite **1 Grad** bedienbar. Vorhandene Float-Variablen und deren IDs bleiben erhalten; gemessene Temperaturen behalten ihre Nachkommastelle. Neue Temperatureinstellungen akzeptieren ganze Grad (`120` und `120.0` sind erlaubt, `120.5` wird abgewiesen). Bereits am Gerät gespeicherte Temperaturen werden durch das Update nicht verändert.
 
-Unter **Einzelne Variablen auswählen** hat jede bekannte Variable ein Kontrollkästchen, nach Kanal beziehungsweise Datenbereich gruppiert. Einzelne Haken wirken sofort. Bei ausgeschalteter Gruppe sind deren Einzelkästchen deaktiviert; zuerst die Gruppe aktivieren und übernehmen. Eine neue Variable wird nach dem ersten erfolgreichen Geräteabruf in die Auswahl aufgenommen. Auch die Statusvariablen lassen sich abwählen; Fehler bleiben über Instanzstatus und `WLT_GetLastError($id)` abrufbar.
+Im Formular können unter **Variablengruppen anlegen** ganze Datenbereiche aktiviert oder deaktiviert werden. Für eine kleinere Variablenliste insbesondere zusätzliche API-Einstellungen, API-Systemwerte und Bluetoothdetails abwählen.
 
-**Abwählen löscht die jeweilige Symcon-Variable.** Bereits vorhandene Verknüpfungen, Skriptreferenzen und Archivzuordnungen können dadurch ungültig werden. Erneutes Anhaken legt die Variable mit einer neuen ID an. Weiterhin ausgewählte Variablen behalten ihre IDs. Die Auswahl verändert keine Fühlerkopplung und keine Einstellungen am WLANthermo. Alle Daten werden intern weiterhin abgefragt; Skriptfunktionen und Bluetooth-Auswahl arbeiten unabhängig davon, welche Variablen angelegt sind.
+Unter **Einzelne Variablen auswählen** gibt es eine durchsuchbare Liste. Die gewünschte Zeile bearbeiten, den Haken **Anlegen** setzen oder entfernen und anschließend **Übernehmen** drücken. Du kannst mehrere Auswahlen vor dem Speichern bearbeiten. Eine ausgeschaltete Gruppe hat Vorrang vor den einzelnen Haken. Neue Datenfelder erscheinen nach einem Geräteabruf beim erneuten Öffnen des Formulars.
+
+Anders als in Version 1.1.0 ändern die einzelnen Haken die Konfiguration nicht mehr sofort. Das Modul verwendet keine automatischen Eigenschaftsänderungen oder selbst ausgelöste Übernahme. Bestehende Abwahlen aus Version 1.1.0 werden weiter berücksichtigt, ohne die alte Eigenschaft zu überschreiben; eine anschließend von dir gespeicherte Listenauswahl hat für denselben Ident Vorrang. Auch die Auswahl nicht mehr vorhandener Kanäle bleibt erhalten.
+
+**Abwählen und Übernehmen löscht die jeweilige Symcon-Variable.** Verknüpfungen, Skriptreferenzen und Archivzuordnungen können dadurch ungültig werden. Erneutes Anhaken legt sie mit einer neuen ID an. Weiterhin ausgewählte Variablen behalten ihre IDs. Die Auswahl verändert keine Fühlerkopplung und keine Geräteeinstellungen; intern stehen die API-Daten weiter zur Verfügung. Auch Statusvariablen lassen sich abwählen. Fehler bleiben dann über den Instanzstatus und `WLT_GetLastError($id)` abrufbar.
+
+Hinweise und vorbereitete Texte für die Store-Einreichung stehen in [docs/STORE.md](docs/STORE.md).
 
 ## Funktionsumfang
 
@@ -144,7 +150,7 @@ Die gewünschten Temperaturvariablen in Symcon zur Archivierung aktivieren; das 
 
 Kanalnummern werden vom Mini V3 vergeben. Beim Entfernen oder Neuzuordnen von Bluetooth-Kanälen können Nummern und damit deren Zuordnung wechseln. Deshalb nach einer solchen Änderung die Namen und Archiv-/Automationszuordnungen kontrollieren. Entfernte Kanalvariablen werden zur Erhaltung bestehender Referenzen nicht automatisch gelöscht. Sonstige zusätzliche API-Felder behalten bei Wegfall ihren letzten Wert; ihre Aktualität ist über `LastUpdate`/`GetSnapshot()` einzuordnen.
 
-Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementierten Datenendpunkte betrifft. Nicht implementiert sind direkte Bluetooth-Verbindungen vom Symcon-Server, MEATER-Cloud, WLAN-Zugangsdatenänderung, Firmware-Update, Werksreset sowie Verwaltungs-/Diagnoseendpunkte außerhalb dieser Schnittstellen. Version 1.0.0 wurde vom Anwender als funktionierend bestätigt. Version 1.1.0 wurde hier automatisiert geprüft; ein erneuter Test der Änderungen am realen Mini V3 und in Symcon 9.0 steht noch aus. Details zur geprüften Firmwarebasis und zu den Tests stehen in `docs/VALIDIERUNG.md`.
+Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementierten Datenendpunkte betrifft. Nicht implementiert sind direkte Bluetooth-Verbindungen vom Symcon-Server, MEATER-Cloud, WLAN-Zugangsdatenänderung, Firmware-Update, Werksreset sowie Verwaltungs-/Diagnoseendpunkte außerhalb dieser Schnittstellen. Version 1.0.0 wurde vom Anwender als funktionierend bestätigt. Version 1.2.0 wurde hier automatisiert geprüft; ein erneuter Test der Änderungen am realen Mini V3 und in Symcon 9.0 steht noch aus. Details zur geprüften Firmwarebasis und zu den Tests stehen in `docs/VALIDIERUNG.md`.
 
 ## Offizielle Grundlagen
 

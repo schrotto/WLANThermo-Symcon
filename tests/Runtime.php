@@ -5,8 +5,8 @@ declare(strict_types=1);
 $GLOBALS['profiles'] = [];
 $GLOBALS['profileSettings'] = [];
 $GLOBALS['instances'] = [];
-function IPS_SetProperty(int $id, string $name, mixed $value): void { $GLOBALS['instances'][$id]->properties[$name] = $value; }
-function IPS_ApplyChanges(int $id): void { $GLOBALS['instances'][$id]->ApplyChanges(); }
+function IPS_SetProperty(int $id, string $name, mixed $value): void { throw new RuntimeException('Module must not change properties itself.'); }
+function IPS_ApplyChanges(int $id): void { throw new RuntimeException('Module must not apply properties itself.'); }
 function IPS_SemaphoreEnter(string $name, int $wait): bool { return true; }
 function IPS_SemaphoreLeave(string $name): void {}
 function IPS_VariableProfileExists(string $name): bool { return isset($GLOBALS['profiles'][$name]); }
@@ -53,7 +53,7 @@ class IPSModuleStrict
         if (isset($this->variables[$id]) && $this->variables[$id]['type'] !== $type) { throw new RuntimeException('Variable type changed: ' . $id); }
         $new = !isset($this->variables[$id]);
         if ($new) { $this->variableIDs[$id] = $this->nextVariableID++; }
-        $this->variables[$id] = compact('name', 'type', 'profile', 'pos');
+        $this->variables[$id] = $new ? compact('name', 'type', 'profile', 'pos') : array_replace($this->variables[$id], ['profile' => $profile]);
         $this->values[$id] ??= [false, 0, 0.0, ''][$type];
         return $new;
     }

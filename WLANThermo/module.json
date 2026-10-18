@@ -7,7 +7,7 @@
         "WLANThermo Mini V3",
         "WLANThermo MEATER Bridge"
     ],
-    "url": "https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/wiki/HTTP",
+    "url": "https://github.com/schrotto/WLANThermo-Symcon#readme",
     "parentRequirements": [],
     "childRequirements": [],
     "implemented": [],

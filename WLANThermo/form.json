@@ -59,7 +59,7 @@
             "items": [
                 {
                     "type": "Label",
-                    "caption": "Gruppen mit Übernehmen schalten. Abgewählte Variablen werden gelöscht; vorhandene Verknüpfungen können dadurch ungültig werden. Einzelne Variablen unten auswählen."
+                    "caption": "Gruppen und Einzelvariablen erst mit Übernehmen speichern. Abgewählte Variablen werden gelöscht; bestehende Verknüpfungen können dadurch ungültig werden. Eine ausgeschaltete Gruppe hat Vorrang vor den einzelnen Haken."
                 },
                 {
                     "type": "CheckBox",
@@ -92,6 +92,52 @@
                     "caption": "Geräteinformationen als JSON"
                 }
             ]
+        },
+        {
+            "type": "Label",
+            "caption": "Einzelne Variablen: Zeile bearbeiten und Haken „Anlegen“ setzen oder entfernen, anschließend Übernehmen. Die Liste enthält alle bisher erkannten Variablen; neue Einträge erscheinen nach erneutem Öffnen des Formulars."
+        },
+        {
+            "type": "List",
+            "name": "VariableSelection",
+            "caption": "Einzelne Variablen auswählen",
+            "rowCount": 12,
+            "add": false,
+            "delete": false,
+            "loadValuesFromConfiguration": false,
+            "columns": [
+                {
+                    "name": "Enabled",
+                    "caption": "Anlegen",
+                    "width": "80px",
+                    "save": true,
+                    "edit": {
+                        "type": "CheckBox"
+                    }
+                },
+                {
+                    "name": "Group",
+                    "caption": "Bereich",
+                    "width": "160px",
+                    "save": false,
+                    "quickFilter": true
+                },
+                {
+                    "name": "Name",
+                    "caption": "Variable",
+                    "width": "auto",
+                    "save": false,
+                    "quickFilter": true
+                },
+                {
+                    "name": "Ident",
+                    "caption": "Ident",
+                    "width": "190px",
+                    "save": true,
+                    "quickFilter": true
+                }
+            ],
+            "values": []
         },
         {
             "type": "Label",
