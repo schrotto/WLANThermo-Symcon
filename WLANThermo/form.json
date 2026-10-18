@@ -1,0 +1,191 @@
+{
+    "elements": [
+        {
+            "type": "Label",
+            "caption": "WLANThermo Mini V3 – IP-Symcon 9.0. Bluetooth/MEATER werden über den Mini V3 angebunden."
+        },
+        {
+            "type": "CheckBox",
+            "name": "Active",
+            "caption": "Aktiv"
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "Host",
+            "caption": "IP-Adresse / Hostname (optional http(s):// und Port)"
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "Username",
+            "caption": "Admin-Benutzername"
+        },
+        {
+            "type": "PasswordTextBox",
+            "name": "Password",
+            "caption": "WLANthermo Admin-Passwort (falls gesetzt)"
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "Interval",
+            "caption": "Abrufintervall (Sekunden)",
+            "minimum": 5,
+            "maximum": 3600
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "Timeout",
+            "caption": "HTTP-Timeout je Anfrage (Sekunden)",
+            "minimum": 1,
+            "maximum": 30
+        },
+        {
+            "type": "CheckBox",
+            "name": "AllowWrite",
+            "caption": "Werte am WLANthermo ändern erlauben"
+        },
+        {
+            "type": "CheckBox",
+            "name": "Bluetooth",
+            "caption": "Bluetooth-Geräte abfragen und verwalten"
+        },
+        {
+            "type": "CheckBox",
+            "name": "ExposeRaw",
+            "caption": "Zusätzliche JSON-Diagnosevariablen (Zugangsdaten ausgeblendet)"
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Variablengruppen anlegen",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Gruppen mit Übernehmen schalten. Abgewählte Variablen werden gelöscht; vorhandene Verknüpfungen können dadurch ungültig werden. Einzelne Variablen unten auswählen."
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ShowSystem",
+                    "caption": "Zusätzliche API-Systemwerte (WLAN, Akku, Zeit …)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ShowSettings",
+                    "caption": "Alle API-Einstellungen (Fühlertypen, PID-Profile, Gerätefunktionen …)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ShowBluetoothDetails",
+                    "caption": "Zusätzliche Bluetooth-Gerätedetails"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ShowChannelDetails",
+                    "caption": "Kanaldetails (Name, Fühlertyp, Farbe, Funkstatus und Zusatzfelder)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ShowPitmaster",
+                    "caption": "Pitmaster-Variablen und weitere Pitmaster-Daten"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ShowDevice",
+                    "caption": "Geräteinformationen als JSON"
+                }
+            ]
+        },
+        {
+            "type": "Label",
+            "caption": "Kanalnamen, Alarmgrenzen, Fühlertyp und Pitmaster lassen sich über die Variablen bedienen. Zum Ändern einer MEATER-Auswahl zuerst Bluetooth-Liste aktualisieren, dann unten Sensorkanäle wählen."
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Messwerte jetzt abrufen",
+            "onClick": "WLT_Update($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "Bluetooth-Liste aktualisieren",
+            "onClick": "WLT_RefreshBluetooth($id);"
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Erweiterte Einstellungen (JSON)",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Beispiele und Parameter stehen in README.md. Änderungen werden direkt am Gerät ausgeführt."
+                },
+                {
+                    "type": "Select",
+                    "name": "WriteArea",
+                    "caption": "Bereich",
+                    "options": [
+                        {
+                            "caption": "Temperaturkanal",
+                            "value": "channel"
+                        },
+                        {
+                            "caption": "Pitmaster",
+                            "value": "pitmaster"
+                        },
+                        {
+                            "caption": "PID-Profil",
+                            "value": "pid"
+                        },
+                        {
+                            "caption": "System",
+                            "value": "system"
+                        },
+                        {
+                            "caption": "MQTT / Cloud",
+                            "value": "iot"
+                        }
+                    ],
+                    "value": "channel"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "WriteID",
+                    "caption": "Kanalnummer / Pitmaster-ID / PID-ID",
+                    "minimum": 0,
+                    "value": 1
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "WriteJSON",
+                    "caption": "Änderungen als JSON-Objekt",
+                    "value": "{\"min\":10,\"max\":95}"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Änderung senden und prüfen",
+                    "onClick": "switch ($WriteArea) { case 'channel': $ok = WLT_SetChannel($id, $WriteID, $WriteJSON); break; case 'pitmaster': $ok = WLT_SetPitmaster($id, $WriteID, $WriteJSON); break; case 'pid': $ok = WLT_SetPID($id, $WriteID, $WriteJSON); break; case 'iot': $ok = WLT_SetIoT($id, $WriteJSON); break; case 'system': $ok = WLT_SetSystem($id, $WriteJSON); break; default: throw new Exception('Unbekannter Bereich'); } echo $ok ? 'Änderung durch Rücklesen bestätigt.' : WLT_GetLastError($id);"
+                }
+            ]
+        }
+    ],
+    "status": [
+        {
+            "code": 102,
+            "icon": "active",
+            "caption": "Aktiv"
+        },
+        {
+            "code": 104,
+            "icon": "inactive",
+            "caption": "Deaktiviert"
+        },
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "Konfiguration prüfen"
+        },
+        {
+            "code": 202,
+            "icon": "error",
+            "caption": "Abruf oder Änderung fehlgeschlagen – siehe Letzter Fehler"
+        }
+    ]
+}

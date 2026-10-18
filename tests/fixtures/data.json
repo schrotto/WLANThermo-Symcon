@@ -1,0 +1,73 @@
+{
+  "system": {
+    "time": "1792310400",
+    "unit": "C",
+    "rssi": -45,
+    "online": 2,
+    "soc": 80,
+    "charge": false
+  },
+  "channel": [
+    {
+      "number": 1,
+      "name": "Garraum",
+      "typ": 0,
+      "temp": 110.5,
+      "min": 10.0,
+      "max": 95.0,
+      "alarm": 0,
+      "color": "#00FF00",
+      "fixed": false,
+      "connected": false
+    },
+    {
+      "number": 13,
+      "name": "MeaterKT",
+      "typ": 16,
+      "temp": 60.3,
+      "min": 10.0,
+      "max": 95.0,
+      "alarm": 0,
+      "color": "#00FF00",
+      "fixed": true,
+      "connected": true
+    },
+    {
+      "number": 14,
+      "name": "MeaterGT",
+      "typ": 16,
+      "temp": 118.4,
+      "min": 10.0,
+      "max": 95.0,
+      "alarm": 0,
+      "color": "#00FF00",
+      "fixed": true,
+      "connected": true
+    }
+  ],
+  "pitmaster": {
+    "type": [
+      "off",
+      "manual",
+      "auto"
+    ],
+    "pm": [
+      {
+        "id": 0,
+        "channel": 1,
+        "pid": 0,
+        "value": 0,
+        "set": 120.0,
+        "typ": "off"
+      },
+      {
+        "id": 1,
+        "channel": 1,
+        "pid": 0,
+        "value": 0,
+        "set": 120.0,
+        "typ": "off"
+      }
+    ]
+  }
+}

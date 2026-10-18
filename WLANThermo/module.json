@@ -1,0 +1,15 @@
+{
+    "id": "{E9649ECA-D3A7-4B80-A4AF-9564F243B767}",
+    "name": "WLANThermo",
+    "type": 3,
+    "vendor": "WLANThermo",
+    "aliases": [
+        "WLANThermo Mini V3",
+        "WLANThermo MEATER Bridge"
+    ],
+    "url": "https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/wiki/HTTP",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "WLT"
+}

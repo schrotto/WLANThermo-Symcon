@@ -1,0 +1,60 @@
+{
+  "device": {
+    "device": "mini",
+    "cpu": "esp32",
+    "sw_version": "v1.2.4",
+    "serial": "test-123"
+  },
+  "system": {
+    "unit": "C",
+    "ap": "MINI-AP",
+    "host": "MINI-V3",
+    "language": "de",
+    "version": "v1.2.4",
+    "autoupd": true,
+    "prerelease": false
+  },
+  "features": {
+    "bluetooth": true,
+    "pitmaster": true
+  },
+  "sensors": [
+    {
+      "type": 0,
+      "name": "1000K/Maverick",
+      "fixed": false
+    },
+    {
+      "type": 16,
+      "name": "Bluetooth",
+      "fixed": true
+    }
+  ],
+  "pid": [
+    {
+      "id": 0,
+      "name": "FAN",
+      "aktor": 1,
+      "Kp": 3.8,
+      "Ki": 0.01,
+      "Kd": 128.0,
+      "DCmmin": 25.0,
+      "DCmmax": 100.0,
+      "SPmin": 0.0,
+      "SPmax": 100.0,
+      "opl": false,
+      "tune": false,
+      "link": 0,
+      "jp": 70
+    }
+  ],
+  "aktor": [
+    "SSR",
+    "FAN"
+  ],
+  "iot": {
+    "PMQpass": "super-secret",
+    "CLtoken": "cloud-secret",
+    "PMQhost": "192.0.2.1"
+  }
+}

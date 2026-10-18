@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "devices": [
+    {
+      "name": "MEATER",
+      "address": "d0:d9:4f:88:de:ce",
+      "count": 2,
+      "selected": 3
+    },
+    {
+      "name": "MEATER+",
+      "address": "b8:1f:5e:30:29:0b",
+      "count": 6,
+      "selected": 0
+    },
+    {
+      "name": "MEATER",
+      "address": "d0:d9:4f:88:e4:ff",
+      "count": 2,
+      "selected": 0
+    }
+  ]
+}

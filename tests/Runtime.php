@@ -1,0 +1,77 @@
+<?php
+
+declare(strict_types=1);
+
+$GLOBALS['profiles'] = [];
+$GLOBALS['profileSettings'] = [];
+$GLOBALS['instances'] = [];
+function IPS_SetProperty(int $id, string $name, mixed $value): void { $GLOBALS['instances'][$id]->properties[$name] = $value; }
+function IPS_ApplyChanges(int $id): void { $GLOBALS['instances'][$id]->ApplyChanges(); }
+function IPS_SemaphoreEnter(string $name, int $wait): bool { return true; }
+function IPS_SemaphoreLeave(string $name): void {}
+function IPS_VariableProfileExists(string $name): bool { return isset($GLOBALS['profiles'][$name]); }
+function IPS_CreateVariableProfile(string $name, int $type): void { $GLOBALS['profiles'][$name] = $type; }
+function IPS_SetVariableProfileDigits(string $name, int $digits): void { $GLOBALS['profileSettings'][$name]['digits'] = $digits; }
+function IPS_SetVariableProfileValues(string $name, mixed $min, mixed $max, mixed $step): void { $GLOBALS['profileSettings'][$name]['range'] = [$min, $max, $step]; }
+function IPS_SetVariableProfileText(string $name, string $prefix, string $suffix): void {}
+function IPS_SetVariableProfileAssociation(string $name, mixed $value, string $label, string $icon, int $color): void {}
+
+/** Small contract stub, not a replacement for a real Symcon runtime test. */
+class IPSModuleStrict
+{
+    public int $InstanceID = 12345;
+    public array $properties = [];
+    public array $variables = [];
+    public array $variableIDs = [];
+    public int $nextVariableID = 100;
+    public array $values = [];
+    public array $actions = [];
+    public array $buffers = [];
+    public array $attributes = [];
+    public array $timers = [];
+    public int $status = 0;
+    public function Create(): void {}
+    public function ApplyChanges(): void {}
+    public function RequestAction(string $Ident, mixed $Value): void {}
+    public function GetConfigurationForm(): string { return '{}'; }
+    protected function RegisterPropertyBoolean(string $key, bool $v): void { $this->properties[$key] ??= $v; }
+    protected function RegisterPropertyString(string $key, string $v): void { $this->properties[$key] ??= $v; }
+    protected function RegisterPropertyInteger(string $key, int $v): void { $this->properties[$key] ??= $v; }
+    protected function ReadPropertyBoolean(string $key): bool { return $this->properties[$key]; }
+    protected function ReadPropertyString(string $key): string { return $this->properties[$key]; }
+    protected function ReadPropertyInteger(string $key): int { return $this->properties[$key]; }
+    protected function RegisterAttributeString(string $key, string $v): void { $this->attributes[$key] ??= $v; }
+    protected function ReadAttributeString(string $key): string { return $this->attributes[$key]; }
+    protected function WriteAttributeString(string $key, string $v): void { $this->attributes[$key] = $v; }
+    protected function RegisterTimer(string $key, int $v, string $script): void { $this->timers[$key] = $v; }
+    protected function SetTimerInterval(string $key, int $v): void { $this->timers[$key] = $v; }
+    protected function RegisterVariableBoolean(string $id, string $name, string $profile, int $pos): bool { return $this->MaintainVariable($id, $name, 0, $profile, $pos, true); }
+    protected function RegisterVariableInteger(string $id, string $name, string $profile, int $pos): bool { return $this->MaintainVariable($id, $name, 1, $profile, $pos, true); }
+    protected function RegisterVariableString(string $id, string $name, string $profile, int $pos): bool { return $this->MaintainVariable($id, $name, 3, $profile, $pos, true); }
+    protected function MaintainVariable(string $id, string $name, int $type, string $profile, int $pos, bool $keep): bool {
+        if (!$keep) { $this->UnregisterVariable($id); return false; }
+        if (isset($this->variables[$id]) && $this->variables[$id]['type'] !== $type) { throw new RuntimeException('Variable type changed: ' . $id); }
+        $new = !isset($this->variables[$id]);
+        if ($new) { $this->variableIDs[$id] = $this->nextVariableID++; }
+        $this->variables[$id] = compact('name', 'type', 'profile', 'pos');
+        $this->values[$id] ??= [false, 0, 0.0, ''][$type];
+        return $new;
+    }
+    protected function UnregisterVariable(string $id): void { unset($this->variables[$id], $this->values[$id], $this->actions[$id], $this->variableIDs[$id]); }
+    protected function SetValue(string $id, mixed $value): void {
+        if (!isset($this->variables[$id])) { throw new RuntimeException('Unregistered variable: ' . $id); }
+        $expected = [0 => 'boolean', 1 => 'integer', 2 => 'double', 3 => 'string'][$this->variables[$id]['type']];
+        if (gettype($value) !== $expected) { throw new RuntimeException('Wrong value type: ' . $id); }
+        $this->values[$id] = $value;
+    }
+    protected function GetValue(string $id): mixed { return $this->values[$id]; }
+    protected function GetIDForIdent(string $id): int { return $this->variableIDs[$id] ?? 0; }
+    protected function EnableAction(string $id): void { $this->actions[$id] = true; }
+    protected function DisableAction(string $id): void { $this->actions[$id] = false; }
+    protected function SetBuffer(string $id, string $value): void { $this->buffers[$id] = $value; }
+    protected function GetBuffer(string $id): string { return $this->buffers[$id] ?? ''; }
+    protected function SetStatus(int $status): void { $this->status = $status; }
+    protected function SetSummary(string $text): void {}
+    protected function SendDebug(string $message, mixed $data, int $format): void {}
+    protected function ReloadForm(): void {}
+}
