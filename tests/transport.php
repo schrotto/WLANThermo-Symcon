@@ -15,7 +15,7 @@ foreach (['/ok', '/auth', '/digest'] as $path) {
 check(trim(WLTApi::request($base, '/post', ['name' => 'Grillfühler', 'min' => 10.5], '', '', 2)) === 'true', 'JSON POST with UTF-8');
 foreach (['/denied', '/redirect', '/missing', '/timeout'] as $path) {
     $caught = false;
-    try { WLTApi::request($base, $path, null, '', '', 1); } catch (RuntimeException $e) { $caught = true; }
+    try { WLTApi::request($base, $path, null, '', '', 1); } catch (WLTUnavailableException $e) { $caught = $path === '/timeout'; } catch (RuntimeException $e) { $caught = $path !== '/timeout'; }
     check($caught, 'Handle ' . $path);
 }
 echo $count . " HTTP assertions passed.\n";

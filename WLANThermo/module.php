@@ -360,10 +360,12 @@ class WLANThermo extends IPSModuleStrict
             return true;
         } catch (Throwable $e) {
             $this->safeSet('LastError', $e->getMessage());
-            $this->SendDebug('Fehler', $e->getMessage(), 0);
+            $this->SendDebug($e instanceof WLTUnavailableException ? 'Erreichbarkeit' : 'Fehler', $e->getMessage(), 0);
             // Even failed readback after a write must not leave stale values valid.
             $this->invalidate();
-            $this->SetStatus(202);
+            // Keep polling while the grill thermometer is switched off.
+            // Standby (106) is a regular Symcon status, not an instance fault.
+            $this->SetStatus($e instanceof WLTUnavailableException ? 106 : 202);
             return false;
         } finally {
             IPS_SemaphoreLeave($key);

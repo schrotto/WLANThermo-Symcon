@@ -2,11 +2,17 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
-## Update auf Version 1.2.0
+## Update auf Version 1.2.1
+
+**Neu: ausgeschaltetes Gerät ohne fehlerhafte Instanz.** Ist das WLANthermo ausgeschaltet, antwortet nicht oder ist die Netzwerkverbindung unterbrochen, verwendet das Modul den normalen Symcon-Status **106 / Standby**. Im Formular steht „WLANthermo ausgeschaltet oder nicht erreichbar“. Das Modul kann den Geräteschalter nicht aus der Ferne erkennen; deshalb gilt dasselbe Verhalten auch bei einem Netzwerkausfall.
+
+`Online` wird falsch, `CHn_Valid` wird falsch und Bedienaktionen werden deaktiviert. Die letzten Temperaturwerte und der Zeitpunkt ihres Abrufs bleiben erhalten. Der Abruf-Timer läuft weiter: Sobald das Gerät wieder antwortet, wechselt die Instanz automatisch auf **102 / Aktiv**, aktualisiert die Messwerte und aktiviert die passenden Aktionen. Dafür muss die Moduleigenschaft **Aktiv** eingeschaltet bleiben. Ein manueller Neustart der Instanz ist nicht nötig.
+
+Der letzte technische Erreichbarkeitshinweis bleibt in `LastError` beziehungsweise `WLT_GetLastError` nachlesbar und wird bei erfolgreichem Abruf gelöscht. Erreichbarkeitsprobleme erzeugen aber keinen Instanz-Fehlerstatus mehr. Konfigurations-, Anmelde-, Zertifikats- und API-Fehler bleiben weiterhin als Fehler erkennbar.
 
 Autor und vorgesehener GitHub-Account: **schrotto**. Die Metadaten sind für das noch anzulegende Repository **`https://github.com/schrotto/WLANThermo-Symcon`** vorbereitet. Falls ein anderer Repositoryname verwendet wird, die URL in `library.json`, `WLANThermo/module.json` und den Veröffentlichungsunterlagen entsprechend ändern. Ein Repository wurde hier nicht erstellt und das Modul nicht veröffentlicht.
 
-Die Dateien im vorhandenen Modulordner durch Version 1.2.0 ersetzen und den Symcon-Dienst neu starten. Bei Installation über ein eigenes Git-Repository die Dateien dort übernehmen und über Module Control aktualisieren. **Die bestehende Instanz beibehalten**: Bibliotheks-ID und Modul-ID sind unverändert.
+Die Dateien im vorhandenen Modulordner durch Version 1.2.1 ersetzen und den Symcon-Dienst neu starten. Bei Installation über ein eigenes Git-Repository die Dateien dort übernehmen und über Module Control aktualisieren. **Die bestehende Instanz beibehalten**: Bibliotheks-ID und Modul-ID sind unverändert.
 
 Alarmgrenzen und Pitmaster-Solltemperaturen bleiben ohne Nachkommastellen mit Schrittweite **1 Grad** bedienbar. Vorhandene Float-Variablen und deren IDs bleiben erhalten; gemessene Temperaturen behalten ihre Nachkommastelle. Neue Temperatureinstellungen akzeptieren ganze Grad (`120` und `120.0` sind erlaubt, `120.5` wird abgewiesen). Bereits am Gerät gespeicherte Temperaturen werden durch das Update nicht verändert.
 
@@ -150,7 +156,7 @@ Die gewünschten Temperaturvariablen in Symcon zur Archivierung aktivieren; das 
 
 Kanalnummern werden vom Mini V3 vergeben. Beim Entfernen oder Neuzuordnen von Bluetooth-Kanälen können Nummern und damit deren Zuordnung wechseln. Deshalb nach einer solchen Änderung die Namen und Archiv-/Automationszuordnungen kontrollieren. Entfernte Kanalvariablen werden zur Erhaltung bestehender Referenzen nicht automatisch gelöscht. Sonstige zusätzliche API-Felder behalten bei Wegfall ihren letzten Wert; ihre Aktualität ist über `LastUpdate`/`GetSnapshot()` einzuordnen.
 
-Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementierten Datenendpunkte betrifft. Nicht implementiert sind direkte Bluetooth-Verbindungen vom Symcon-Server, MEATER-Cloud, WLAN-Zugangsdatenänderung, Firmware-Update, Werksreset sowie Verwaltungs-/Diagnoseendpunkte außerhalb dieser Schnittstellen. Version 1.0.0 wurde vom Anwender als funktionierend bestätigt. Version 1.2.0 wurde hier automatisiert geprüft; ein erneuter Test der Änderungen am realen Mini V3 und in Symcon 9.0 steht noch aus. Details zur geprüften Firmwarebasis und zu den Tests stehen in `docs/VALIDIERUNG.md`.
+Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementierten Datenendpunkte betrifft. Nicht implementiert sind direkte Bluetooth-Verbindungen vom Symcon-Server, MEATER-Cloud, WLAN-Zugangsdatenänderung, Firmware-Update, Werksreset sowie Verwaltungs-/Diagnoseendpunkte außerhalb dieser Schnittstellen. Version 1.0.0 wurde vom Anwender als funktionierend bestätigt. Version 1.2.1 wurde hier automatisiert geprüft; ein erneuter Test der Änderungen am realen Mini V3 und in Symcon 9.0 steht noch aus. Details zur geprüften Firmwarebasis und zu den Tests stehen in `docs/VALIDIERUNG.md`.
 
 ## Offizielle Grundlagen
 

@@ -1,6 +1,6 @@
 # Veröffentlichung für schrotto
 
-Vorbereitet für Version **1.2.0**. Es wurde kein GitHub-Repository erstellt und keine Store-Einreichung durchgeführt. Die endgültige Freigabe erfolgt durch Symcon; eine Annahme des Moduls wird nicht zugesichert.
+Vorbereitet für Version **1.2.1**. Es wurde kein GitHub-Repository erstellt und keine Store-Einreichung durchgeführt. Die endgültige Freigabe erfolgt durch Symcon; eine Annahme des Moduls wird nicht zugesichert.
 
 ## GitHub
 
@@ -9,7 +9,7 @@ Vorgesehener Repositoryname: **WLANThermo-Symcon** unter **schrotto**.
 1. Auf GitHub unter deinem Account ein öffentliches Repository mit diesem Namen anlegen.
 2. Den Inhalt des äußeren ZIP-Ordners hochladen. `library.json` muss direkt im Repository-Hauptverzeichnis liegen. Die Unterordner `WLANThermo`, `libs`, `docs` und `tests` beibehalten; auch `.github/workflows/ci.yml` für die automatischen Prüfungen mit hochladen.
 3. Die vorbereiteten URLs lauten `https://github.com/schrotto/WLANThermo-Symcon` und `https://github.com/schrotto/WLANThermo-Symcon#readme`. Bei abweichendem Repositorynamen vor dem Upload in den Metadaten und den Store-Angaben anpassen.
-4. Den GitHub-Actions-Testlauf prüfen und die Änderungen am eigenen Mini V3 in Symcon testen. Danach einen Release-Tag wie `v1.2.0` setzen und den Commit für die Einreichung auswählen.
+4. Den GitHub-Actions-Testlauf prüfen und die Änderungen am eigenen Mini V3 in Symcon testen. Danach einen Release-Tag wie `v1.2.1` setzen und den Commit für die Einreichung auswählen.
 
 Die MIT-Lizenz liegt bei. Herausgeber/Autor in `library.json` ist `schrotto`. Die bestehenden Modul-/Bibliotheks-GUIDs bleiben unverändert.
 
@@ -31,7 +31,7 @@ Bindet einen WLANThermo Mini V3 lokal über HTTP in Symcon ein. Erfasst die vom 
 
 **Versionsinformation**
 
-Version 1.2.0: Variablenauswahl auf eine Konfigurationsliste mit Checkboxen und ausdrücklicher Übernahme umgestellt. Automatische Änderungen der Instanzeigenschaften entfernt. Bisherige Auswahlen werden erhalten. Temperaturvorgaben bleiben in Schritten von einem Grad bedienbar. Autor- und Repositoryangaben für schrotto ergänzt.
+Version 1.2.1: Ausgeschaltetes oder nicht erreichbares WLANthermo erzeugt Standby statt eines Instanzfehlers. Automatische Wiederverbindung nach dem Einschalten. Variablenauswahl auf eine Konfigurationsliste mit Checkboxen und ausdrücklicher Übernahme umgestellt. Automatische Änderungen der Instanzeigenschaften entfernt. Bisherige Auswahlen werden erhalten. Temperaturvorgaben bleiben in Schritten von einem Grad bedienbar. Autor- und Repositoryangaben für schrotto ergänzt.
 
 **Dokumentationslink**
 
@@ -48,7 +48,7 @@ Dieser Link funktioniert erst nach Erstellung und Upload des vorgesehenen Reposi
 - Modulvariablen entstehen unterhalb der eigenen Instanz. Es gibt keine zusätzlichen Skripte oder Ereignisse; regelmäßiger Abruf erfolgt über RegisterTimer. Die Instanz ist auch ohne konfigurierte Geräteadresse erstellbar und zeigt dann einen Konfigurationsstatus.
 - Es werden Standardprofile und Standardaktionen verwendet. Benutzerdefinierte Variablenprofile, Aktionen, Namen, Sichtbarkeit, Icons, Beschreibungen und Archivkonfiguration werden nicht über entsprechende globale Änderungsfunktionen manipuliert.
 - Eigene Profile haben den Präfix `WLT.`. Ein Sprung auf ganzzahlige Temperaturvorgaben erfolgt über eigene Standardprofile bei gleichem Variablentyp. Gemessene Temperaturen behalten ihre Nachkommastelle.
-- Fehler, Testumfang und technische Grenzen sind in `VALIDIERUNG.md` dokumentiert. Version 1.0.0 wurde vom Anwender als funktionierend bestätigt; Version 1.2.0 wurde hier ohne reale Symcon-Instanz und ohne Gerät geprüft. Ein zusätzlicher Test am Zielsystem vor Veröffentlichung ist erforderlich.
+- Fehler, Testumfang und technische Grenzen sind in `VALIDIERUNG.md` dokumentiert. Version 1.0.0 wurde vom Anwender als funktionierend bestätigt; Version 1.2.1 wurde hier ohne reale Symcon-Instanz und ohne Gerät geprüft. Ein zusätzlicher Test am Zielsystem vor Veröffentlichung ist erforderlich.
 
 ## Offizielle Grundlagen
 

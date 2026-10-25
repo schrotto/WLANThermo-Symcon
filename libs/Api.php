@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/** Network reachability failure; does not imply a broken Symcon instance. */
+final class WLTUnavailableException extends RuntimeException
+{
+}
+
 /** Local WLANThermo ESP32 HTTP API. No Symcon dependencies. */
 final class WLTApi
 {
@@ -58,6 +63,12 @@ final class WLTApi
         $error = curl_errno($ch);
         curl_close($ch);
         if ($body === false) {
+            // DNS, connection refused, timeout, empty reply and interrupted IO:
+            // a switched-off device cannot be distinguished from a network outage.
+            if (in_array($error, [5, 6, 7, 28, 52, 55, 56], true)) {
+                throw new WLTUnavailableException('WLANthermo nicht erreichbar (ausgeschaltet oder Netzwerkverbindung unterbrochen; cURL ' . $error . ').');
+            }
+            // TLS/certificate and other transport configuration errors remain faults.
             throw new RuntimeException('HTTP-Verbindung fehlgeschlagen (cURL ' . $error . ').');
         }
         if ($code < 200 || $code >= 300) {

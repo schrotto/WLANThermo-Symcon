@@ -11,6 +11,7 @@ class TestDevice extends WLANThermo
     public array $bt;
     public array $writes = [];
     public bool $offline = false;
+    public ?Throwable $transportFailure = null;
     public bool $reject = false;
     public bool $ignore = false;
     public bool $btUnavailable = false;
@@ -27,7 +28,8 @@ class TestDevice extends WLANThermo
     }
     protected function transport(string $path, ?array $payload = null): string
     {
-        if ($this->offline) { throw new RuntimeException('HTTP-Verbindung fehlgeschlagen.'); }
+        if ($this->offline) { throw new WLTUnavailableException('WLANthermo nicht erreichbar.'); }
+        if ($this->transportFailure !== null) { throw $this->transportFailure; }
         if ($path === '/getbluetooth' && $this->btUnavailable) { return '<html>404</html>'; }
         if ($payload === null) {
             return WLTApi::encode(match ($path) { '/data' => $this->deviceData, '/settings' => $this->deviceSettings, '/getbluetooth' => $this->bt, default => throw new RuntimeException($path) });
@@ -286,6 +288,35 @@ foreach ($forbidden as $function) {
     check(!preg_match('/\b' . $function . '\s*\(/', $runtime), 'No forbidden automatic mutation: ' . $function);
 }
 file_put_contents(__DIR__ . '/dynamic-form.generated.json', $v->GetConfigurationForm());
+// Switched-off devices enter regular standby; real protocol/config errors stay errors.
+$power = new TestDevice();
+$lastUpdate = $power->values['LastUpdate'];
+$temperature = $power->values['CH13_Temperature'];
+$power->offline = true;
+check(!$power->Update() && $power->status === 106, 'Power-off enters standby instead of faulty instance status');
+check(!$power->values['Online'] && !$power->values['CH13_Valid'] && !$power->actions['CH1_Min'], 'Standby invalidates measurements and disables stale controls');
+check($power->values['LastUpdate'] === $lastUpdate && $power->values['CH13_Temperature'] === $temperature, 'Standby retains last readings and their actual update time');
+check($power->timers['Poll'] === 10000 && !$power->Update() && $power->status === 106, 'Repeated power-off checks keep retry timer and non-error status');
+$power->ApplyChanges();
+check($power->status === 106 && $power->timers['Poll'] === 10000, 'Starting or reloading while device is off remains in standby');
+check(!$power->SetChannel(1, '{"max":150}') && $power->status === 106, 'Offline write request remains standby and reports failure');
+$power->offline = false;
+check($power->Update() && $power->status === 102 && $power->values['Online'] && $power->values['CH13_Valid'] && $power->actions['CH1_Min'], 'Power-on automatically restores active state, validity and actions');
+check($power->GetLastError() === '', 'Power-on clears reachability hint');
+$power->transportFailure = new RuntimeException('HTTP 401: Admin-Zugangsdaten prüfen.');
+check(!$power->Update() && $power->status === 202, 'Authentication errors are not hidden as power-off standby');
+$power->transportFailure = new RuntimeException('TLS-Zertifikat ungültig.');
+check(!$power->Update() && $power->status === 202, 'TLS configuration errors remain visible faults');
+$power->transportFailure = new JsonException('Ungültiges JSON');
+check(!$power->Update() && $power->status === 202, 'Invalid API data remains a visible fault');
+$power->transportFailure = null;
+check($power->Update() && $power->status === 102, 'Recovery also works after genuine API faults');
+saveVariableChoice($power, 'Online', false);
+saveVariableChoice($power, 'LastError', false);
+$power->offline = true;
+check(!$power->Update() && $power->status === 106 && !json_decode($power->GetSnapshot(), true)['online'], 'Standby works with deselected status variables');
+$power->offline = false;
+check($power->Update() && $power->status === 102, 'Automatic power-on recovery needs no status variable');
 $m->deviceData['channel'][] = $m->deviceData['channel'][0];
 check(!$m->Update(), 'Reject duplicate channel numbers');
 echo $count . " assertions passed.\n";

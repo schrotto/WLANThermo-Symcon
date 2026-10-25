@@ -224,6 +224,11 @@
             "caption": "Deaktiviert"
         },
         {
+            "code": 106,
+            "icon": "inactive",
+            "caption": "Standby – WLANthermo ausgeschaltet oder nicht erreichbar; erneuter Abruf automatisch"
+        },
+        {
             "code": 201,
             "icon": "error",
             "caption": "Konfiguration prüfen"

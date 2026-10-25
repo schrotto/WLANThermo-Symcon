@@ -1,4 +1,4 @@
-Version 1.2.0 – aktueller Modul-/API-Testlauf
+Version 1.2.1 – aktueller Modul-/API-Testlauf
 
 OK 1: Polling creates active instance
 OK 2: MEATER core and ambient channels
@@ -94,19 +94,23 @@ OK 91: No forbidden automatic mutation: IPS_SetVariableCustomProfile
 OK 92: No forbidden automatic mutation: IPS_SetVariableCustomAction
 OK 93: No forbidden automatic mutation: AC_SetLoggingStatus
 OK 94: No forbidden automatic mutation: IPS_LogMessage
-OK 95: Reject duplicate channel numbers
-95 assertions passed.
+OK 95: Power-off enters standby instead of faulty instance status
+OK 96: Standby invalidates measurements and disables stale controls
+OK 97: Standby retains last readings and their actual update time
+OK 98: Repeated power-off checks keep retry timer and non-error status
+OK 99: Starting or reloading while device is off remains in standby
+OK 100: Offline write request remains standby and reports failure
+OK 101: Power-on automatically restores active state, validity and actions
+OK 102: Power-on clears reachability hint
+OK 103: Authentication errors are not hidden as power-off standby
+OK 104: TLS configuration errors remain visible faults
+OK 105: Invalid API data remains a visible fault
+OK 106: Recovery also works after genuine API faults
+OK 107: Standby works with deselected status variables
+OK 108: Automatic power-on recovery needs no status variable
+OK 109: Reject duplicate channel numbers
+109 assertions passed.
 
-Unveränderter HTTP-Transport – erfolgreicher Lauf aus Version 1.0.0
+Zusätzlicher tatsächlicher cURL-Aufruf: Verbindungsablehnung zu 127.0.0.1:1 mit Fehler 7 korrekt als WLTUnavailableException erkannt.
 
-HTTP OK 1: GET /ok
-HTTP OK 2: GET /auth
-HTTP OK 3: GET /digest
-HTTP OK 4: JSON POST with UTF-8
-HTTP OK 5: Handle /denied
-HTTP OK 6: Handle /redirect
-HTTP OK 7: Handle /missing
-HTTP OK 8: Handle /timeout
-8 HTTP assertions passed.
-
-HTTP-Transport wurde nicht geändert. Eine Wiederholung war im vorherigen Änderungslauf durch eine lokale Socket-Sperre verhindert; in diesem Lauf wurde er nicht erneut ausgeführt.
+Der vollständige lokale HTTP-Test konnte wegen einer Socket-Sperre nicht ausgeführt werden.

@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.2.1 – 25.10.2026
+
+- Ausgeschaltetes oder vorübergehend nicht erreichbares WLANthermo wird als normaler Standby (106) statt fehlerhafte Instanz (202) behandelt.
+- Automatischer Abruf bleibt aktiv; nach dem Einschalten kehrt die Instanz selbstständig in den Aktivstatus (102) zurück.
+- Alte Messwerte bleiben erhalten, sind während des Ausfalls aber ungültig; Bedienaktionen werden deaktiviert.
+- Anmelde-, Zertifikats-, Konfigurations- und API-Fehler bleiben echte Fehler.
+- 109 Modul-/API-Assertions bestanden; zusätzlich eine reale cURL-Verbindungsablehnung korrekt als Nichterreichbarkeit eingeordnet.
+
 ## 1.2.0 – 18.10.2026
 
 - Autor: schrotto; Repository- und Dokumentationsadressen für `schrotto/WLANThermo-Symcon` vorbereitet.
