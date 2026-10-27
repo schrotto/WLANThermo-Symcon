@@ -1,5 +1,16 @@
 # Änderungen
 
+## 1.3.0 – 27.10.2026
+
+- Variablen bei Abwahl erhalten statt löschen; IDs, Werte und Archivzuordnungen bleiben bestehen.
+- Eigene Namen, Positionen und auswählbare aktuelle Darstellungen in der Variablentabelle.
+- Übersichtliches deutsches Formular mit fünf Bereichen und Verbindungstest.
+- Bisherige Einzel- und Gruppenauswahl sowie GUIDs/Idents bleiben erhalten.
+- Wiederherstellung der vorherigen Sichtbarkeit und Offline-Anpassung der Variablenmetadaten.
+- Ungültige Konfigurationen stoppen den Timer und deaktivieren Bedienaktionen; Formular bleibt erreichbar.
+- 124 Modulprüfungen und 8 echte HTTP-Transportprüfungen erfolgreich, dazu PHP-Syntax und JSON-/Strukturprüfung.
+- Reale Hardware und Symcon-Konsole müssen noch geprüft werden.
+
 ## 1.2.1 – 25.10.2026
 
 - Ausgeschaltetes oder vorübergehend nicht erreichbares WLANthermo wird als normaler Standby (106) statt fehlerhafte Instanz (202) behandelt.

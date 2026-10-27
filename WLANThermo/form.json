@@ -2,158 +2,262 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 – IP-Symcon 9.0. Bluetooth/MEATER werden über den Mini V3 angebunden."
-        },
-        {
-            "type": "CheckBox",
-            "name": "Active",
-            "caption": "Aktiv"
-        },
-        {
-            "type": "ValidationTextBox",
-            "name": "Host",
-            "caption": "IP-Adresse / Hostname (optional http(s):// und Port)"
-        },
-        {
-            "type": "ValidationTextBox",
-            "name": "Username",
-            "caption": "Admin-Benutzername"
-        },
-        {
-            "type": "PasswordTextBox",
-            "name": "Password",
-            "caption": "WLANthermo Admin-Passwort (falls gesetzt)"
-        },
-        {
-            "type": "NumberSpinner",
-            "name": "Interval",
-            "caption": "Abrufintervall (Sekunden)",
-            "minimum": 5,
-            "maximum": 3600
-        },
-        {
-            "type": "NumberSpinner",
-            "name": "Timeout",
-            "caption": "HTTP-Timeout je Anfrage (Sekunden)",
-            "minimum": 1,
-            "maximum": 30
-        },
-        {
-            "type": "CheckBox",
-            "name": "AllowWrite",
-            "caption": "Werte am WLANthermo ändern erlauben"
-        },
-        {
-            "type": "CheckBox",
-            "name": "Bluetooth",
-            "caption": "Bluetooth-Geräte abfragen und verwalten"
-        },
-        {
-            "type": "CheckBox",
-            "name": "ExposeRaw",
-            "caption": "Zusätzliche JSON-Diagnosevariablen (Zugangsdaten ausgeblendet)"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.3.0"
         },
         {
             "type": "ExpansionPanel",
-            "caption": "Variablengruppen anlegen",
+            "caption": "Allgemeine Einstellungen",
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "Active",
+                    "caption": "Aktiv"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "Host",
+                    "caption": "IP-Adresse / Hostname (optional http(s):// und Port)"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "Username",
+                    "caption": "Admin-Benutzername"
+                },
+                {
+                    "type": "PasswordTextBox",
+                    "name": "Password",
+                    "caption": "WLANthermo Admin-Passwort (falls gesetzt)"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "Interval",
+                    "caption": "Abrufintervall (Sekunden)",
+                    "minimum": 5,
+                    "maximum": 3600
+                }
+            ],
+            "expanded": true
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Geräte und Datenquellen",
             "items": [
                 {
                     "type": "Label",
-                    "caption": "Gruppen und Einzelvariablen erst mit Übernehmen speichern. Abgewählte Variablen werden gelöscht; bestehende Verknüpfungen können dadurch ungültig werden. Eine ausgeschaltete Gruppe hat Vorrang vor den einzelnen Haken."
+                    "caption": "Temperaturkanäle und Bluetooth-Geräte werden über die lokale API des Mini V3 erkannt. Die Liste erscheint nach erfolgreichem Abruf."
                 },
                 {
                     "type": "CheckBox",
-                    "name": "ShowSystem",
-                    "caption": "Zusätzliche API-Systemwerte (WLAN, Akku, Zeit …)"
-                },
-                {
-                    "type": "CheckBox",
-                    "name": "ShowSettings",
-                    "caption": "Alle API-Einstellungen (Fühlertypen, PID-Profile, Gerätefunktionen …)"
-                },
-                {
-                    "type": "CheckBox",
-                    "name": "ShowBluetoothDetails",
-                    "caption": "Zusätzliche Bluetooth-Gerätedetails"
-                },
-                {
-                    "type": "CheckBox",
-                    "name": "ShowChannelDetails",
-                    "caption": "Kanaldetails (Name, Fühlertyp, Farbe, Funkstatus und Zusatzfelder)"
-                },
-                {
-                    "type": "CheckBox",
-                    "name": "ShowPitmaster",
-                    "caption": "Pitmaster-Variablen und weitere Pitmaster-Daten"
-                },
-                {
-                    "type": "CheckBox",
-                    "name": "ShowDevice",
-                    "caption": "Geräteinformationen als JSON"
+                    "name": "Bluetooth",
+                    "caption": "Bluetooth-Geräte abfragen und verwalten"
                 }
             ]
         },
         {
-            "type": "Label",
-            "caption": "Einzelne Variablen: Zeile bearbeiten und Haken „Anlegen“ setzen oder entfernen, anschließend Übernehmen. Die Liste enthält alle bisher erkannten Variablen; neue Einträge erscheinen nach erneutem Öffnen des Formulars."
-        },
-        {
-            "type": "List",
-            "name": "VariableSelection",
-            "caption": "Einzelne Variablen auswählen",
-            "rowCount": 12,
-            "add": false,
-            "delete": false,
-            "loadValuesFromConfiguration": false,
-            "columns": [
+            "type": "ExpansionPanel",
+            "caption": "Variablenverwaltung",
+            "items": [
                 {
-                    "name": "Enabled",
-                    "caption": "Anlegen",
-                    "width": "80px",
-                    "save": true,
-                    "edit": {
-                        "type": "CheckBox"
-                    }
+                    "type": "Label",
+                    "caption": "Zeilen bearbeiten und anschließend Übernehmen. Deaktivieren blendet vorhandene Variablen aus, stoppt deren Aktualisierung und Bedienung und bewahrt ihre Daten. Noch nicht vorhandene Variablen werden nur bei Aktivierung angelegt."
                 },
                 {
-                    "name": "Group",
-                    "caption": "Bereich",
-                    "width": "160px",
-                    "save": false,
-                    "quickFilter": true
+                    "type": "ExpansionPanel",
+                    "caption": "Variablengruppen",
+                    "items": [
+                        {
+                            "type": "Label",
+                            "caption": "Eine deaktivierte Gruppe hat Vorrang vor der Einzelauswahl. Vorhandene Variablen werden ausgeblendet und nicht gelöscht. IDs, Werte und Archivzuordnungen bleiben erhalten."
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "ShowSystem",
+                            "caption": "Zusätzliche API-Systemwerte (WLAN, Akku, Zeit …)"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "ShowSettings",
+                            "caption": "Alle API-Einstellungen (Fühlertypen, PID-Profile, Gerätefunktionen …)"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "ShowBluetoothDetails",
+                            "caption": "Zusätzliche Bluetooth-Gerätedetails"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "ShowChannelDetails",
+                            "caption": "Kanaldetails (Name, Fühlertyp, Farbe, Funkstatus und Zusatzfelder)"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "ShowPitmaster",
+                            "caption": "Pitmaster-Variablen und weitere Pitmaster-Daten"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "ShowDevice",
+                            "caption": "Geräteinformationen als JSON"
+                        }
+                    ]
                 },
                 {
-                    "name": "Name",
-                    "caption": "Variable",
-                    "width": "auto",
-                    "save": false,
-                    "quickFilter": true
+                    "type": "Label",
+                    "caption": "Eigener Name leer und Position -1 erhalten bisherige Namen und Positionen. Eigener Name ändert nur die Symcon-Beschriftung. Automatisch verwendet aktuelle Symcon-Darstellungen; Bisheriges Profil dient älteren Visualisierungen. Neue API-Felder erscheinen nach erneutem Öffnen."
                 },
                 {
-                    "name": "Ident",
-                    "caption": "Ident",
-                    "width": "190px",
-                    "save": true,
-                    "quickFilter": true
+                    "type": "List",
+                    "name": "VariableSelection",
+                    "caption": "Variablen verwalten",
+                    "rowCount": 15,
+                    "add": false,
+                    "delete": false,
+                    "loadValuesFromConfiguration": false,
+                    "columns": [
+                        {
+                            "name": "Enabled",
+                            "caption": "Aktiv",
+                            "width": "80px",
+                            "save": true,
+                            "edit": {
+                                "type": "CheckBox"
+                            }
+                        },
+                        {
+                            "name": "Group",
+                            "caption": "Bereich",
+                            "width": "160px",
+                            "save": false,
+                            "quickFilter": true
+                        },
+                        {
+                            "name": "Name",
+                            "caption": "Variable",
+                            "width": "auto",
+                            "save": false,
+                            "quickFilter": true
+                        },
+                        {
+                            "name": "Ident",
+                            "caption": "Ident",
+                            "width": "190px",
+                            "save": true,
+                            "quickFilter": true
+                        },
+                        {
+                            "name": "Type",
+                            "caption": "Typ",
+                            "width": "90px",
+                            "save": false
+                        },
+                        {
+                            "name": "CustomName",
+                            "caption": "Eigener Name",
+                            "width": "180px",
+                            "save": true,
+                            "edit": {
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "name": "Presentation",
+                            "caption": "Darstellung",
+                            "width": "140px",
+                            "save": true,
+                            "edit": {
+                                "type": "Select",
+                                "options": [
+                                    {
+                                        "caption": "Automatisch",
+                                        "value": "auto"
+                                    },
+                                    {
+                                        "caption": "Wertanzeige",
+                                        "value": "value"
+                                    },
+                                    {
+                                        "caption": "Bisheriges Profil",
+                                        "value": "legacy"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "Position",
+                            "caption": "Position",
+                            "width": "90px",
+                            "save": true,
+                            "edit": {
+                                "type": "NumberSpinner",
+                                "minimum": -1,
+                                "maximum": 1000000
+                            }
+                        }
+                    ],
+                    "values": []
                 }
             ],
-            "values": []
+            "expanded": true
         },
         {
-            "type": "Label",
-            "caption": "Kanalnamen, Alarmgrenzen, Fühlertyp und Pitmaster lassen sich über die Variablen bedienen. Zum Ändern einer MEATER-Auswahl zuerst Bluetooth-Liste aktualisieren, dann unten Sensorkanäle wählen."
+            "type": "ExpansionPanel",
+            "caption": "Erweiterte Einstellungen",
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "AllowWrite",
+                    "caption": "Werte am WLANthermo ändern erlauben"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "Timeout",
+                    "caption": "HTTP-Timeout je Anfrage (Sekunden)",
+                    "minimum": 1,
+                    "maximum": 30
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ExposeRaw",
+                    "caption": "Zusätzliche JSON-Diagnosevariablen (Zugangsdaten ausgeblendet)"
+                }
+            ]
         }
     ],
     "actions": [
         {
-            "type": "Button",
-            "caption": "Messwerte jetzt abrufen",
-            "onClick": "WLT_Update($id);"
-        },
-        {
-            "type": "Button",
-            "caption": "Bluetooth-Liste aktualisieren",
-            "onClick": "WLT_RefreshBluetooth($id);"
+            "type": "ExpansionPanel",
+            "caption": "Diagnose und Aktionen",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Letzter Hinweis: Formular erneut öffnen, um den Hinweis zu aktualisieren."
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Button",
+                            "caption": "Messwerte jetzt abrufen",
+                            "onClick": "echo WLT_Update($id) ? 'Abruf erfolgreich.' : (WLT_GetLastError($id) ?: 'Instanz ist beschäftigt.');"
+                        },
+                        {
+                            "type": "Button",
+                            "caption": "Bluetooth-Liste aktualisieren",
+                            "onClick": "echo WLT_RefreshBluetooth($id) ? 'Abruf erfolgreich.' : (WLT_GetLastError($id) ?: 'Instanz ist beschäftigt.');"
+                        }
+                    ]
+                },
+                {
+                    "type": "Button",
+                    "caption": "Verbindung testen",
+                    "onClick": "echo WLT_Update($id) ? 'Verbindung und Hauptdatenabruf erfolgreich.' : (WLT_GetLastError($id) ?: 'Instanz ist beschäftigt.');"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Der Verbindungstest liest Daten vom Gerät und aktualisiert die Variablen. Der Instanzstatus zeigt aktiv, deaktiviert, Standby oder Fehler. Bluetooth-Hinweise stehen separat in BluetoothError."
+                }
+            ],
+            "expanded": true
         },
         {
             "type": "ExpansionPanel",

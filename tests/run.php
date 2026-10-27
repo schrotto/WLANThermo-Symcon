@@ -86,6 +86,13 @@ function saveVariableChoice(TestDevice $device, string $ident, bool $enabled, bo
     if ($apply) { $device->ApplyChanges(); }
 }
 
+function findSelection(array $elements): array {
+    foreach ($elements as $element) {
+        if (($element['name'] ?? '') === 'VariableSelection') { return $element; }
+        if (isset($element['items']) && ($found = findSelection($element['items']))) { return $found; }
+    }
+    return [];
+}
 $count = 0;
 function check(bool $condition, string $message): void {
     global $count;
@@ -126,7 +133,7 @@ $m->ignore = false;
 $m->reject = true;
 check(!$m->SetChannel(1, '{"max":160.0}'), 'Detect false response');
 $m->reject = false;
-check($m->SetSystem('{"unit":"F"}') && $m->variables['CH13_Temperature']['profile'] === 'WLT.TemperatureF', 'Fahrenheit profile follows device unit');
+check($m->SetSystem('{"unit":"F"}') && $m->variables['CH13_Temperature']['profile']['SUFFIX'] === ' °F', 'Fahrenheit profile follows device unit');
 check($m->SetPID(0, '{"Kp":4.5,"opl":true}'), 'PID parameter write');
 check(!$m->SetPID(0, '{"DCmmin":90.0,"DCmmax":30.0}'), 'Reject inverted PID bounds');
 $m->deviceData['channel'][1]['connected'] = false;
@@ -177,9 +184,9 @@ WLTApi::verify(['opl' => 1], ['opl' => true]);
 check(true, 'Firmware numeric booleans accepted in readback');
 // Version 1.1: whole-degree controls, selectable variables and upgrade behavior.
 $v = new TestDevice();
-check($v->variables['CH1_Min']['profile'] === 'WLT.SetpointC' && $v->variables['PM0_Set']['profile'] === 'WLT.SetpointC', 'Whole-degree profiles on limits and pitmaster setpoint');
+check($v->variables['CH1_Min']['profile']['STEP_SIZE'] === 1 && $v->variables['PM0_Set']['profile']['DIGITS'] === 0, 'Whole-degree profiles on limits and pitmaster setpoint');
 check($GLOBALS['profileSettings']['WLT.SetpointC']['digits'] === 0 && $GLOBALS['profileSettings']['WLT.SetpointC']['range'][2] === 1, 'Setpoint display has zero decimals and one-degree increments');
-check($v->values['CH13_Temperature'] === 60.3 && $v->variables['CH13_Temperature']['profile'] === 'WLT.TemperatureC', 'Measured temperatures retain decimal precision');
+check($v->values['CH13_Temperature'] === 60.3 && $v->variables['CH13_Temperature']['profile']['DIGITS'] === 1, 'Measured temperatures retain decimal precision');
 $n = count($v->writes);
 check(!$v->SetChannel(1, '{"min":20.5}') && count($v->writes) === $n, 'Fractional alarm limit rejected before writing');
 check(!$v->SetPitmaster(0, '{"typ":"auto","set":120.5}') && count($v->writes) === $n, 'Fractional pitmaster target rejected before writing');
@@ -189,10 +196,10 @@ check($v->values['CH1_Min'] === 21.0, 'Whole-degree UI input preserves existing 
 $keptID = $v->variableIDs['CH1_Temperature'];
 $oldID = $v->variableIDs['CH1_Color'];
 saveVariableChoice($v, 'CH1_Color', false);
-check(!isset($v->variables['CH1_Color']) && $v->variableIDs['CH1_Temperature'] === $keptID, 'Deselect deletes only chosen variable; retained IDs unchanged');
-check($v->Update() && !isset($v->variables['CH1_Color']) && !isset($v->actions['CH1_Color']), 'Polling does not recreate deselected variables or actions');
+check(($v->variables['CH1_Color']['hidden'] ?? false) && $v->variableIDs['CH1_Temperature'] === $keptID, 'Deselection hides chosen variable; retained IDs unchanged');
+check($v->Update() && ($v->variables['CH1_Color']['hidden'] ?? false) && !$v->actions['CH1_Color'], 'Polling does not recreate deselected variables or actions');
 saveVariableChoice($v, 'CH1_Color', true);
-check(isset($v->variables['CH1_Color']) && $v->variableIDs['CH1_Color'] !== $oldID, 'Re-enable recreates selected variable with new ID');
+check(isset($v->variables['CH1_Color']) && $v->variableIDs['CH1_Color'] === $oldID && !$v->variables['CH1_Color']['hidden'], 'Re-enable preserves variable ID and restores visibility');
 $v->properties['ShowSettings'] = false;
 $v->properties['ShowSystem'] = false;
 $v->properties['ShowBluetoothDetails'] = false;
@@ -200,18 +207,18 @@ $v->properties['ShowChannelDetails'] = false;
 $v->properties['ShowPitmaster'] = false;
 $v->properties['ShowDevice'] = false;
 $v->ApplyChanges();
-check($v->status === 102 && !array_filter(array_keys($v->variables), fn($id) => str_starts_with($id, 'SET_') || str_starts_with($id, 'SYS_') || str_starts_with($id, 'BLE_') || str_starts_with($id, 'PM')), 'Group checkboxes remove large optional API and pitmaster groups');
-check(isset($v->variables['CH13_Temperature'], $v->variables['CH1_Min']) && !isset($v->variables['Device'], $v->variables['CH1_Color']), 'Main readings and controls remain when detail groups are off');
+check($v->status === 102 && !array_filter(array_keys($v->variables), fn($id) => (str_starts_with($id, 'SET_') || str_starts_with($id, 'SYS_') || str_starts_with($id, 'BLE_') || str_starts_with($id, 'PM')) && !($v->variables[$id]['hidden'] ?? false)), 'Group checkboxes hide optional API and pitmaster groups');
+check(isset($v->variables['CH13_Temperature'], $v->variables['CH1_Min']) && $v->variables['Device']['hidden'] && $v->variables['CH1_Color']['hidden'], 'Main readings and controls remain when detail groups are off');
 check($v->SetChannel(1, '{"max":150}') && $v->SetPitmaster(0, '{"typ":"auto","set":125}'), 'API functions work independently of variable groups');
 saveVariableChoice($v, 'LastError', false);
 saveVariableChoice($v, 'Online', false);
 saveVariableChoice($v, 'LastUpdate', false);
-check(!isset($v->variables['LastError'], $v->variables['Online'], $v->variables['LastUpdate']), 'Status variables can also be deselected');
+check($v->variables['LastError']['hidden'] && $v->variables['Online']['hidden'] && $v->variables['LastUpdate']['hidden'], 'Status variables can also be deselected');
 check(!$v->SetChannel(1, '{"max":150.5}') && str_contains($v->GetLastError(), 'ganzen Grad'), 'Error remains available without LastError variable');
 check($v->Update() && json_decode($v->GetSnapshot(), true)['online'], 'Snapshot and recovery work without status variables');
 $v->offline = true;
 saveVariableChoice($v, 'CH13_Temperature', false);
-check(!isset($v->variables['CH13_Temperature']), 'Deselection removes variables even while device is offline');
+check($v->variables['CH13_Temperature']['hidden'], 'Deselection hides variables even while device is offline');
 $v->offline = false;
 saveVariableChoice($v, 'CH13_Temperature', true);
 check(isset($v->variables['CH13_Temperature']), 'Re-enabled offline selection returns on next successful read');
@@ -220,20 +227,20 @@ $v->variables['CH1_Min']['profile'] = 'WLT.TemperatureC';
 $keptID = $v->variableIDs['CH1_Min'];
 $v->attributes['VariableCatalog'] = '{}';
 $v->ApplyChanges();
-check($v->variableIDs['CH1_Min'] === $keptID && $v->variables['CH1_Min']['profile'] === 'WLT.SetpointC', 'Upgrade updates profile without replacing variable ID');
+check($v->variableIDs['CH1_Min'] === $keptID && $v->variables['CH1_Min']['profile']['STEP_SIZE'] === 1, 'Upgrade updates profile without replacing variable ID');
 $v->properties['ShowSettings'] = true;
 $v->ApplyChanges();
 $v->attributes['VariableCatalog'] = '{}';
 $v->properties['ShowSettings'] = false;
 $v->offline = true;
 $v->ApplyChanges();
-check(!array_filter(array_keys($v->variables), fn($id) => str_starts_with($id, 'SET_')), 'Legacy tracking removes deselected groups offline without catalog');
+check(!array_filter(array_keys($v->variables), fn($id) => str_starts_with($id, 'SET_') && !($v->variables[$id]['hidden'] ?? false)), 'Legacy tracking hides deselected groups offline without catalog');
 $v->offline = false;
 $v->properties['ShowSettings'] = true;
 $v->ApplyChanges();
 $catalog = json_decode($v->attributes['VariableCatalog'], true);
 $vf = json_decode($v->GetConfigurationForm(), true);
-$list = current(array_filter($vf['elements'], fn($e) => ($e['name'] ?? '') === 'VariableSelection'));
+$list = findSelection($vf['elements']);
 check(count($list['values']) === count($catalog), 'Every known variable gets a List row with checkbox');
 check($list['columns'][0]['edit']['type'] === 'CheckBox' && $list['columns'][0]['save'] && $list['columns'][3]['save'], 'List stores checkbox and stable Ident together');
 $before = $v->properties;
@@ -242,36 +249,66 @@ check($before === $v->properties, 'Building the form never changes instance prop
 saveVariableChoice($v, 'CH1_Max', false, false);
 check(isset($v->variables['CH1_Max']), 'Pending checkbox edit does not delete a variable before Apply');
 $v->ApplyChanges();
-check(!isset($v->variables['CH1_Max']), 'Standard Apply saves checkbox choice and removes deselected variable');
-check($v->SetSystem('{"unit":"F"}') && $v->variables['CH1_Min']['profile'] === 'WLT.SetpointF', 'Fahrenheit targets also use whole degrees');
+check($v->variables['CH1_Max']['hidden'], 'Standard Apply saves choice and hides deselected variable');
+check($v->SetSystem('{"unit":"F"}') && $v->variables['CH1_Min']['profile']['SUFFIX'] === ' °F', 'Fahrenheit targets also use whole degrees');
 $v->properties['VariableSelection'] = WLTApi::encode(array_map(static fn(string $id): array => ['Ident' => $id, 'Enabled' => false], array_keys(json_decode($v->attributes['VariableCatalog'], true))));
 $v->ApplyChanges();
-check($v->status === 102 && count($v->variables) === 0 && json_decode($v->GetSnapshot(), true)['online'], 'All variables may be deselected while module continues collecting data');
+check($v->status === 102 && count(array_filter($v->variables, fn($meta) => !($meta['hidden'] ?? false))) === 0 && json_decode($v->GetSnapshot(), true)['online'], 'All variables may be deselected while module continues collecting data');
 // Store preparation: migrate 1.1 choices without writing their configuration.
 $store = new TestDevice();
 $store->properties['DisabledVariables'] = '["CH1_Color","CH14_Temperature"]';
 $store->ApplyChanges();
 $oldConfiguration = $store->properties;
 $sf = json_decode($store->GetConfigurationForm(), true);
-$sl = current(array_filter($sf['elements'], fn($e) => ($e['name'] ?? '') === 'VariableSelection'));
+$sl = findSelection($sf['elements']);
 $choices = array_column($sl['values'], 'Enabled', 'Ident');
 check(!$choices['CH1_Color'] && !$choices['CH14_Temperature'] && $store->properties === $oldConfiguration, 'Legacy exclusions remain effective without automatic property migration');
 saveVariableChoice($store, 'CH1_Color', true);
-check(isset($store->variables['CH1_Color']) && !isset($store->variables['CH14_Temperature']), 'User-confirmed new row overrides only its matching legacy exclusion');
+check(isset($store->variables['CH1_Color']) && $store->variables['CH14_Temperature']['hidden'], 'User-confirmed new row overrides only its matching legacy exclusion');
 saveVariableChoice($store, 'CH77_Temperature', false);
 $sf = json_decode($store->GetConfigurationForm(), true);
-$sl = current(array_filter($sf['elements'], fn($e) => ($e['name'] ?? '') === 'VariableSelection'));
+$sl = findSelection($sf['elements']);
 check(in_array('CH77_Temperature', array_column($sl['values'], 'Ident'), true), 'Unknown or temporarily absent saved identifiers remain in the form');
 $store->deviceData['channel'][] = array_replace($store->deviceData['channel'][0], ['number' => 77, 'name' => 'NewProbe']);
 check($store->Update() && !isset($store->variables['CH77_Temperature']), 'Saved choice applies when a previously unknown channel appears');
 $sf = json_decode($store->GetConfigurationForm(), true);
-$sl = current(array_filter($sf['elements'], fn($e) => ($e['name'] ?? '') === 'VariableSelection'));
+$sl = findSelection($sf['elements']);
 $choices = array_column($sl['values'], 'Enabled', 'Ident');
 check(!$choices['CH77_Temperature'] && $choices['CH77_Min'], 'New catalog fields append without resetting saved choices');
 $store->variables['CH1_Temperature']['name'] = 'Mein Grill';
 $store->variables['CH1_Temperature']['pos'] = 123;
 $store->Update();
 check($store->variables['CH1_Temperature']['name'] === 'Mein Grill' && $store->variables['CH1_Temperature']['pos'] === 123, 'Registration preserves user-owned name and position');
+// Version 1.3: archive-safe disable, persistent options and current presentations.
+$keptID = $store->variableIDs['CH1_Temperature'];
+$keptValue = $store->values['CH1_Temperature'];
+saveVariableChoice($store, 'CH1_Temperature', false);
+$store->deviceData['channel'][0]['temp'] = 45.5;
+$store->Update();
+check($store->values['CH1_Temperature'] === $keptValue && $store->variableIDs['CH1_Temperature'] === $keptID, 'Disabled measurement retains its value and ID during polling');
+check(rejects(fn() => $store->RequestAction('CH1_Color', '#ffffff')) === false, 'Enabled channel remains actionable');
+saveVariableChoice($store, 'CH1_Color', false);
+$n = count($store->writes);
+check(rejects(fn() => $store->RequestAction('CH1_Color', '#ffffff')) && count($store->writes) === $n, 'Disabled variable action cannot write to device');
+saveVariableChoice($store, 'CH1_Temperature', true);
+check($store->variableIDs['CH1_Temperature'] === $keptID && $store->values['CH1_Temperature'] === 45.5, 'Re-enable updates same variable without breaking archive associations');
+$store->properties['VariableSelection'] = '[{"Ident":"CH1_Temperature","Enabled":true,"CustomName":"Garraum","Position":42,"Presentation":"value"}]';
+$store->ApplyChanges();
+check($store->variables['CH1_Temperature']['name'] === 'Garraum' && $store->variables['CH1_Temperature']['pos'] === 42, 'Saved name and position apply to existing variable');
+check($store->variables['CH1_Temperature']['profile']['PRESENTATION'] === VARIABLE_PRESENTATION_VALUE_PRESENTATION, 'Selected current value presentation applied');
+$store->buffers = []; // Symcon buffers reset at restart; attributes and properties persist.
+$store->Create();
+$store->ApplyChanges();
+check($store->variableIDs['CH1_Temperature'] === $keptID && $store->variables['CH1_Temperature']['name'] === 'Garraum', 'Restart preserves configuration and existing variable IDs');
+$store->properties['VariableSelection'] = '[{"Ident":"CH1_Temperature","Enabled":true,"Presentation":"legacy"}]';
+$store->ApplyChanges();
+check($store->variables['CH1_Temperature']['profile'] === 'WLT.TemperatureC', 'Legacy profile remains selectable');
+foreach (['"Position":-2', '"CustomName":42', '"Presentation":"invented"'] as $invalid) {
+    $store->properties['VariableSelection'] = '[{"Ident":"CH1_Min","Enabled":true,' . $invalid . '}]';
+    $store->ApplyChanges();
+    check($store->status === 201 && !$store->actions['CH1_Min'], 'Invalid option stops polling and disables controls');
+    check(is_array(json_decode($store->GetConfigurationForm(), true)), 'Invalid settings still allow opening configuration form');
+}
 $store->properties['VariableSelection'] = '[{"Ident":"CH1_Min","Enabled":false},{"Ident":"CH1_Min","Enabled":true}]';
 $store->ApplyChanges();
 check($store->status === 201 && isset($store->variables['CH1_Min']), 'Invalid duplicate configuration is rejected before deleting variables');
@@ -282,7 +319,7 @@ $store->properties['VariableSelection'] = '[]';
 $store->properties['Host'] = '';
 $store->ApplyChanges();
 check($store->status === 201, 'Unconfigured instance remains constructible with configuration status');
-$forbidden = ['IPS_SetProperty', 'IPS_ApplyChanges', 'IPS_SetName', 'IPS_SetPosition', 'IPS_SetHidden', 'IPS_SetIcon', 'IPS_SetInfo', 'IPS_SetVariableCustomProfile', 'IPS_SetVariableCustomAction', 'AC_SetLoggingStatus', 'IPS_LogMessage'];
+$forbidden = ['IPS_SetProperty', 'IPS_ApplyChanges', 'IPS_SetIcon', 'IPS_SetInfo', 'IPS_SetVariableCustomProfile', 'IPS_SetVariableCustomAction', 'AC_SetLoggingStatus', 'IPS_LogMessage'];
 $runtime = file_get_contents(__DIR__ . '/../WLANThermo/module.php') . file_get_contents(__DIR__ . '/../libs/Api.php');
 foreach ($forbidden as $function) {
     check(!preg_match('/\b' . $function . '\s*\(/', $runtime), 'No forbidden automatic mutation: ' . $function);
@@ -317,6 +354,28 @@ $power->offline = true;
 check(!$power->Update() && $power->status === 106 && !json_decode($power->GetSnapshot(), true)['online'], 'Standby works with deselected status variables');
 $power->offline = false;
 check($power->Update() && $power->status === 102, 'Automatic power-on recovery needs no status variable');
+$preserve = new TestDevice();
+$probeID = $preserve->variableIDs['CH1_Temperature'];
+IPS_SetHidden($probeID, true);
+saveVariableChoice($preserve, 'CH1_Temperature', false);
+$preserve->buffers = [];
+$preserve->Create();
+$preserve->offline = true;
+saveVariableChoice($preserve, 'CH1_Temperature', true);
+check($preserve->variables['CH1_Temperature']['hidden'] && $preserve->variableIDs['CH1_Temperature'] === $probeID, 'Previous manual hidden state survives restart and offline re-enable');
+$preserve->properties['VariableSelection'] = '[{"Ident":"CH1_Temperature","Enabled":true,"CustomName":"Offline-Name","Position":17}]';
+$preserve->ApplyChanges();
+check($preserve->variables['CH1_Temperature']['name'] === 'Offline-Name' && $preserve->variables['CH1_Temperature']['pos'] === 17, 'Metadata changes apply even while thermometer is offline');
+IPS_SetName($probeID, 'Manuell geändert');
+IPS_SetPosition($probeID, 23);
+$preserve->offline = false;
+$preserve->Update();
+check($preserve->variables['CH1_Temperature']['name'] === 'Manuell geändert' && $preserve->variables['CH1_Temperature']['pos'] === 23, 'Polling does not overwrite later manual name or position changes');
+$preserve->properties['VariableSelection'] = 'invalid';
+$preserve->ApplyChanges();
+check(!$preserve->Update() && $preserve->GetLastError() !== '', 'Manual refresh handles malformed saved selection without uncaught exception');
+$layout = new TestDevice();
+file_put_contents(__DIR__ . '/baseline-form.generated.json', $layout->GetConfigurationForm());
 $m->deviceData['channel'][] = $m->deviceData['channel'][0];
 check(!$m->Update(), 'Reject duplicate channel numbers');
 echo $count . " assertions passed.\n";

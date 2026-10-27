@@ -16,6 +16,21 @@ function IPS_SetVariableProfileValues(string $name, mixed $min, mixed $max, mixe
 function IPS_SetVariableProfileText(string $name, string $prefix, string $suffix): void {}
 function IPS_SetVariableProfileAssociation(string $name, mixed $value, string $label, string $icon, int $color): void {}
 
+foreach (['VALUE_PRESENTATION', 'VALUE_INPUT', 'SLIDER', 'SWITCH', 'ENUMERATION', 'DATE_TIME'] as $kind) {
+    define('VARIABLE_PRESENTATION_' . $kind, $kind);
+}
+function testObject(int $id): array {
+    foreach ($GLOBALS['instances'] as $instance) {
+        $ident = array_search($id, $instance->variableIDs, true);
+        if ($ident !== false) { return [$instance, $ident]; }
+    }
+    throw new RuntimeException('Unknown object');
+}
+function IPS_SetName(int $id, string $name): bool { [$m, $ident] = testObject($id); $m->variables[$ident]['name'] = $name; return true; }
+function IPS_SetPosition(int $id, int $pos): bool { [$m, $ident] = testObject($id); $m->variables[$ident]['pos'] = $pos; return true; }
+function IPS_SetHidden(int $id, bool $hidden): bool { [$m, $ident] = testObject($id); $m->variables[$ident]['hidden'] = $hidden; return true; }
+function IPS_GetObject(int $id): array { [$m, $ident] = testObject($id); return ['ObjectIsHidden' => $m->variables[$ident]['hidden'] ?? false]; }
+
 /** Small contract stub, not a replacement for a real Symcon runtime test. */
 class IPSModuleStrict
 {
@@ -48,7 +63,7 @@ class IPSModuleStrict
     protected function RegisterVariableBoolean(string $id, string $name, string $profile, int $pos): bool { return $this->MaintainVariable($id, $name, 0, $profile, $pos, true); }
     protected function RegisterVariableInteger(string $id, string $name, string $profile, int $pos): bool { return $this->MaintainVariable($id, $name, 1, $profile, $pos, true); }
     protected function RegisterVariableString(string $id, string $name, string $profile, int $pos): bool { return $this->MaintainVariable($id, $name, 3, $profile, $pos, true); }
-    protected function MaintainVariable(string $id, string $name, int $type, string $profile, int $pos, bool $keep): bool {
+    protected function MaintainVariable(string $id, string $name, int $type, array|string $profile, int $pos, bool $keep): bool {
         if (!$keep) { $this->UnregisterVariable($id); return false; }
         if (isset($this->variables[$id]) && $this->variables[$id]['type'] !== $type) { throw new RuntimeException('Variable type changed: ' . $id); }
         $new = !isset($this->variables[$id]);

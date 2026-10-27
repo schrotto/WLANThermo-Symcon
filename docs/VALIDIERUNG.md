@@ -1,44 +1,43 @@
-# Validierung Version 1.2.1 – 25. Oktober 2026
+# Prüfbericht 1.3.0 – 27. Oktober 2026
 
-Zielsystem: IP-Symcon 9.0 und WLANThermo Mini V3 mit MEATER-Fühlern. PHP-Klasse basiert auf `IPSModuleStrict`. Die tatsächlich installierte WLANthermo-Firmware und die konkreten MEATER-Modelle sind unbekannt.
+Zielversion bleibt IP-Symcon ab 9.0, Basisklasse IPSModuleStrict. Die Firmwareanbindung des Ausgangsmoduls 1.2.1 bleibt bestehen. Das tatsächliche Gerät, dessen Firmware und die Symcon-Konsole waren für diese Prüfung nicht verfügbar.
 
-## Geprüfte Grundlagen
+## Tatsächlich ausgeführt
 
-- Offizielle Symcon-Dokumentation: Statuscodes (102 aktiv, 106 Standby, ab 200 Fehler), Bibliotheks-/Modulstruktur, `IPSModuleStrict`, `RequestAction`, Timer, Konfigurationsformulare und benannte Ereignisvariablen.
-- Offizielle WLANThermo ESP32 HTTP-API: `/data`, `/settings`, `/setchannels`, `/setsystem`, `/setpitmaster`, `/setpid`, `/setIoT`.
-- Offizielles Repository `WLANThermo-nano/WLANThermo_ESP32_Software`, Commit **06d456ca232bc26784d3349f79f222de41436921**. Bluetooth-Geräteabfrage, Auswahlmaske, Payloads und Authentifizierung anhand von `src/WebHandler.cpp`, API-Felder anhand von `src/API.cpp`; Bluetooth-Bedienung zusätzlich anhand der offiziellen `Bluetooth.vue`.
+- PHP 8.3.6: Syntaxprüfung aller fünf PHP-Dateien ohne Fehler. Die Testlaufzeit wurde ausschließlich unter `/tmp` entpackt, ohne Systeminstallation.
+- `php -n tests/run.php`: **124 erfolgreiche Assertions**. Darunter Kanal-/Pitmaster-/PID-/Bluetooth-Schreiben und Rücklesen, Geheimnisredaktion, ganze Grad, Celsius/Fahrenheit, Schreibschutz, Fehlerzustände, Standby und automatische Erholung.
+- Neue Prüfungen: Abwahl bewahrt IDs und letzte Werte, verhindert neue Variablen und Bedienaktionen, Gruppe hat Vorrang, Wiederaktivierung verwendet dieselbe ID, Migration bisheriger Einstellungen, alle Variablen deaktivierbar, unbekannte Idents bleiben gespeichert, Name/Position/Darstellung gespeichert, Neustart mit leeren Puffern, Offline-Konfiguration, vorherige manuelle Sichtbarkeit und spätere manuelle Objektänderungen bleiben erhalten.
+- Ungültige Listen, doppelte Idents, falsche Datentypen, Positionen und Darstellungen werden abgefangen; Formular bleibt lesbar und vorhandene Aktionen werden deaktiviert. Auch ein manueller Abruf bei ungültiger Auswahl wird abgefangen.
+- `python3 tests/http_transport.py php`: **8 erfolgreiche echte HTTP-Prüfungen** gegen einen lokalen Testserver. GET, Basic- und Digest-Authentifizierung, UTF-8-POST, HTTP 401, Redirect, HTTP 404 und Timeout. Ausführung außerhalb der Socket-beschränkten Sandbox, ohne Kontakt zu einem realen Gerät.
+- `python3 tests/structure.py`: **8 JSON-Dateien gültig**, einschließlich der drei Fixtures und zwei tatsächlich erzeugten Formulare. GUIDs, Klassenname, Präfix, Modultyp, leere Datenflussanforderungen, eindeutige Formularnamen und Übereinstimmung mit registrierten Properties geprüft. Im Modul existiert kein Aufruf zum Löschen einer Variable.
 
-Zwei Besonderheiten dieses Firmwarestands sind berücksichtigt:
+Die Symcon-Simulation prüft gezielte API-Verträge; sie ersetzt nicht die echte Laufzeit. Die Darstellungs-Konstanten werden dort symbolisch nachgebildet. Namen und Positionen werden durch dokumentierte globale Funktionen ausschließlich an eigenen Variablen und nach geänderter Benutzerauswahl angewendet. Sichtbarkeit wird bei Deaktivierung einmalig gespeichert und geändert, bei Reaktivierung wiederhergestellt. Benutzerdefinierte Profile, Aktionen und Logging bleiben unverändert.
 
-1. Der Pitmaster-Schreibhandler greift positionsbasiert auf den Pitmaster zu. Das Modul übergibt deshalb die vollständige geordnete Liste, damit eine Änderung von Pitmaster 1 nicht Pitmaster 0 trifft. Andere Pitmaster werden mit ihren frisch gelesenen Parametern übertragen.
-2. `setBluetooth()` hat im untersuchten Firmwarecode keinen definierten C++-Rückgabewert. Die HTTP-Antwort ist deshalb allein keine verlässliche Bestätigung. Das Modul prüft Bluetooth-Änderungen ausschließlich durch erneutes Lesen der tatsächlichen Auswahl beziehungsweise des Aktivierungsstatus. Bei anderen Schreibendpunkten werden zusätzlich die booleschen HTTP-Antworten ausgewertet.
+## Nicht verifiziert
 
-## Ausgeführte Prüfungen
+- Installation und Update in einer echten Symcon-9.0-Konsole; Darstellung der neuen Tabellenfelder, Schieberegler und Aufzählungen in den verschiedenen Visualisierungen.
+- Tatsächliche Archivverläufe und Verknüpfungen. Dass die IDs und Werte beim Abwählen unverändert bleiben und kein Löschaufruf erfolgt, wurde simuliert geprüft.
+- Reale WLANthermo-/MEATER-Firmware, Bluetooth-Kopplung und Reichweite. Die geerbte Firmwaregrundlage ist laut Ausgangsdokumentation Commit `06d456ca232bc26784d3349f79f222de41436921` des offiziellen ESP32-Repositories. Die vorhandene Bitmasken-/Pitmaster-/Readback-Logik bleibt unverändert.
+- Keine aktuelle vollständige Prüfung gegen offizielle JSON-Schemas und keine Module-Store-Freigabe. Frühere Schema- und Testergebnisse der Ausgangsversion werden für diese Version nicht als ausgeführt ausgegeben.
 
-- PHP-Syntaxprüfung sämtlicher PHP-Dateien mit PHP 8.3.6.
-- **109 erfolgreiche Modul-/API-Assertions** mit einer bewusst kleinen Symcon-Vertragssimulation. Geprüft wurden unter anderem Messwerte, MEATER-Kern-/Umgebungskanäle, mehrere gleichnamige Geräte, sechs Sensorkanäle, Formularevent-Ausführung, Bitmasken, Schreibschutz, Eingabevalidierung, PID/Pitmaster, geordnete Pitmaster-Payloads, Rücklesen, Fehlerantworten, ausgeblendete Zugangsdaten, Geräteausfall, Wiederanlauf, entfernte Kanäle und Fahrenheit.
-- Zusätzlich geprüft: ganze Grad ohne Änderungen an gemessenen Nachkommastellen, Abweisen von Dezimaleingaben, Profilwechsel bei unveränderten Variablen-IDs, Gruppen- und Einzelauswahl, Übernahme gespeicherter Checkbox-Listeneinträge, dauerhaft unterbundene Wiederanlage, Wiederaktivierung mit neuer ID, Entfernen während Geräteausfall, Migration der bisherigen Variablenliste und vollständiges Abwählen aller Variablen bei weiterhin funktionierendem Abruf.
-- Zusätzlich geprüft: Ausschalten und wiederholte Nichterreichbarkeit führen zu Standby (106), der Timer bleibt aktiv, auch bei Start/Übernahme mit ausgeschaltetem Gerät. Messwertzeitpunkt und letzte Temperatur bleiben erhalten, Gültigkeit und Bedienaktionen werden deaktiviert. Wiedereinschalten stellt Aktivstatus, Gültigkeit und Aktionen automatisch wieder her. Dasselbe Verhalten funktioniert ohne angelegte Statusvariablen. Anmelde-, Zertifikats- und JSON-Fehler bleiben im Fehlerstatus.
-- Ein zusätzlicher Aufruf der tatsächlichen PHP-cURL-Implementierung gegen einen nicht erreichbaren lokalen Anschluss (`127.0.0.1:1`) ergab cURL 7 und wurde korrekt als `WLTUnavailableException` eingeordnet. Für DNS-/Verbindungs-/Timeout-/Verbindungsabbruchfehler verwendet der Transport diese eigene Exception; andere Transportfehler bleiben echte Fehler.
-- Die früheren **8 erfolgreichen HTTP-Assertions aus Version 1.0.0** sind nur historisch dokumentiert. Der Transport wurde für 1.2.1 um die Unterscheidung von Erreichbarkeitsfehlern erweitert; der HTTP-Test prüft jetzt zusätzlich die Fehlerklasse bei Timeout. Der vollständige lokale HTTP-Testlauf war in dieser Arbeitsumgebung wegen einer Socket-Sperre nicht ausführbar und wird nicht als aktueller erfolgreicher Test ausgegeben. Die GitHub-Actions-Konfiguration führt ihn in einer geeigneten Umgebung aus.
-- Die neue Liste speichert `Ident` und `Enabled`; beschreibende Spalten werden nicht als Konfiguration gespeichert. Die Liste wird mit `loadValuesFromConfiguration=false` aus den tatsächlichen Benutzereinstellungen plus Katalog ergänzt. Migration aus der 1.1.0-Eigenschaft erfolgt lesend, ohne diese zu ändern. Tests prüfen unter anderem, dass das Laden des Formulars keine Eigenschaften ändert, Haken erst bei Übernahme wirken und die Laufzeit keine automatischen Eigenschafts-/Objektänderungen über verbotene Funktionen ausführt.
-- `module.json`, statisches `form.json` und dynamisch erzeugtes Formular gegen die offiziellen Symcon-JSON-Schemas validiert.
-- `library.json` strukturell ebenfalls validiert. Besonderheit: Das heruntergeladene offizielle `librarySchema.json` nennt im Versions-Enum nur Versionen bis 6.2. Für diese eine Prüfung wurde das lokale Enum um `9.0` ergänzt. Das Originalschema wurde nicht als aktuell für 9.0 ausgegeben. Die Modulbibliothek selbst verlangt ausdrücklich Version 9.0.
-- JSON-Dateien geparst, Formularklasse und Modulname abgeglichen, Archivinhalt und Prüfsumme überprüft.
-
-## Nicht ausgeführt
-
-Der Anwender hat Version 1.0.0 als funktionierend bestätigt. Für die Änderungen in Version 1.2.1 waren hier kein realer Mini V3, kein MEATER-Gerät und keine laufende Symcon-9.0-Installation erreichbar. Die Tests bestätigen daher die Implementierung gegen dokumentierte und simulierte Schnittstellen; sie bestätigen noch keinen Hardwarebetrieb. Besonders Firmwareabweichungen, die Darstellung in der echten Konsole sowie die tatsächliche Bluetooth-Reichweite und Kopplung bleiben am Zielsystem zu prüfen.
-
-Die Testdaten sind selbst erstellte, repräsentative Fixtures. Sie sind keine aufgezeichneten Antworten des Benutzergeräts. Im Test gemeldete Kanalnummern oder MAC-Adressen sind Beispiele, keine festen Gerätevorgaben.
-
-## Wiederholen
+## Wiederholung
 
 ```bash
+find WLANThermo libs tests -name '*.php' -print0 | xargs -0 -n1 php -l
 php -n tests/run.php
+python3 tests/structure.py
 python3 tests/http_transport.py php
 ```
 
-Für den zweiten Befehl muss die verwendete PHP-Laufzeit cURL laden. Eine GitHub-Actions-Konfiguration liegt unter `.github/workflows/ci.yml` bei. Die Symcon-Simulation wird ausschließlich von den Tests geladen; das Modul selbst verwendet die echte Basisklasse.
+HTTP-Tests benötigen PHP-cURL. Die Strukturprüfung benötigt nur Python 3. Das CI führt dieselben Prüfungen aus.
 
-Statuscode-Grundlage: [Offizielle SetStatus-Dokumentation](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setstatus/).
+## Prüfung am Zielsystem
+
+1. Bestehende Instanz über Module Control aktualisieren und GUIDs beibehalten.
+2. Host und Zugangsdaten übernehmen; Online, Temperatur, Zeitstempel sowie Schreibschutz prüfen.
+3. Eine archivierte Variable deaktivieren: ID und letzter Wert bleiben, Variable ist ausgeblendet und nicht bedienbar. Wieder aktivieren: gleiche ID, neue Messwerte, Archiv bleibt zugeordnet.
+4. Namen, Position und Darstellungswahl ändern; Konsole und Visualisierung prüfen. Dienst neu starten und gespeicherte Auswahl kontrollieren.
+5. Mini V3 ausschalten: Standby und fortgesetzter Timer. Wiedereinschalten: Aktivstatus und aktuelle Werte.
+6. Kanalgrenzen, Pitmaster und Bluetooth-Auswahl am Gerät gegenprüfen.
+
+Die aktuellen offiziellen Symcon-Quellen und die dazugehörigen technischen Entscheidungen sind in README.md verlinkt. Es wird keine automatische Veröffentlichung durchgeführt.

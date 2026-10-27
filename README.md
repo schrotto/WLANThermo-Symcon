@@ -2,29 +2,33 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
-## Update auf Version 1.2.1
+## Update auf Version 1.3.0
 
-**Neu: ausgeschaltetes Gerät ohne fehlerhafte Instanz.** Ist das WLANthermo ausgeschaltet, antwortet nicht oder ist die Netzwerkverbindung unterbrochen, verwendet das Modul den normalen Symcon-Status **106 / Standby**. Im Formular steht „WLANthermo ausgeschaltet oder nicht erreichbar“. Das Modul kann den Geräteschalter nicht aus der Ferne erkennen; deshalb gilt dasselbe Verhalten auch bei einem Netzwerkausfall.
+Die neue Version ergänzt eine frei konfigurierbare Variablenverwaltung mit Aktivierung, eigenem Namen, Datentyp, Darstellung und Position. Die Oberfläche ist in Allgemeine Einstellungen, Geräte und Datenquellen, Variablenverwaltung, Erweiterte Einstellungen sowie Diagnose und Aktionen gegliedert.
 
-`Online` wird falsch, `CHn_Valid` wird falsch und Bedienaktionen werden deaktiviert. Die letzten Temperaturwerte und der Zeitpunkt ihres Abrufs bleiben erhalten. Der Abruf-Timer läuft weiter: Sobald das Gerät wieder antwortet, wechselt die Instanz automatisch auf **102 / Aktiv**, aktualisiert die Messwerte und aktiviert die passenden Aktionen. Dafür muss die Moduleigenschaft **Aktiv** eingeschaltet bleiben. Ein manueller Neustart der Instanz ist nicht nötig.
+**Abwählen löscht keine Variablen mehr.** Vorhandene Variablen werden nach Übernehmen ausgeblendet, nicht mehr aktualisiert und ihre Bedienaktionen abgeschaltet. Werte, IDs, Referenzen und Archivzuordnungen bleiben erhalten. Beim Wiederaktivieren wird dieselbe Variable verwendet; ihre vorherige Sichtbarkeit wird wiederhergestellt. Variablen, die bereits mit einer früheren Version gelöscht wurden, können durch dieses Update nicht wiederhergestellt werden.
 
-Der letzte technische Erreichbarkeitshinweis bleibt in `LastError` beziehungsweise `WLT_GetLastError` nachlesbar und wird bei erfolgreichem Abruf gelöscht. Erreichbarkeitsprobleme erzeugen aber keinen Instanz-Fehlerstatus mehr. Konfigurations-, Anmelde-, Zertifikats- und API-Fehler bleiben weiterhin als Fehler erkennbar.
+Alle bisherigen Gruppen und Einzelentscheidungen werden übernommen. Eine deaktivierte Gruppe hat Vorrang vor der Einzelwahl. Noch nie angelegte, deaktivierte Variablen werden nicht erzeugt. Die Auswahl wirkt ausschließlich auf Symcon; die API und Skriptfunktionen bleiben verfügbar. Auch alle Statusvariablen sind optional: Instanzstatus, `WLT_GetLastError` und `WLT_GetSnapshot` funktionieren unabhängig davon. Automationen dürfen deaktivierte Variablen nicht als aktuelle Datenquelle verwenden; deren letzter Wert bleibt absichtlich unverändert.
 
-Autor und vorgesehener GitHub-Account: **schrotto**. Die Metadaten sind für das noch anzulegende Repository **`https://github.com/schrotto/WLANThermo-Symcon`** vorbereitet. Falls ein anderer Repositoryname verwendet wird, die URL in `library.json`, `WLANThermo/module.json` und den Veröffentlichungsunterlagen entsprechend ändern. Ein Repository wurde hier nicht erstellt und das Modul nicht veröffentlicht.
+Die Tabelle zeigt alle bisher erkannten API-Felder. Nach dem ersten erfolgreichen Abruf das Formular erneut öffnen. Pro Zeile sind folgende Einstellungen möglich:
 
-Die Dateien im vorhandenen Modulordner durch Version 1.2.1 ersetzen und den Symcon-Dienst neu starten. Bei Installation über ein eigenes Git-Repository die Dateien dort übernehmen und über Module Control aktualisieren. **Die bestehende Instanz beibehalten**: Bibliotheks-ID und Modul-ID sind unverändert.
+| Spalte | Wirkung |
+| --- | --- |
+| Aktiv | Aktualisieren und gegebenenfalls neu anlegen; deaktiviert bedeutet vorhandene Variable erhalten und ausblenden |
+| Bereich / Variable / Ident / Typ | Automatisch ermittelte Informationen; der Ident bleibt unverändert |
+| Eigener Name | Lokale Symcon-Beschriftung; leer lässt den bisherigen Namen bestehen. Den Fühlernamen am Gerät ändert weiterhin die Kanalvariable `CHn_Name`. |
+| Darstellung | Automatisch: aktuelle Symcon-Darstellung mit Einheit und passenden Bedienelementen. Wertanzeige: reine Anzeige, bei Temperaturen weiterhin mit Einheit. Bisheriges Profil: kompatible WLT-Profile für ältere Visualisierungen. |
+| Position | Reihenfolge im Objektbaum; -1 lässt bestehende Positionen bestehen und nutzt bei Neuanlage die Standardposition |
 
-Alarmgrenzen und Pitmaster-Solltemperaturen bleiben ohne Nachkommastellen mit Schrittweite **1 Grad** bedienbar. Vorhandene Float-Variablen und deren IDs bleiben erhalten; gemessene Temperaturen behalten ihre Nachkommastelle. Neue Temperatureinstellungen akzeptieren ganze Grad (`120` und `120.0` sind erlaubt, `120.5` wird abgewiesen). Bereits am Gerät gespeicherte Temperaturen werden durch das Update nicht verändert.
+Name und Position werden bei einer Änderung der Tabellenwerte angewendet, auch wenn das Gerät offline ist. Spätere manuelle Objektänderungen werden durch Polling nicht überschrieben. Die Standarddarstellung kann weiterhin in Symcon mit einer benutzerdefinierten Darstellung übersteuert werden; solche Anpassungen und die Archivkonfiguration verändert das Modul nicht. Einheiten folgen dem Gerät: Celsius oder Fahrenheit, ohne Umrechnung. Alarmgrenzen und Solltemperaturen behalten Float-Typen und sind in ganzen Grad bedienbar.
 
-Im Formular können unter **Variablengruppen anlegen** ganze Datenbereiche aktiviert oder deaktiviert werden. Für eine kleinere Variablenliste insbesondere zusätzliche API-Einstellungen, API-Systemwerte und Bluetoothdetails abwählen.
+Das Modul verwendet `IPSModuleStrict` und die seit Symcon 8.0 dokumentierten Darstellungen. Die Mindestversion bleibt wie im Ausgangsmodul **IP-Symcon 9.0**; es wird keine aktuellere Stable-Version vorausgesetzt oder behauptet. PHP-cURL und Netzwerkzugriff auf den Mini V3 sind erforderlich; fehlendes cURL wird beim Abruf verständlich gemeldet. Kein MQTT-Broker und keine externe Bibliothek sind erforderlich.
 
-Unter **Einzelne Variablen auswählen** gibt es eine durchsuchbare Liste. Die gewünschte Zeile bearbeiten, den Haken **Anlegen** setzen oder entfernen und anschließend **Übernehmen** drücken. Du kannst mehrere Auswahlen vor dem Speichern bearbeiten. Eine ausgeschaltete Gruppe hat Vorrang vor den einzelnen Haken. Neue Datenfelder erscheinen nach einem Geräteabruf beim erneuten Öffnen des Formulars.
+Zum Aktualisieren die vollständige Bibliothek ersetzen bzw. im eigenen Git-Repository übernehmen und über Module Control aktualisieren. **Die bestehende Instanz beibehalten**: Modul-GUID, Bibliotheks-GUID, Präfix und Idents sind unverändert. Bei direkter Dateikopie den Symcon-Dienst neu starten. Bereits eingerichtete Geräteparameter bleiben erhalten. Die vorbereitete Repositoryadresse lautet `https://github.com/schrotto/WLANThermo-Symcon`; dieses Paket veröffentlicht kein Repository.
 
-Anders als in Version 1.1.0 ändern die einzelnen Haken die Konfiguration nicht mehr sofort. Das Modul verwendet keine automatischen Eigenschaftsänderungen oder selbst ausgelöste Übernahme. Bestehende Abwahlen aus Version 1.1.0 werden weiter berücksichtigt, ohne die alte Eigenschaft zu überschreiben; eine anschließend von dir gespeicherte Listenauswahl hat für denselben Ident Vorrang. Auch die Auswahl nicht mehr vorhandener Kanäle bleibt erhalten.
+Ausgeschaltete Geräte bleiben im Status **106 / Standby**. Der Timer versucht weiter zu lesen; bei Rückkehr des Geräts wird **102 / Aktiv** hergestellt. Authentifizierungs-, Zertifikats- und API-Fehler bleiben Fehler. Unter Diagnose stehen ein Verbindungstest, manueller Abruf, Bluetooth-Aktualisierung und der letzte Hinweis zur Verfügung. Der Verbindungstest führt einen regulären Datenabruf aus. Der Hinweistext wird beim erneuten Öffnen des Formulars aktualisiert.
 
-**Abwählen und Übernehmen löscht die jeweilige Symcon-Variable.** Verknüpfungen, Skriptreferenzen und Archivzuordnungen können dadurch ungültig werden. Erneutes Anhaken legt sie mit einer neuen ID an. Weiterhin ausgewählte Variablen behalten ihre IDs. Die Auswahl verändert keine Fühlerkopplung und keine Geräteeinstellungen; intern stehen die API-Daten weiter zur Verfügung. Auch Statusvariablen lassen sich abwählen. Fehler bleiben dann über den Instanzstatus und `WLT_GetLastError($id)` abrufbar.
-
-Hinweise und vorbereitete Texte für die Store-Einreichung stehen in [docs/STORE.md](docs/STORE.md).
+Vollständige [Variablenübersicht](docs/VARIABLEN.md), [Prüfbericht](docs/VALIDIERUNG.md), [Lieferumfang A–H](docs/LIEFERUMFANG.md) und [Veröffentlichungshinweise](docs/STORE.md) liegen bei.
 
 ## Funktionsumfang
 
@@ -156,7 +160,7 @@ Die gewünschten Temperaturvariablen in Symcon zur Archivierung aktivieren; das 
 
 Kanalnummern werden vom Mini V3 vergeben. Beim Entfernen oder Neuzuordnen von Bluetooth-Kanälen können Nummern und damit deren Zuordnung wechseln. Deshalb nach einer solchen Änderung die Namen und Archiv-/Automationszuordnungen kontrollieren. Entfernte Kanalvariablen werden zur Erhaltung bestehender Referenzen nicht automatisch gelöscht. Sonstige zusätzliche API-Felder behalten bei Wegfall ihren letzten Wert; ihre Aktualität ist über `LastUpdate`/`GetSnapshot()` einzuordnen.
 
-Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementierten Datenendpunkte betrifft. Nicht implementiert sind direkte Bluetooth-Verbindungen vom Symcon-Server, MEATER-Cloud, WLAN-Zugangsdatenänderung, Firmware-Update, Werksreset sowie Verwaltungs-/Diagnoseendpunkte außerhalb dieser Schnittstellen. Version 1.0.0 wurde vom Anwender als funktionierend bestätigt. Version 1.2.1 wurde hier automatisiert geprüft; ein erneuter Test der Änderungen am realen Mini V3 und in Symcon 9.0 steht noch aus. Details zur geprüften Firmwarebasis und zu den Tests stehen in `docs/VALIDIERUNG.md`.
+Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementierten Datenendpunkte betrifft. Nicht implementiert sind direkte Bluetooth-Verbindungen vom Symcon-Server, MEATER-Cloud, WLAN-Zugangsdatenänderung, Firmware-Update, Werksreset sowie Verwaltungs-/Diagnoseendpunkte außerhalb dieser Schnittstellen. Version 1.3.0 wurde hier automatisiert geprüft; ein erneuter Test der Änderungen am realen Mini V3 und in Symcon 9.0 steht noch aus. Details zur geprüften Firmwarebasis und zu den Tests stehen in `docs/VALIDIERUNG.md`.
 
 ## Offizielle Grundlagen
 
@@ -171,4 +175,14 @@ Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementie
 - [Offizieller HTTP-/Bluetooth-Handler, geprüfter Stand](https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/blob/06d456ca232bc26784d3349f79f222de41436921/src/WebHandler.cpp)
 - [Offizielle Bluetooth-Bedienoberfläche](https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/blob/06d456ca232bc26784d3349f79f222de41436921/webui/src/components/Bluetooth.vue)
 
-Die HTTP-Wiki-Seite ist älter als die Firmware. Bluetooth-Geräteverwaltung und besondere Schreibdetails wurden daher zusätzlich am offiziellen Firmwarecode geprüft. Das Modul wurde eigenständig implementiert; Firmwarecode wird nicht mitgeliefert.
+Die Firmwaregrundlage und die Besonderheiten der HTTP-/Bluetooth-Anbindung wurden aus der Dokumentation der Ausgangsversion übernommen. In Version 1.3.0 wurden diese Endpunkte nicht erweitert; ihre Kompatibilität mit dem Benutzergerät ist weiterhin am Zielsystem zu prüfen. Das Modul wurde eigenständig implementiert; Firmwarecode wird nicht mitgeliefert.
+
+### Technische Entscheidungen in Version 1.3.0
+
+- [MaintainVariable](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/maintainvariable/): nur mit `true` aufrufen, weil `false` eine Variable löscht.
+- [Darstellungen](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/darstellungen/): Temperatur als Wertanzeige mit °C/°F, Sollwerte als Schieberegler in 1-Grad-Schritten, Prozent als 0–100, Modi und Alarmierung als Aufzählung, Zeitstempel als Datum/Uhrzeit, Bluetooth als Schalter.
+- [Konfigurationslisten](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/konfigurationsformulare/list/): gespeicherte Auswahl und neue Felder nach stabilem Ident zusammenführen; Änderungen ausschließlich mit Übernehmen speichern.
+- [Store-Reviewvorgaben](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/store/einreichen/): Name, Position und Sichtbarkeit nur als Folge der im Formular erklärten Benutzerauswahl verändern; keine Änderungen an fremden Objekten, Archivierung oder benutzerdefinierten Profilen/Aktionen.
+- [IPS_SetHidden](https://www.symcon.de/de/service/dokumentation/befehlsreferenz/objektverwaltung/ips-sethidden/) und [IPS_GetObject](https://www.symcon.de/de/service/dokumentation/befehlsreferenz/objektverwaltung/ips-getobject/): vorherige Sichtbarkeit persistent merken und bei Reaktivierung wiederherstellen.
+
+Die Oberfläche ist unmittelbar deutsch beschriftet; eine `locale.json` ist daher für die mitgelieferte deutsche Sprache nicht erforderlich. Externe Symcon-Variablen werden nicht eingebunden; ein `SelectVariable` wäre dafür ohne Funktion. Es gibt keinen Parent-/Child-Datenfluss und deshalb keine leeren ReceiveData-/ForwardData-Methoden. Die Ressourcen bestehen ausschließlich aus dem registrierten Timer und werden von der Symcon-Basisklasse verwaltet.

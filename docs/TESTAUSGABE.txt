@@ -1,5 +1,3 @@
-Version 1.2.1 – aktueller Modul-/API-Testlauf
-
 OK 1: Polling creates active instance
 OK 2: MEATER core and ambient channels
 OK 3: Wired connected=false is not a disconnected Bluetooth probe
@@ -54,24 +52,24 @@ OK 51: Fractional alarm limit rejected before writing
 OK 52: Fractional pitmaster target rejected before writing
 OK 53: Integer alarm limits accepted
 OK 54: Whole-degree UI input preserves existing Float variable type
-OK 55: Deselect deletes only chosen variable; retained IDs unchanged
+OK 55: Deselection hides chosen variable; retained IDs unchanged
 OK 56: Polling does not recreate deselected variables or actions
-OK 57: Re-enable recreates selected variable with new ID
-OK 58: Group checkboxes remove large optional API and pitmaster groups
+OK 57: Re-enable preserves variable ID and restores visibility
+OK 58: Group checkboxes hide optional API and pitmaster groups
 OK 59: Main readings and controls remain when detail groups are off
 OK 60: API functions work independently of variable groups
 OK 61: Status variables can also be deselected
 OK 62: Error remains available without LastError variable
 OK 63: Snapshot and recovery work without status variables
-OK 64: Deselection removes variables even while device is offline
+OK 64: Deselection hides variables even while device is offline
 OK 65: Re-enabled offline selection returns on next successful read
 OK 66: Upgrade updates profile without replacing variable ID
-OK 67: Legacy tracking removes deselected groups offline without catalog
+OK 67: Legacy tracking hides deselected groups offline without catalog
 OK 68: Every known variable gets a List row with checkbox
 OK 69: List stores checkbox and stable Ident together
 OK 70: Building the form never changes instance properties
 OK 71: Pending checkbox edit does not delete a variable before Apply
-OK 72: Standard Apply saves checkbox choice and removes deselected variable
+OK 72: Standard Apply saves choice and hides deselected variable
 OK 73: Fahrenheit targets also use whole degrees
 OK 74: All variables may be deselected while module continues collecting data
 OK 75: Legacy exclusions remain effective without automatic property migration
@@ -80,37 +78,48 @@ OK 77: Unknown or temporarily absent saved identifiers remain in the form
 OK 78: Saved choice applies when a previously unknown channel appears
 OK 79: New catalog fields append without resetting saved choices
 OK 80: Registration preserves user-owned name and position
-OK 81: Invalid duplicate configuration is rejected before deleting variables
-OK 82: Reject non-boolean checkbox values
-OK 83: Unconfigured instance remains constructible with configuration status
-OK 84: No forbidden automatic mutation: IPS_SetProperty
-OK 85: No forbidden automatic mutation: IPS_ApplyChanges
-OK 86: No forbidden automatic mutation: IPS_SetName
-OK 87: No forbidden automatic mutation: IPS_SetPosition
-OK 88: No forbidden automatic mutation: IPS_SetHidden
-OK 89: No forbidden automatic mutation: IPS_SetIcon
-OK 90: No forbidden automatic mutation: IPS_SetInfo
-OK 91: No forbidden automatic mutation: IPS_SetVariableCustomProfile
-OK 92: No forbidden automatic mutation: IPS_SetVariableCustomAction
-OK 93: No forbidden automatic mutation: AC_SetLoggingStatus
-OK 94: No forbidden automatic mutation: IPS_LogMessage
-OK 95: Power-off enters standby instead of faulty instance status
-OK 96: Standby invalidates measurements and disables stale controls
-OK 97: Standby retains last readings and their actual update time
-OK 98: Repeated power-off checks keep retry timer and non-error status
-OK 99: Starting or reloading while device is off remains in standby
-OK 100: Offline write request remains standby and reports failure
-OK 101: Power-on automatically restores active state, validity and actions
-OK 102: Power-on clears reachability hint
-OK 103: Authentication errors are not hidden as power-off standby
-OK 104: TLS configuration errors remain visible faults
-OK 105: Invalid API data remains a visible fault
-OK 106: Recovery also works after genuine API faults
-OK 107: Standby works with deselected status variables
-OK 108: Automatic power-on recovery needs no status variable
-OK 109: Reject duplicate channel numbers
-109 assertions passed.
-
-Zusätzlicher tatsächlicher cURL-Aufruf: Verbindungsablehnung zu 127.0.0.1:1 mit Fehler 7 korrekt als WLTUnavailableException erkannt.
-
-Der vollständige lokale HTTP-Test konnte wegen einer Socket-Sperre nicht ausgeführt werden.
+OK 81: Disabled measurement retains its value and ID during polling
+OK 82: Enabled channel remains actionable
+OK 83: Disabled variable action cannot write to device
+OK 84: Re-enable updates same variable without breaking archive associations
+OK 85: Saved name and position apply to existing variable
+OK 86: Selected current value presentation applied
+OK 87: Restart preserves configuration and existing variable IDs
+OK 88: Legacy profile remains selectable
+OK 89: Invalid option stops polling and disables controls
+OK 90: Invalid settings still allow opening configuration form
+OK 91: Invalid option stops polling and disables controls
+OK 92: Invalid settings still allow opening configuration form
+OK 93: Invalid option stops polling and disables controls
+OK 94: Invalid settings still allow opening configuration form
+OK 95: Invalid duplicate configuration is rejected before deleting variables
+OK 96: Reject non-boolean checkbox values
+OK 97: Unconfigured instance remains constructible with configuration status
+OK 98: No forbidden automatic mutation: IPS_SetProperty
+OK 99: No forbidden automatic mutation: IPS_ApplyChanges
+OK 100: No forbidden automatic mutation: IPS_SetIcon
+OK 101: No forbidden automatic mutation: IPS_SetInfo
+OK 102: No forbidden automatic mutation: IPS_SetVariableCustomProfile
+OK 103: No forbidden automatic mutation: IPS_SetVariableCustomAction
+OK 104: No forbidden automatic mutation: AC_SetLoggingStatus
+OK 105: No forbidden automatic mutation: IPS_LogMessage
+OK 106: Power-off enters standby instead of faulty instance status
+OK 107: Standby invalidates measurements and disables stale controls
+OK 108: Standby retains last readings and their actual update time
+OK 109: Repeated power-off checks keep retry timer and non-error status
+OK 110: Starting or reloading while device is off remains in standby
+OK 111: Offline write request remains standby and reports failure
+OK 112: Power-on automatically restores active state, validity and actions
+OK 113: Power-on clears reachability hint
+OK 114: Authentication errors are not hidden as power-off standby
+OK 115: TLS configuration errors remain visible faults
+OK 116: Invalid API data remains a visible fault
+OK 117: Recovery also works after genuine API faults
+OK 118: Standby works with deselected status variables
+OK 119: Automatic power-on recovery needs no status variable
+OK 120: Previous manual hidden state survives restart and offline re-enable
+OK 121: Metadata changes apply even while thermometer is offline
+OK 122: Polling does not overwrite later manual name or position changes
+OK 123: Manual refresh handles malformed saved selection without uncaught exception
+OK 124: Reject duplicate channel numbers
+124 assertions passed.

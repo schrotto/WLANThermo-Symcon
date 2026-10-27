@@ -25,6 +25,8 @@ class WLANThermo extends IPSModuleStrict
         }
         $this->RegisterAttributeString('VariableCatalog', '{}');
         $this->RegisterAttributeString('Dynamic', '[]');
+        $this->RegisterAttributeString('HiddenVariables', '{}');
+        $this->RegisterAttributeString('AppliedVariableOptions', '{}');
         $this->RegisterAttributeString('LastHost', '');
         $this->RegisterTimer('Poll', 0, 'WLT_Update($_IPS["TARGET"]);');
     }
@@ -36,8 +38,9 @@ class WLANThermo extends IPSModuleStrict
         try {
             $this->selectionOverrides();
         } catch (Throwable $e) {
-            $this->safeSet('Online', false);
-            $this->safeSet('LastError', $e->getMessage());
+            $this->SetBuffer('State_Online', 'false');
+            $this->SetBuffer('State_LastError', json_encode($e->getMessage(), JSON_THROW_ON_ERROR));
+            $this->invalidateActions();
             $this->SetStatus(201);
             return;
         }
@@ -48,7 +51,7 @@ class WLANThermo extends IPSModuleStrict
         $this->variable('BluetoothError', 'Bluetooth-Hinweis', 3, '', 3, $this->stateValue('BluetoothError', ''));
         $this->variable('Device', 'Geräteinformationen (JSON)', 3, '', 4, $this->stateValue('Device', ''));
         foreach (['RawData', 'RawSettings', 'RawBluetooth'] as $ident) {
-            $this->variable($ident, $ident, 3, '', 9000, '');
+            $this->variable($ident, $ident, 3, '', 9000, $this->stateValue($ident, ''));
         }
         // Include the 1.0 tracking list so deselection also works offline after upgrading.
         $known = array_unique(array_merge(
@@ -56,8 +59,13 @@ class WLANThermo extends IPSModuleStrict
             array_keys(json_decode($this->ReadAttributeString('VariableCatalog'), true)),
             ['BluetoothEnabled']
         ));
+        $catalog = json_decode($this->ReadAttributeString('VariableCatalog'), true);
         foreach ($known as $ident) {
-            if (!$this->selected($ident) && @$this->GetIDForIdent($ident)) { $this->UnregisterVariable($ident); }
+            if (!$this->selected($ident)) { $this->retainDisabled($ident); }
+            elseif (isset($catalog[$ident]) && @$this->GetIDForIdent($ident)) {
+                $meta = $catalog[$ident];
+                $this->configureVariable($ident, $meta['name'], $meta['type'], $meta['profile'], $meta['position']);
+            }
         }
         $this->SetTimerInterval('Poll', 0);
         $this->invalidate();
@@ -89,14 +97,14 @@ class WLANThermo extends IPSModuleStrict
     public function GetConfigurationForm(): string
     {
         $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true, 64, JSON_THROW_ON_ERROR);
-        foreach ($form['elements'] as &$element) {
-            if (($element['name'] ?? '') === 'VariableSelection') {
-                // Merge the user's saved choices, including unknown/temporarily absent
-                // identifiers, before appending newly discovered catalog entries.
-                $element['values'] = $this->selectionRows();
-            }
+        try {
+            $rows = $this->selectionRows();
+        } catch (Throwable $e) {
+            $rows = [];
+            $form['actions'][] = ['type' => 'Label', 'caption' => 'Variablenauswahl prüfen: ' . $e->getMessage()];
         }
-        unset($element);
+        $this->populateForm($form['elements'], $rows);
+        $form['actions'][0]['items'][0]['caption'] = 'Letzter Hinweis: ' . ($this->GetLastError() ?: 'Kein Fehler gemeldet.');
         $bt = $this->cached('BluetoothData');
         foreach ($bt['devices'] ?? [] as $device) {
             $address = (string) $device['address'];
@@ -110,6 +118,15 @@ class WLANThermo extends IPSModuleStrict
             $form['actions'][] = ['type' => 'ExpansionPanel', 'caption' => 'Bluetooth: ' . $device['name'] . ' (' . $address . ')', 'items' => $items];
         }
         return WLTApi::encode($form);
+    }
+
+    private function populateForm(array &$elements, array $rows): void
+    {
+        foreach ($elements as &$element) {
+            if (($element['name'] ?? '') === 'VariableSelection') { $element['values'] = $rows; }
+            if (isset($element['items'])) { $this->populateForm($element['items'], $rows); }
+        }
+        unset($element);
     }
 
     public function Update(): bool
@@ -130,6 +147,9 @@ class WLANThermo extends IPSModuleStrict
 
     public function RequestAction(string $Ident, mixed $Value): void
     {
+        if (!$this->selected($Ident)) {
+            throw new InvalidArgumentException('Diese Variable ist deaktiviert.');
+        }
         if ($Ident === 'BluetoothEnabled') {
             $ok = $this->SetBluetoothEnabled((bool) $Value);
         } elseif (preg_match('/^CH(\d+)_(Name|Min|Max|Alarm|Type|Color)$/', $Ident, $m)) {
@@ -353,6 +373,7 @@ class WLANThermo extends IPSModuleStrict
             return false;
         }
         try {
+            $this->selectionOverrides();
             if (!$this->ReadPropertyBoolean('Active')) { throw new RuntimeException('Instanz ist deaktiviert.'); }
             if ($write && !$this->ReadPropertyBoolean('AllowWrite')) { throw new RuntimeException('Schreibzugriffe sind deaktiviert.'); }
             $work();
@@ -560,9 +581,8 @@ class WLANThermo extends IPSModuleStrict
             $catalog[$ident] = $meta;
             $this->WriteAttributeString('VariableCatalog', WLTApi::encode($catalog));
         }
-        $keep = $this->selected($ident);
-        $this->MaintainVariable($ident, $name, $type, $profile, $position, $keep);
-        if (!$keep) { return; }
+        if (!$this->selected($ident)) { $this->retainDisabled($ident); return; }
+        $this->configureVariable($ident, $name, $type, $profile, $position);
         $value = match ($type) { 0 => (bool) $value, 1 => (int) $value, 2 => (float) $value, default => (string) $value };
         $this->safeSet($ident, $value);
         $ids = json_decode($this->ReadAttributeString('Dynamic'), true);
@@ -572,10 +592,38 @@ class WLANThermo extends IPSModuleStrict
         }
     }
 
+    private function configureVariable(string $ident, string $name, int $type, string $profile, int $position): void
+    {
+        $options = $this->variableOptions($ident);
+        $this->MaintainVariable($ident, $options['CustomName'] ?: $name, $type,
+            $this->presentation($ident, $type, $profile, $options['Presentation']),
+            $options['Position'] >= 0 ? $options['Position'] : $position, true);
+        $id = $this->GetIDForIdent($ident);
+        // Explicit table settings also apply to existing variables. Empty/-1 preserves manual edits.
+        $applied = json_decode($this->ReadAttributeString('AppliedVariableOptions'), true);
+        $previous = $applied[$ident] ?? [];
+        if ($options['CustomName'] !== '' && ($previous['CustomName'] ?? '') !== $options['CustomName']) {
+            IPS_SetName($id, $options['CustomName']);
+        }
+        if ($options['Position'] >= 0 && ($previous['Position'] ?? -1) !== $options['Position']) {
+            IPS_SetPosition($id, $options['Position']);
+        }
+        if ($previous !== $options) {
+            $applied[$ident] = $options;
+            $this->WriteAttributeString('AppliedVariableOptions', WLTApi::encode($applied));
+        }
+        $hidden = json_decode($this->ReadAttributeString('HiddenVariables'), true);
+        if (array_key_exists($ident, $hidden)) {
+            IPS_SetHidden($id, $hidden[$ident]);
+            unset($hidden[$ident]);
+            $this->WriteAttributeString('HiddenVariables', WLTApi::encode($hidden));
+        }
+    }
+
     private function action(string $ident, bool $enabled): void
     {
         if (!@$this->GetIDForIdent($ident)) { return; }
-        if ($enabled && $this->ReadPropertyBoolean('AllowWrite')) { $this->EnableAction($ident); }
+        if ($this->selected($ident) && $enabled && $this->ReadPropertyBoolean('AllowWrite')) { $this->EnableAction($ident); }
         else { $this->disableIfExists($ident); }
     }
 
@@ -663,6 +711,16 @@ class WLANThermo extends IPSModuleStrict
                 throw new InvalidArgumentException('Ungültiger Eintrag in der Variablenauswahl.');
             }
             if (isset($seen[$row['Ident']])) { throw new InvalidArgumentException('Doppelter Ident in der Variablenauswahl.'); }
+            if (isset($row['CustomName']) && (!is_string($row['CustomName']) ||
+                preg_match('/[\x00-\x1f]/', $row['CustomName']) || strlen($row['CustomName']) > 200)) {
+                throw new InvalidArgumentException('Variablenname muss Text mit höchstens 200 Bytes sein.');
+            }
+            if (isset($row['Position']) && (!is_int($row['Position']) || $row['Position'] < -1 || $row['Position'] > 1000000)) {
+                throw new InvalidArgumentException('Position muss zwischen -1 und 1000000 liegen.');
+            }
+            if (isset($row['Presentation']) && !in_array($row['Presentation'], ['auto', 'value', 'legacy'], true)) {
+                throw new InvalidArgumentException('Unbekannte Variablendarstellung.');
+            }
             $seen[$row['Ident']] = true;
             $result[$row['Ident']] = $row['Enabled'];
         }
@@ -676,12 +734,84 @@ class WLANThermo extends IPSModuleStrict
         $idents = array_unique(array_merge(array_keys($catalog), array_keys($overrides)));
         $rows = [];
         foreach ($idents as $ident) {
-            $rows[] = ['Ident' => $ident, 'Enabled' => $overrides[$ident] ?? true,
-                'Group' => $this->variableGroup($ident), 'Name' => $catalog[$ident]['name'] ?? $ident];
+            $meta = $catalog[$ident] ?? [];
+            $options = $this->variableOptions($ident);
+            $rows[] = $options + ['Ident' => $ident, 'Enabled' => $overrides[$ident] ?? true,
+                'Group' => $this->variableGroup($ident), 'Name' => $meta['name'] ?? $ident,
+                'Type' => isset($meta['type']) ? ['Boolean', 'Integer', 'Float', 'String'][$meta['type']] : 'Noch nicht erkannt'];
         }
         usort($rows, static fn(array $a, array $b): int =>
             strnatcasecmp($a['Group'], $b['Group']) ?: strnatcasecmp($a['Name'], $b['Name']));
         return $rows;
+    }
+
+    private function variableOptions(string $ident): array
+    {
+        foreach (json_decode($this->ReadPropertyString('VariableSelection'), true, 64, JSON_THROW_ON_ERROR) as $row) {
+            if (($row['Ident'] ?? '') === $ident) {
+                return ['CustomName' => $row['CustomName'] ?? '', 'Position' => $row['Position'] ?? -1,
+                    'Presentation' => $row['Presentation'] ?? 'auto'];
+            }
+        }
+        return ['CustomName' => '', 'Position' => -1, 'Presentation' => 'auto'];
+    }
+
+    private function retainDisabled(string $ident): void
+    {
+        $id = @$this->GetIDForIdent($ident);
+        if (!$id) { return; }
+        $this->DisableAction($ident);
+        $hidden = json_decode($this->ReadAttributeString('HiddenVariables'), true);
+        if (!array_key_exists($ident, $hidden)) {
+            $hidden[$ident] = IPS_GetObject($id)['ObjectIsHidden'];
+            $this->WriteAttributeString('HiddenVariables', WLTApi::encode($hidden));
+            IPS_SetHidden($id, true);
+        }
+    }
+
+    private function invalidateActions(): void
+    {
+        foreach (json_decode($this->ReadAttributeString('Dynamic'), true) as $ident) { $this->disableIfExists($ident); }
+    }
+
+    private function presentation(string $ident, int $type, string $profile, string $mode): array|string
+    {
+        if ($mode === 'legacy') { return $profile; }
+        $value = ['PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION];
+        $unit = str_ends_with($profile, 'F') ? ' °F' : ' °C';
+        if (str_starts_with($profile, 'WLT.Temperature') || str_starts_with($profile, 'WLT.Setpoint')) {
+            if ($mode === 'auto' && str_starts_with($profile, 'WLT.Setpoint')) {
+                return ['PRESENTATION' => VARIABLE_PRESENTATION_SLIDER, 'MIN' => str_starts_with($ident, 'PM') ? 0 : -30, 'MAX' => 999,
+                    'STEP_SIZE' => 1, 'DIGITS' => 0, 'SUFFIX' => $unit];
+            }
+            return $value + ['SUFFIX' => $unit, 'DIGITS' => str_starts_with($profile, 'WLT.Setpoint') ? 0 : 1, 'USAGE_TYPE' => 1];
+        }
+        if ($ident === 'LastUpdate' && $mode === 'auto') {
+            return ['PRESENTATION' => VARIABLE_PRESENTATION_DATE_TIME, 'DATE' => 1, 'TIME' => 2];
+        }
+        if ($ident === 'BluetoothEnabled' && $mode === 'auto') { return ['PRESENTATION' => VARIABLE_PRESENTATION_SWITCH]; }
+        if ($type === 0) {
+            return $value + ['OPTIONS' => WLTApi::encode([
+                ['Value' => false, 'Caption' => 'Nein'], ['Value' => true, 'Caption' => 'Ja']
+            ])];
+        }
+        if ($profile === 'WLT.Percent') {
+            if ($mode === 'auto') {
+                return ['PRESENTATION' => VARIABLE_PRESENTATION_SLIDER, 'MIN' => 0, 'MAX' => 100,
+                    'STEP_SIZE' => 1, 'DIGITS' => 0, 'SUFFIX' => ' %'];
+            }
+            return $value + ['SUFFIX' => ' %', 'DIGITS' => 0];
+        }
+        if ($mode === 'auto' && in_array($profile, ['WLT.Mode', 'WLT.Alarm'], true)) {
+            $labels = $profile === 'WLT.Mode' ? ['off' => 'Aus', 'manual' => 'Manuell', 'auto' => 'Automatisch'] : ['Aus', 'Push', 'Summer', 'Push + Summer'];
+            $options = [];
+            foreach ($labels as $v => $label) { $options[] = ['Value' => $v, 'Caption' => $label]; }
+            return ['PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION, 'OPTIONS' => WLTApi::encode($options)];
+        }
+        if ($mode === 'auto' && preg_match('/^(CH\d+_(Name|Type|Color)|PM\d+_(Channel|PID))$/', $ident)) {
+            return ['PRESENTATION' => VARIABLE_PRESENTATION_VALUE_INPUT];
+        }
+        return $value;
     }
 
     private function safeSet(string $ident, mixed $value): void
@@ -689,7 +819,9 @@ class WLANThermo extends IPSModuleStrict
         if (in_array($ident, ['Online', 'LastUpdate', 'LastError', 'BluetoothError', 'Device'], true)) {
             $this->SetBuffer('State_' . $ident, json_encode($value, JSON_THROW_ON_ERROR));
         }
-        if (@$this->GetIDForIdent($ident)) { $this->SetValue($ident, $value); }
+        try { $selected = $this->selected($ident); }
+        catch (JsonException | InvalidArgumentException $e) { return; }
+        if ($selected && @$this->GetIDForIdent($ident)) { $this->SetValue($ident, $value); }
     }
 
     private function stateValue(string $ident, mixed $default): mixed
