@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.4.0
+# Lieferumfang A–I – WLANThermo 1.4.1
 
 ## A. Modulbeschreibung
 
@@ -64,7 +64,7 @@ Neue Instanz: **0 zusätzliche Statusvariablen**, auch bei vollständig bedienba
 
 ## G. Premium-Visu-Kachel
 
-Grillstation mit großer Haupttemperatur, Fühlerkarten, tatsächlichen Alarmbereichen und Pitmaster. Kreis und Balken zeigen Temperaturpositionen zwischen Alarmgrenzen, keinen erfundenen Garfortschritt. Direkte Bedienung von Alarmgrenzen, Pitmaster und Bluetooth, dazu Aktualisieren. Daten direkt aus Modulbuffers über das HTML-SDK, ohne Hilfsvariablen. Designmodi, Akzent, kompakte Ansicht, Details, Icons, Animation und Fühlerauswahl dauerhaft konfigurierbar. Die Vorschau verwendet denselben Code mit Testdaten, ohne Geräteverbindung. Responsives CSS vorhanden; Browser- und Symcon-Layoutprüfung noch offen.
+Grillstation mit großer Haupttemperatur, Fühlerkarten, tatsächlichen Alarmbereichen und Pitmaster. Kreis und Balken zeigen Temperaturpositionen zwischen Alarmgrenzen, keinen erfundenen Garfortschritt. Direkte Bedienung von Alarmgrenzen, Pitmaster und Bluetooth, dazu Aktualisieren. Daten direkt aus Modulbuffers als JSON-Text über das HTML-SDK, ohne Hilfsvariablen. Designmodi, Akzent, kompakte Ansicht, Details, Icons, Animation und Fühlerauswahl dauerhaft konfigurierbar. Die Vorschau verwendet denselben Code mit Testdaten, ohne Geräteverbindung. Responsives CSS vorhanden; Browser- und Symcon-Layoutprüfung noch offen.
 
 ## H. Installation
 
@@ -72,4 +72,4 @@ README.md enthält die vollständige Installation/Update-Anleitung für Module C
 
 ## I. Tests und Dokumentation
 
-159 PHP-Modulprüfungen und 15 JavaScript-Vertragsprüfungen erfolgreich, dazu PHP-/JavaScript-Syntax und JSON-/Strukturprüfung. Die unveränderte HTTP-Implementierung wurde in dieser Sitzung separat mit acht echten HTTP-Prüfungen getestet. VALIDIERUNG.md trennt diese Nachweise von offenen Prüfungen in Browser, Symcon und Hardware. README.md verlinkt die aktuelle offizielle Dokumentation für Modulklasse, Darstellung, Variablenverwaltung und HTML-SDK.
+164 PHP-Modulprüfungen und 15 JavaScript-Vertragsprüfungen erfolgreich, dazu PHP-/JavaScript-Syntax und JSON-/Strukturprüfung. Die unveränderte HTTP-Implementierung wurde in dieser Sitzung separat mit acht echten HTTP-Prüfungen getestet. VALIDIERUNG.md trennt diese Nachweise von offenen Prüfungen in Browser, Symcon und Hardware. README.md verlinkt die aktuelle offizielle Dokumentation für Modulklasse, Darstellung, Variablenverwaltung und HTML-SDK.

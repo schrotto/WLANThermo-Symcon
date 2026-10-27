@@ -1,10 +1,18 @@
-# Prüfbericht 1.4.0 – 27. Oktober 2026
+# Prüfbericht 1.4.1 – 27. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
 
+## Gemeldeter Fehler und Regression 1.4.1
+
+Der Screenshot des Zielsystems meldete einen nicht unterstützten Werttyp in `libs/Visualization.php`, Zeile 131 der Version 1.4.0. Dort wurde ein PHP-Array direkt an UpdateVisualizationValue übergeben. Die bisherige Simulation akzeptierte Arrays und konnte diesen Fehler deshalb nicht erkennen.
+
+Die Simulation wurde zuerst um die native Typgrenze erweitert. Mit dem unveränderten 1.4.0-Laufzeitcode brach der Test daraufhin an exakt diesem Aufruf mit „Cannot auto-convert value for parameter Value (Type is not supported)“ ab. Nach Umstellung beider Sendepfade auf JSON-Text bestanden alle Prüfungen. Der JavaScript-Empfänger unterstützt JSON-Text bereits; eine Änderung der Kachel war dafür nicht erforderlich.
+
+Zusätzlich geprüft: sämtliche gesendeten Nachrichten sind Strings; Deaktivierung/Fehlerquittierung enthalten gültiges JSON; eine neue Instanz ohne Host initialisiert sich mit Diagnose 201 und null Variablen; eine deaktivierte Instanz initialisiert sich mit Status 104. Ein erneuter Test auf dem echten Symcon-System steht aus.
+
 ## Ausgeführte Prüfungen
 
-- **159 erfolgreiche PHP-Modulprüfungen**, einschließlich der bisherigen 124 Prüfungen. Neu: null Variablen auf neuen Instanzen, empfohlene Auswahl, Migration bestehender Instanzen, explizite Bereinigung, externe Ziele mit Referenzen/Typprüfung/Schreibschutz, Kachelaktionen und Rücklesebestätigung, serverseitiger Schreibschutz, ausgeblendete Kanäle, Offline-Livedaten und sichere JSON-Einbettung.
+- **164 erfolgreiche PHP-Modulprüfungen**, einschließlich der bisherigen 124 Prüfungen. Neu: null Variablen auf neuen Instanzen, empfohlene Auswahl, Migration bestehender Instanzen, explizite Bereinigung, externe Ziele mit Referenzen/Typprüfung/Schreibschutz, Kachelaktionen und Rücklesebestätigung, serverseitiger Schreibschutz, ausgeblendete Kanäle, Offline-Livedaten und sichere JSON-Einbettung.
 - **15 erfolgreiche JavaScript-Vertragsprüfungen** mit Ausführung der echten tile.js in Node.js und einem kleinen DOM-Vertrag. Initialanzeige, Fühlerwahl per Tastatur, strukturierte SDK-Nachrichten, Doppelsendsperre, Erfolg/Fehler, manuelle Pitmaster-Regelung, Offlinezustand, Design-/Kompaktkonfiguration, entfernte Kanäle, sichere Texte, Timeout und Deaktivierung.
 - PHP-Syntax aller acht PHP-Dateien erfolgreich, einschließlich beider Traits und des neuen Tests. PHP 8.3.6, ausschließlich nach /tmp entpackte Testlaufzeit; keine Systeminstallation.
 - JavaScript-Syntax der Kachel und der isolierten Gesprächsvorschau mit Node.js geprüft.

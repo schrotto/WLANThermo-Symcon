@@ -108,3 +108,16 @@ $preview->Update();
 file_put_contents(__DIR__ . '/tile-state.generated.json', WLTApi::encode(end($preview->visualizationMessages)));
 file_put_contents(__DIR__ . '/tile.generated.html', $preview->GetVisualizationTile());
 check(count($preview->variables) === 0, 'Vollständig bedienbare Vorschaukachel benötigt null zusätzliche Variablen');
+
+// Regression 1.4.1: native Wertkonvertierung und Erstellen ohne Gerätekonfiguration.
+check(count($preview->visualizationPayloads) > 0 && !array_filter($preview->visualizationPayloads, static fn(mixed $v): bool => !is_string($v)), 'Alle Live-Kachelnachrichten werden als JSON-Text an die native SDK-Grenze übergeben');
+check(json_decode(end($tile->visualizationPayloads), true, 64, JSON_THROW_ON_ERROR)['enabled'] === false, 'Auch Deaktivierung und Fehlerquittierung verwenden JSON-Text');
+$fresh = new WLANThermo();
+$GLOBALS['instances'][$fresh->InstanceID] = $fresh;
+$fresh->Create();
+$fresh->ApplyChanges();
+check($fresh->status === 201 && count($fresh->variables) === 0 && count($fresh->visualizationPayloads) > 0, 'Instanz lässt sich ohne Host und ohne Statusvariablen fehlerfrei initialisieren');
+check(json_decode(end($fresh->visualizationPayloads), true, 64, JSON_THROW_ON_ERROR)['status'] === 201, 'Unkonfigurierte Instanz überträgt den Diagnosezustand als JSON-Text');
+$fresh->properties['Active'] = false;
+$fresh->ApplyChanges();
+check($fresh->status === 104 && json_decode(end($fresh->visualizationPayloads), true, 64, JSON_THROW_ON_ERROR)['active'] === false, 'Deaktivierte Instanz initialisiert sich ebenfalls ohne Wertkonvertierungsfehler');

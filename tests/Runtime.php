@@ -56,6 +56,7 @@ class IPSModuleStrict
     public int $status = 0;
     public int $visualizationType = 0;
     public array $visualizationMessages = [];
+    public array $visualizationPayloads = [];
     public array $references = [];
     public array $formUpdates = [];
     public function Create(): void {}
@@ -100,7 +101,13 @@ class IPSModuleStrict
     protected function GetBuffer(string $id): string { return $this->buffers[$id] ?? ''; }
     protected function GetStatus(): int { return $this->status; }
     protected function SetVisualizationType(int $type): bool { $this->visualizationType = $type; return true; }
-    protected function UpdateVisualizationValue(mixed $value): bool { $this->visualizationMessages[] = $value; return true; }
+    protected function UpdateVisualizationValue(mixed $value): bool {
+        // Die native Symcon-Wertgrenze akzeptiert keine PHP-Arrays/Objekte.
+        if (!is_scalar($value)) { throw new TypeError('Cannot auto-convert value for parameter Value (Type is not supported)'); }
+        $this->visualizationPayloads[] = $value;
+        $this->visualizationMessages[] = is_string($value) ? json_decode($value, true, 64, JSON_THROW_ON_ERROR) : $value;
+        return true;
+    }
     protected function GetReferenceList(): array { return $this->references; }
     protected function RegisterReference(int $id): void { $this->references[] = $id; }
     protected function UnregisterReference(int $id): void { $this->references = array_values(array_diff($this->references, [$id])); }

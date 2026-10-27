@@ -157,7 +157,12 @@ OK 156: Initiale Gerätedaten sind sicher gegen Script-Ausbruch kodiert
 OK 157: Deaktivierte Kachel liefert kein HTML und nimmt keine Aktionen an
 OK 158: Laufzeit mit dem dokumentierten Vollbildtyp verwendet dieselbe responsive HTML-Kachel
 OK 159: Vollständig bedienbare Vorschaukachel benötigt null zusätzliche Variablen
-159 assertions passed.
+OK 160: Alle Live-Kachelnachrichten werden als JSON-Text an die native SDK-Grenze übergeben
+OK 161: Auch Deaktivierung und Fehlerquittierung verwenden JSON-Text
+OK 162: Instanz lässt sich ohne Host und ohne Statusvariablen fehlerfrei initialisieren
+OK 163: Unkonfigurierte Instanz überträgt den Diagnosezustand als JSON-Text
+OK 164: Deaktivierte Instanz initialisiert sich ebenfalls ohne Wertkonvertierungsfehler
+164 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert

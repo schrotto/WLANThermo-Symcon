@@ -2,6 +2,14 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Hotfix 1.4.1: Instanzerstellung korrigiert
+
+Version 1.4.0 übergab PHP-Arrays an `UpdateVisualizationValue()`. Die gemeldete native Symcon-Wertkonvertierung wies diese mit „Cannot auto-convert value for parameter Value (Type is not supported)“ zurück; dadurch konnte bereits die Instanzerstellung scheitern.
+
+Version 1.4.1 überträgt alle Live-Nachrichten einschließlich Deaktivierung und Fehlerquittierungen als **JSON-Text**. `handleMessage()` unterstützt diesen Text bereits. Der letzte Versandstand wird nur nach erfolgreichem SDK-Aufruf gespeichert. Die Testsimulation weist Array-/Objektübergaben jetzt ausdrücklich zurück. Fünf zusätzliche Regressionstests prüfen die Typgrenze sowie die Initialisierung ohne Host und im deaktivierten Zustand.
+
+Die Moduldateien vollständig ersetzen und bei direkter Dateikopie den Symcon-Dienst neu starten. Modul-/Bibliotheks-GUIDs, Variablen-Idents und vorhandene Konfigurationen bleiben erhalten. Bei Installation über das eigene Repository die Dateien dort übernehmen und über Module Control aktualisieren.
+
 ## Version 1.4.0: Grill-Kachel ohne zusätzliche Variablen
 
 Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Alarmbereichen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Kanalüberschriften oder die Tastatur wechseln den Hauptfühler. Alarmgrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zu den tatsächlichen Alarmgrenzen, keinen Garfortschritt.
@@ -41,7 +49,7 @@ Die Kachel passt das Layout per Breite und Höhe an. Kleine Kacheln zeigen vor a
 
 ### Datenfluss und Sicherheit
 
-`GetVisualizationTile()` liefert initial HTML mit eingebettetem CSS, JavaScript und sicher kodiertem JSON. `UpdateVisualizationValue()` sendet anschließend aktuelle, auf die Kachel beschränkte Daten. `handleMessage()` aktualisiert bestehende Elemente. Es gibt keine JavaScript-Abfrageintervalle und keine externen Schriften, Bibliotheken, Cloud-Dienste oder Webhooks.
+`GetVisualizationTile()` liefert initial HTML mit eingebettetem CSS, JavaScript und sicher kodiertem JSON. `UpdateVisualizationValue()` sendet anschließend aktuelle, auf die Kachel beschränkte Daten als JSON-Text. `handleMessage()` aktualisiert bestehende Elemente. Es gibt keine JavaScript-Abfrageintervalle und keine externen Schriften, Bibliotheken, Cloud-Dienste oder Webhooks.
 
 `requestAction('TileAction', ...)` sendet strukturierte Aktionen. PHP prüft Aktivierung, Kachelbedienfreigabe, globalen Schreibschutz, sichtbare Kanäle/Pitmaster, Aktion und Parameter. Die vorhandenen geprüften Gerätefunktionen validieren die Werte und lesen Änderungen zurück. Eine Anfragekennung verbindet Rückmeldung und Bedienung; ausstehende Aktionen sind gesperrt. Der einmalige Rückmelde-Timeout folgt dem konfigurierten HTTP-Timeout. Ein Timeout bestätigt oder verwirft keine Geräteänderung: danach zuerst aktualisieren. Allein die Kachelberechtigung erweitert niemals den globalen Schreibzugriff.
 

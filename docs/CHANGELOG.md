@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.4.1 – 27.10.2026
+
+- Fehler bei Instanzerstellung durch nicht unterstützte Array-Übergabe an UpdateVisualizationValue behoben.
+- Sämtliche Kachelnachrichten werden als JSON-Text übertragen, einschließlich Deaktivierung und Fehlerquittierung.
+- Versandpuffer wird nur bei erfolgreichem SDK-Aufruf fortgeschrieben.
+- Testsimulation lehnt Arrays/Objekte an der nativen Wertgrenze ab.
+- Fünf zusätzliche Regressionstests; insgesamt 164 Modulprüfungen und 15 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.4.0 – 27.10.2026
 
 - Responsive Grill-Kachel über das HTML-SDK, ohne zusätzliche Statusvariablen.

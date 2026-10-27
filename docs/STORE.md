@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.4.0
+# Veröffentlichung – WLANThermo 1.4.1
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -26,3 +26,5 @@ Bindet den WLANThermo Mini V3 und dessen unterstützte Bluetooth-/MEATER-Fühler
 - Die Benutzeroberfläche ist deutsch; weitere Store-Sprachen erst mit vollständiger Übersetzung anbieten.
 
 Offizielle Grundlage: [Einreichen und Review](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/store/einreichen/). Testergebnisse und Einschränkungen stehen in VALIDIERUNG.md.
+
+Hotfix 1.4.1 korrigiert die native Wertübergabe: Live-Nachrichten werden als JSON-Text statt als PHP-Array gesendet. Die Instanzerstellung ohne Grundkonfiguration ist durch einen neuen Regressionstest abgesichert.

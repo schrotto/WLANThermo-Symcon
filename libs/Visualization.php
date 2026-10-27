@@ -121,15 +121,17 @@ trait WLTVisualization
     private function pushVisualization(?array $response = null): void
     {
         if (!$this->ReadPropertyBoolean('TileEnabled')) {
-            $this->UpdateVisualizationValue(['enabled' => false, 'response' => $response]);
+            $this->UpdateVisualizationValue(WLTApi::encode(['enabled' => false, 'response' => $response]));
             return;
         }
         $data = $this->visualizationData();
         if ($response !== null) { $data['response'] = $response; }
         $encoded = WLTApi::encode($data);
         if ($response !== null || $encoded !== $this->GetBuffer('VisualizationLast')) {
-            $this->UpdateVisualizationValue($data);
-            $this->SetBuffer('VisualizationLast', $encoded);
+            // Native Symcon-Werte unterstützen keine PHP-Arrays: JSON-Text übertragen.
+            if ($this->UpdateVisualizationValue($encoded)) {
+                $this->SetBuffer('VisualizationLast', $encoded);
+            }
         }
     }
 
