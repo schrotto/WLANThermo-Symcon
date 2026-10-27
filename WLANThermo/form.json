@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.3.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.4.0"
         },
         {
             "type": "ExpansionPanel",
@@ -55,8 +55,40 @@
         },
         {
             "type": "ExpansionPanel",
-            "caption": "Variablenverwaltung",
+            "caption": "Variablenverwaltung · Lizenzoptimiert",
             "items": [
+                {
+                    "type": "Select",
+                    "name": "VariableMode",
+                    "caption": "Standard für Datenfelder ohne Einzelentscheidung",
+                    "options": [
+                        {
+                            "caption": "Automatisch: Neuinstallation keine, Update bisheriger Umfang",
+                            "value": "automatic"
+                        },
+                        {
+                            "caption": "Keine Variablen",
+                            "value": "none"
+                        },
+                        {
+                            "caption": "Empfohlen: Online, Temperaturen und Gültigkeit",
+                            "value": "recommended"
+                        },
+                        {
+                            "caption": "Alle angebotenen Felder",
+                            "value": "all"
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "caption": "Neue Instanzen legen standardmäßig keine Variablen an. Die Kachel benötigt keine Statusvariablen. Gespeicherte Einzelentscheidungen haben Vorrang vor dem Standard. Gruppen haben weiterhin Vorrang."
+                },
+                {
+                    "type": "Label",
+                    "caption": "Variablenanzahl wird beim Öffnen berechnet.",
+                    "name": "VariableCounts"
+                },
                 {
                     "type": "Label",
                     "caption": "Zeilen bearbeiten und anschließend Übernehmen. Deaktivieren blendet vorhandene Variablen aus, stoppt deren Aktualisierung und Bedienung und bewahrt ihre Daten. Noch nicht vorhandene Variablen werden nur bei Aktivierung angelegt."
@@ -104,6 +136,10 @@
                 {
                     "type": "Label",
                     "caption": "Eigener Name leer und Position -1 erhalten bisherige Namen und Positionen. Eigener Name ändert nur die Symcon-Beschriftung. Automatisch verwendet aktuelle Symcon-Darstellungen; Bisheriges Profil dient älteren Visualisierungen. Neue API-Felder erscheinen nach erneutem Öffnen."
+                },
+                {
+                    "type": "Label",
+                    "caption": "Vorhandene Zielvariable: 0 legt bei Bedarf eine eigene Variable an. Andere IDs dienen als beschreibbares Datenziel gleichen Typs. Profile, Aktionen, Namen, Positionen und Archivierung dieser Ziele bleiben unverändert; Bedienung erfolgt über die Kachel. Eigene alte Variablen bleiben ausgeblendet erhalten."
                 },
                 {
                     "type": "List",
@@ -192,12 +228,158 @@
                                 "minimum": -1,
                                 "maximum": 1000000
                             }
+                        },
+                        {
+                            "name": "TargetID",
+                            "caption": "Vorhandene Zielvariable",
+                            "width": "170px",
+                            "save": true,
+                            "edit": {
+                                "type": "SelectVariable"
+                            }
                         }
                     ],
                     "values": []
+                },
+                {
+                    "type": "Label",
+                    "caption": "Sammelauswahl verwendet den zuletzt gespeicherten Stand. Vorherige Zeilenänderungen zuerst übernehmen. Anschließend Vorschlag wählen und erneut Übernehmen drücken. Neue Felder folgen dem Standard oben."
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Button",
+                            "caption": "Alle auswählen",
+                            "onClick": "WLT_PrepareVariableSelection($id, 'all');"
+                        },
+                        {
+                            "type": "Button",
+                            "caption": "Alle abwählen",
+                            "onClick": "WLT_PrepareVariableSelection($id, 'none');"
+                        },
+                        {
+                            "type": "Button",
+                            "caption": "Empfohlene Auswahl",
+                            "onClick": "WLT_PrepareVariableSelection($id, 'recommended');"
+                        }
+                    ]
                 }
             ],
             "expanded": true
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Premium-Visualisierung",
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "TileEnabled",
+                    "caption": "Eigene Grill-Kachel aktivieren"
+                },
+                {
+                    "type": "Select",
+                    "name": "TileTheme",
+                    "caption": "Designmodus",
+                    "options": [
+                        {
+                            "caption": "Automatisch (Gerätefarbschema)",
+                            "value": "auto"
+                        },
+                        {
+                            "caption": "Hell",
+                            "value": "light"
+                        },
+                        {
+                            "caption": "Dunkel",
+                            "value": "dark"
+                        }
+                    ]
+                },
+                {
+                    "type": "SelectColor",
+                    "name": "TileAccent",
+                    "caption": "Akzentfarbe"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileCompact",
+                    "caption": "Kompaktmodus"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileDetails",
+                    "caption": "Gerät, Akku, WLAN und Zeitstempel anzeigen"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileIcons",
+                    "caption": "Symbole anzeigen"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileAnimations",
+                    "caption": "Dezente Animationen aktivieren"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileControls",
+                    "caption": "Bedienelemente anzeigen und erlauben (zusätzlich zu Schreibzugriffen)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TilePitmaster",
+                    "caption": "Pitmaster anzeigen"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "TilePrimary",
+                    "caption": "Bevorzugter Hauptkanal (0 = erster sichtbarer Kanal)",
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                {
+                    "type": "Label",
+                    "caption": "Die Kachelauswahl ist unabhängig von der Variablenanlage. Alle erkannten Kanäle werden zunächst angezeigt. Nach dem Abruf das Formular erneut öffnen. In der Kachel einen Fühlerkopf anklicken, um den Hauptmesswert lokal zu wechseln."
+                },
+                {
+                    "type": "List",
+                    "name": "TileChannels",
+                    "caption": "Fühler in der Kachel",
+                    "rowCount": 6,
+                    "add": false,
+                    "delete": false,
+                    "loadValuesFromConfiguration": false,
+                    "columns": [
+                        {
+                            "name": "Enabled",
+                            "caption": "Anzeigen",
+                            "width": "90px",
+                            "save": true,
+                            "edit": {
+                                "type": "CheckBox"
+                            }
+                        },
+                        {
+                            "name": "Number",
+                            "caption": "Kanal",
+                            "width": "70px",
+                            "save": true
+                        },
+                        {
+                            "name": "Name",
+                            "caption": "Name",
+                            "width": "auto",
+                            "save": false
+                        }
+                    ],
+                    "values": []
+                },
+                {
+                    "type": "Label",
+                    "caption": "Symcon 9.0 verwendet die normale HTML-Kachel. Wenn die Laufzeit den Vollbildtyp ab 9.1 anbietet, wird derselbe responsive Inhalt auch maximiert verwendet. Keine zusätzliche HTML-Box-Variable erforderlich."
+                }
+            ]
         },
         {
             "type": "ExpansionPanel",
@@ -314,6 +496,30 @@
                     "onClick": "switch ($WriteArea) { case 'channel': $ok = WLT_SetChannel($id, $WriteID, $WriteJSON); break; case 'pitmaster': $ok = WLT_SetPitmaster($id, $WriteID, $WriteJSON); break; case 'pid': $ok = WLT_SetPID($id, $WriteID, $WriteJSON); break; case 'iot': $ok = WLT_SetIoT($id, $WriteJSON); break; case 'system': $ok = WLT_SetSystem($id, $WriteJSON); break; default: throw new Exception('Unbekannter Bereich'); } echo $ok ? 'Änderung durch Rücklesen bestätigt.' : WLT_GetLastError($id);"
                 }
             ]
+        },
+        {
+            "type": "PopupButton",
+            "caption": "Ungenutzte Modulvariablen entfernen …",
+            "popup": {
+                "caption": "Modulvariablen dauerhaft entfernen",
+                "items": [
+                    {
+                        "type": "Label",
+                        "caption": "Nur nach Übernahme der Auswahl verwenden. Entfernt ausschließlich eigene, deaktivierte oder durch externe Ziele ersetzte Modulvariablen. Ihre IDs und Zuordnungen gehen verloren. Externe Zielvariablen und ausgewählte eigene Variablen werden nicht gelöscht. Ausblenden allein spart keine Variablenlizenz."
+                    },
+                    {
+                        "type": "CheckBox",
+                        "name": "ConfirmRemoval",
+                        "caption": "Ich bestätige das dauerhafte Entfernen der ungenutzten Modulvariablen.",
+                        "value": false
+                    },
+                    {
+                        "type": "Button",
+                        "caption": "Jetzt dauerhaft entfernen",
+                        "onClick": "echo WLT_RemoveDisabledVariables($id, $ConfirmRemoval) . ' eigene Variablen entfernt.';"
+                    }
+                ]
+            }
         }
     ],
     "status": [

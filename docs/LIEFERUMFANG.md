@@ -1,10 +1,10 @@
-# Lieferumfang A–H – WLANThermo 1.3.0
+# Lieferumfang A–I – WLANThermo 1.4.0
 
-## A. Modulübersicht
+## A. Modulbeschreibung
 
-WLANThermo Mini V3 lokal per HTTP mit Temperaturkanälen, Bluetooth/MEATER und Pitmaster. IP-Symcon ab 9.0, PHP-cURL, Netzwerkzugriff auf das Gerät. Alle Status- und Datenvariablen einzeln auswählbar; vorhandene Daten bei Abwahl geschützt. Mindestversion aus dem Ausgangsmodul beibehalten.
+Lokale Einbindung des WLANThermo Mini V3 mit dessen Temperatur-/Bluetooth-/MEATER-Kanälen und Pitmaster. Eigene interaktive Grill-Kachel, individuelle optionale Variablen, vorhandene Datenziele und gesondert bestätigte Bereinigung. Mindestversion IP-Symcon 9.0, PHP-cURL, Netzwerkzugriff auf das Gerät. HTML-Vollbild nur bei unterstütztem Typ ab 9.1.
 
-## B. Verzeichnisstruktur
+## B. Modulstruktur
 
 ```text
 library.json
@@ -16,11 +16,18 @@ WLANThermo/
   module.json
   module.php
   form.json
+  module.html
+  tile.css
+  tile.js
 libs/
   Api.php
+  VariableManagement.php
+  Visualization.php
 docs/
   CHANGELOG.md
+  KACHEL-VORSCHAU.html
   LIEFERUMFANG.md
+  QUELLCODE.md
   STORE.md
   TESTAUSGABE.txt
   VALIDIERUNG.md
@@ -28,7 +35,9 @@ docs/
 tests/
   Runtime.php
   run.php
+  premium.php
   structure.py
+  tile-ui.cjs
   http_transport.py
   transport.php
   fixtures/
@@ -37,26 +46,30 @@ tests/
     bluetooth.json
 ```
 
-## C. Sämtliche Quelldateien
+## C. Vollständiger Quellcode
 
-Alle Dateien liegen vollständig und ohne ausgelassene Kernfunktionen in der Bibliothek sowie im ZIP-Paket vor. Die Modulimplementierung ist `WLANThermo/module.php`, der HTTP-/Validierungsteil `libs/Api.php`. Die Test-Simulation wird nur von Tests geladen. Die deutsche Oberfläche benötigt keine zusätzliche locale.json. Ein Hochladen des Bibliotheksinhalts in ein eigenes Git-Repository macht ihn über Module Control installierbar; eine Veröffentlichung ist nicht erfolgt.
+Alle Dateien sind im Paket vollständig enthalten. QUELLCODE.md enthält zusätzlich den vollständigen Inhalt sämtlicher Laufzeit-/Konfigurationsdateien, README und Lizenz als zusammenhängende Quellcodeausgabe. HTML, CSS und JavaScript werden aus lokalen Modulressourcen in GetVisualizationTile eingebettet. Keine zusätzlichen Webserverpfade, Webhooks, Skripte oder HTML-Boxen erforderlich. Die deutsche Oberfläche benötigt keine locale.json.
 
-## D. Konfigurationsoberfläche
+## D. Konfigurationsformular
 
-Fünf Bereiche: Allgemeine Einstellungen mit Aktivierung/Host/Anmeldung/Intervall; Geräte und Datenquellen mit automatischer Erkennung und Bluetooth-Abfrage; Variablenverwaltung mit Gruppen und Tabelle; Erweiterte Einstellungen mit Schreibschutz/Timeout/Rohdaten; Diagnose und Aktionen mit letztem Hinweis, Verbindungstest und manuellen Abrufen. Gerätespezifische Bluetooth-Panels und die bisherigen JSON-Schreibfunktionen bleiben verfügbar. Details in README.md.
+Allgemeine Einstellungen mit Aktivierung, Host/Anmeldung/Intervall; Geräte und Datenquellen mit Bluetooth; lizenzoptimierte Variablentabelle mit Gruppen, Standard und Sammelauswahl; Premium-Visualisierung mit Design und Fühlerauswahl; erweiterte Einstellungen mit Timeout/Schreibschutz/Rohdaten; Diagnose mit Verbindungstest, manueller Aktualisierung, Fehlerhinweis und gesonderter Bereinigung. Vollständige Beschreibung in README.md.
 
-## E. Variablenübersicht
+## E. Variablenverwaltung
 
-Siehe VARIABLEN.md: stabile Idents, Typen, Einheiten, Darstellungen, Funktionen und Standardaktivierung einschließlich des vollständigen Beispielkatalogs der Fixtures. Die Tabelle in der echten Instanz enthält alle dort erkannten Felder.
+Alle angebotenen Variablen sind optional. VARIABLEN.md beschreibt stabile Idents, Typen, Einheiten, Funktionen und automatische Darstellungen und listet den vollständigen Beispielkatalog. Reale API-Felder werden dynamisch ergänzt. Vorhandene externe Datenziele werden typgeprüft; die Kachel bleibt von dieser Auswahl unabhängig.
 
-## F. Installationsanleitung
+## F. Lizenzoptimierung
 
-README.md enthält die Schritte für direkte Dateikopie und Module Control, Erstkonfiguration sowie Update einer bestehenden Instanz. Bibliotheks- und Modul-GUIDs bleiben erhalten. Das ZIP enthält eine Bibliothek; es kann nicht direkt als Repository-URL verwendet werden.
+Neue Instanz: **0 zusätzliche Statusvariablen**, auch bei vollständig bedienbarer Kachel. Empfohlen: **1 + 2 × Anzahl Temperaturkanäle** (Online sowie Temperatur/Gültigkeit). Bei drei Testkanälen sieben Variablen. Der Beispielkatalog bietet 120 Felder; mit allen Gruppen und Rohdaten können in diesem Beispiel 120 eigene Variablen entstehen. Ein allgemeiner Maximalwert ist wegen dynamischer Gerätefelder nicht seriös festlegbar. Bestehende ausgeblendete Variablen zählen weiter; erst die ausdrücklich bestätigte Bereinigung gibt ihre Plätze frei. Vorhandene externe Datenziele vermeiden Doppelanlagen, zählen aber selbstverständlich weiterhin zur bestehenden Symcon-Lizenz.
 
-## G. Tests und Kompatibilität
+## G. Premium-Visu-Kachel
 
-124 Modulprüfungen, 8 HTTP-Prüfungen, PHP-Syntax und JSON-/Strukturprüfung erfolgreich. Alle Nachweise und verbleibenden Zielsystemprüfungen stehen in VALIDIERUNG.md. Keine laufende Symcon-Installation und keine reale Hardware wurden hier geprüft.
+Grillstation mit großer Haupttemperatur, Fühlerkarten, tatsächlichen Alarmbereichen und Pitmaster. Kreis und Balken zeigen Temperaturpositionen zwischen Alarmgrenzen, keinen erfundenen Garfortschritt. Direkte Bedienung von Alarmgrenzen, Pitmaster und Bluetooth, dazu Aktualisieren. Daten direkt aus Modulbuffers über das HTML-SDK, ohne Hilfsvariablen. Designmodi, Akzent, kompakte Ansicht, Details, Icons, Animation und Fühlerauswahl dauerhaft konfigurierbar. Die Vorschau verwendet denselben Code mit Testdaten, ohne Geräteverbindung. Responsives CSS vorhanden; Browser- und Symcon-Layoutprüfung noch offen.
 
-## H. Verwendete Dokumentation
+## H. Installation
 
-Aktuelle offizielle Symcon-Dokumentation zu IPSModuleStrict, MaintainVariable, Darstellungen, Konfigurationslisten, Objektverwaltung und Store-Review vor der Umsetzung gelesen. README.md verlinkt die Seiten und begründet die Entscheidungen. Die WLANthermo-API wurde aus dem bestehenden Modul übernommen; ihre bisherige Firmwarebasis ist im Prüfbericht ausdrücklich als übernommen gekennzeichnet.
+README.md enthält die vollständige Installation/Update-Anleitung für Module Control sowie das Einrichten der Kachel. Der Bibliotheksinhalt gehört in ein Git-Repository mit library.json im Hauptverzeichnis. Danach in Module Control dessen URL eintragen, die WLANThermo-Instanz erstellen bzw. beibehalten, Host konfigurieren, Kachel aktivieren und die Instanz in der Kachelvisualisierung anzeigen. Eine direkte Dateikopie erfordert den dokumentierten Dienstneustart. Keine Veröffentlichung wurde in dieser Sitzung durchgeführt.
+
+## I. Tests und Dokumentation
+
+159 PHP-Modulprüfungen und 15 JavaScript-Vertragsprüfungen erfolgreich, dazu PHP-/JavaScript-Syntax und JSON-/Strukturprüfung. Die unveränderte HTTP-Implementierung wurde in dieser Sitzung separat mit acht echten HTTP-Prüfungen getestet. VALIDIERUNG.md trennt diese Nachweise von offenen Prüfungen in Browser, Symcon und Hardware. README.md verlinkt die aktuelle offizielle Dokumentation für Modulklasse, Darstellung, Variablenverwaltung und HTML-SDK.

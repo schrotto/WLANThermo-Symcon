@@ -2,33 +2,56 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
-## Update auf Version 1.3.0
+## Version 1.4.0: Grill-Kachel ohne zusätzliche Variablen
 
-Die neue Version ergänzt eine frei konfigurierbare Variablenverwaltung mit Aktivierung, eigenem Namen, Datentyp, Darstellung und Position. Die Oberfläche ist in Allgemeine Einstellungen, Geräte und Datenquellen, Variablenverwaltung, Erweiterte Einstellungen sowie Diagnose und Aktionen gegliedert.
+Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Alarmbereichen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Kanalüberschriften oder die Tastatur wechseln den Hauptfühler. Alarmgrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zu den tatsächlichen Alarmgrenzen, keinen Garfortschritt.
 
-**Abwählen löscht keine Variablen mehr.** Vorhandene Variablen werden nach Übernehmen ausgeblendet, nicht mehr aktualisiert und ihre Bedienaktionen abgeschaltet. Werte, IDs, Referenzen und Archivzuordnungen bleiben erhalten. Beim Wiederaktivieren wird dieselbe Variable verwendet; ihre vorherige Sichtbarkeit wird wiederhergestellt. Variablen, die bereits mit einer früheren Version gelöscht wurden, können durch dieses Update nicht wiederhergestellt werden.
+**Neue Instanzen erzeugen standardmäßig 0 Statusvariablen.** Alle Daten werden intern gepuffert und über das offizielle HTML-SDK direkt an die Kachel übertragen. Keine HTML-Box, keine Container-, Platzhalter- oder versteckten Hilfsvariablen. Die Kachel funktioniert auch bei vollständig abgewählten Variablen. Bei bestehenden Instanzen wird der bisherige Variablenumfang übernommen; vorhandene IDs, Werte und gespeicherte Einzelentscheidungen bleiben erhalten.
 
-Alle bisherigen Gruppen und Einzelentscheidungen werden übernommen. Eine deaktivierte Gruppe hat Vorrang vor der Einzelwahl. Noch nie angelegte, deaktivierte Variablen werden nicht erzeugt. Die Auswahl wirkt ausschließlich auf Symcon; die API und Skriptfunktionen bleiben verfügbar. Auch alle Statusvariablen sind optional: Instanzstatus, `WLT_GetLastError` und `WLT_GetSnapshot` funktionieren unabhängig davon. Automationen dürfen deaktivierte Variablen nicht als aktuelle Datenquelle verwenden; deren letzter Wert bleibt absichtlich unverändert.
+### Variablen auswählen und Lizenzen sparen
 
-Die Tabelle zeigt alle bisher erkannten API-Felder. Nach dem ersten erfolgreichen Abruf das Formular erneut öffnen. Pro Zeile sind folgende Einstellungen möglich:
+Unter **Variablenverwaltung · Lizenzoptimiert** bestimmt der Standard die Felder ohne gespeicherte Einzelentscheidung:
 
-| Spalte | Wirkung |
-| --- | --- |
-| Aktiv | Aktualisieren und gegebenenfalls neu anlegen; deaktiviert bedeutet vorhandene Variable erhalten und ausblenden |
-| Bereich / Variable / Ident / Typ | Automatisch ermittelte Informationen; der Ident bleibt unverändert |
-| Eigener Name | Lokale Symcon-Beschriftung; leer lässt den bisherigen Namen bestehen. Den Fühlernamen am Gerät ändert weiterhin die Kanalvariable `CHn_Name`. |
-| Darstellung | Automatisch: aktuelle Symcon-Darstellung mit Einheit und passenden Bedienelementen. Wertanzeige: reine Anzeige, bei Temperaturen weiterhin mit Einheit. Bisheriges Profil: kompatible WLT-Profile für ältere Visualisierungen. |
-| Position | Reihenfolge im Objektbaum; -1 lässt bestehende Positionen bestehen und nutzt bei Neuanlage die Standardposition |
+- Automatisch: Neuinstallation keine Variablen; Update bisheriger Umfang.
+- Keine Variablen: nur ausdrücklich aktivierte Tabellenzeilen.
+- Empfohlen: `Online`, je Fühler `Temperature` und `Valid` (bei drei Kanälen sieben Variablen).
+- Alle angebotenen Felder: vollständiger Umfang innerhalb der aktivierten Gruppen.
 
-Name und Position werden bei einer Änderung der Tabellenwerte angewendet, auch wenn das Gerät offline ist. Spätere manuelle Objektänderungen werden durch Polling nicht überschrieben. Die Standarddarstellung kann weiterhin in Symcon mit einer benutzerdefinierten Darstellung übersteuert werden; solche Anpassungen und die Archivkonfiguration verändert das Modul nicht. Einheiten folgen dem Gerät: Celsius oder Fahrenheit, ohne Umrechnung. Alarmgrenzen und Solltemperaturen behalten Float-Typen und sind in ganzen Grad bedienbar.
+Gespeicherte Zeilen haben Vorrang vor dem Standard; deaktivierte Gruppen haben weiterhin Vorrang vor den Zeilen. Die Sammelaktionen **Alle auswählen**, **Alle abwählen** und **Empfohlene Auswahl** bereiten Tabellenwerte aus dem zuletzt gespeicherten Stand vor. Vorherige Änderungen zuerst übernehmen; anschließend den Vorschlag mit **Übernehmen** speichern. Die Sammelauswahl ändert keine Gruppen und keinen Standard für künftig neu erkannte Felder. Ein Zähler zeigt erkannte, ausgewählte, bestehende, zusätzlich benötigte und ungenutzte Variablen beim erneuten Öffnen des Formulars.
 
-Das Modul verwendet `IPSModuleStrict` und die seit Symcon 8.0 dokumentierten Darstellungen. Die Mindestversion bleibt wie im Ausgangsmodul **IP-Symcon 9.0**; es wird keine aktuellere Stable-Version vorausgesetzt oder behauptet. PHP-cURL und Netzwerkzugriff auf den Mini V3 sind erforderlich; fehlendes cURL wird beim Abruf verständlich gemeldet. Kein MQTT-Broker und keine externe Bibliothek sind erforderlich.
+Pro Zeile sind Aktivierung, eigener Name, Typinformation, Darstellung, Position und optional eine vorhandene Zielvariable verfügbar. Eigener Name leer und Position -1 erhalten bisherige Objektänderungen. Eigene Tabellenwerte werden nur bei einer Änderung dieser Einstellung angewendet; spätere manuelle Namen/Positionen überschreibt Polling nicht. Namen in der Tabelle betreffen Symcon, nicht den Fühlernamen am Gerät.
 
-Zum Aktualisieren die vollständige Bibliothek ersetzen bzw. im eigenen Git-Repository übernehmen und über Module Control aktualisieren. **Die bestehende Instanz beibehalten**: Modul-GUID, Bibliotheks-GUID, Präfix und Idents sind unverändert. Bei direkter Dateikopie den Symcon-Dienst neu starten. Bereits eingerichtete Geräteparameter bleiben erhalten. Die vorbereitete Repositoryadresse lautet `https://github.com/schrotto/WLANThermo-Symcon`; dieses Paket veröffentlicht kein Repository.
+**Abwählen erhält bestehende Variablen ausgeblendet mit letzter ID und letztem Wert. Ausblenden spart noch keine Lizenz.** Die Variablen werden dann nicht aktualisiert oder bedient. Automationen müssen die aktuelle Aktivierung berücksichtigen; ein eingefrorener letzter Wert ist kein aktueller Messwert. Beim Wiederaktivieren werden dieselbe ID und die vorherige Sichtbarkeit verwendet. Bereits vor diesem Update gelöschte Variablen können nicht wiederhergestellt werden.
 
-Ausgeschaltete Geräte bleiben im Status **106 / Standby**. Der Timer versucht weiter zu lesen; bei Rückkehr des Geräts wird **102 / Aktiv** hergestellt. Authentifizierungs-, Zertifikats- und API-Fehler bleiben Fehler. Unter Diagnose stehen ein Verbindungstest, manueller Abruf, Bluetooth-Aktualisierung und der letzte Hinweis zur Verfügung. Der Verbindungstest führt einen regulären Datenabruf aus. Der Hinweistext wird beim erneuten Öffnen des Formulars aktualisiert.
+Zum tatsächlichen Freigeben von Variablenplätzen gibt es unter Diagnose **Ungenutzte Modulvariablen entfernen …**. Erst die Auswahl übernehmen, dann die gesonderte Checkbox bestätigen und **Jetzt dauerhaft entfernen** ausführen. Nur eigene deaktivierte bzw. durch externe Ziele ersetzte Variablen werden gelöscht. IDs, Verknüpfungen und Archivzuordnungen dieser gelöschten Variablen gehen verloren; bei späterer Neuanlage entstehen neue IDs. Externe Zielvariablen und weiterhin ausgewählte eigene Variablen werden niemals durch diese Funktion gelöscht.
 
-Vollständige [Variablenübersicht](docs/VARIABLEN.md), [Prüfbericht](docs/VALIDIERUNG.md), [Lieferumfang A–H](docs/LIEFERUMFANG.md) und [Veröffentlichungshinweise](docs/STORE.md) liegen bei.
+### Vorhandene Variablen verwenden
+
+Die Tabelle bietet `SelectVariable` als **Vorhandene Zielvariable**. ID 0 bedeutet eine eigene Modulvariable. Ein externes Datenziel muss existieren, beschreibbar sein und genau denselben Datentyp haben. Dieselbe Variable darf nicht mehreren aktiven Feldern zugewiesen werden. Schreibgeschützte Statusvariablen anderer Module und eigene Modulvariablen werden als Ziel abgewiesen. Ausgewählte Ziele werden als Symcon-Referenzen registriert.
+
+Das Modul aktualisiert nur den Wert eines zugewiesenen Ziels. Name, Position, Darstellung, Aktionen und Archivierung des Ziels bleiben unverändert. Es wird keine Aktion zur Gerätesteuerung an der externen Variable eingerichtet; dafür die Kachel oder die WLT-Skriptfunktionen verwenden. Bereits vorhandene eigene Variablen werden bei einer Zielzuordnung ausgeblendet erhalten und können gesondert bereinigt werden. Die Zielzuordnung wirkt auch auf Statusfelder; ein deaktiviertes Feld schreibt nicht mehr in sein Ziel.
+
+### Premium-Visualisierung konfigurieren
+
+**Premium-Visualisierung** bietet Aktivierung, Automatisch/Hell/Dunkel, Akzentfarbe, Kompaktmodus, Zusatzinformationen, Symbole, reduzierte Animation, Bedienfreigabe, Pitmaster-Anzeige, Hauptkanal und individuelle Fühlerauswahl. Die Fühlerauswahl der Kachel ist vollständig unabhängig von der Variablenanlage. Nach dem ersten Abruf das Formular erneut öffnen. Ein Hauptkanal von 0 nutzt den ersten sichtbaren Fühler; in der geöffneten Kachel kann lokal ein anderer gewählt werden.
+
+Die Kachel passt das Layout per Breite und Höhe an. Kleine Kacheln zeigen vor allem Haupttemperatur, Status und Aktualisieren; größere zeigen Fühler, Bedienelemente und Pitmaster. Auf Touchgeräten sind die Eingaben vergrößert; Tastaturfokus, Fehlertexte und `prefers-reduced-motion` werden berücksichtigt. Die tatsächlichen Layouts in den Symcon-Clients sind noch zu prüfen.
+
+**IP-Symcon ab 9.0** bleibt Mindestversion. Unter 9.0 wird `INSTANCE_VISUALIZATION_TYPE_HTML` verwendet. Bietet die Laufzeit den erst ab 9.1 dokumentierten Typ `INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN`, wird dieselbe Kachel auch maximiert verwendet. Für 9.0 wird keine eigene HTML-Vollbildansicht zugesichert; der Host kann dort beim Maximieren die normale Objektliste zeigen. WebFront ist nicht Ziel dieser HTML-SDK-Kachel.
+
+### Datenfluss und Sicherheit
+
+`GetVisualizationTile()` liefert initial HTML mit eingebettetem CSS, JavaScript und sicher kodiertem JSON. `UpdateVisualizationValue()` sendet anschließend aktuelle, auf die Kachel beschränkte Daten. `handleMessage()` aktualisiert bestehende Elemente. Es gibt keine JavaScript-Abfrageintervalle und keine externen Schriften, Bibliotheken, Cloud-Dienste oder Webhooks.
+
+`requestAction('TileAction', ...)` sendet strukturierte Aktionen. PHP prüft Aktivierung, Kachelbedienfreigabe, globalen Schreibschutz, sichtbare Kanäle/Pitmaster, Aktion und Parameter. Die vorhandenen geprüften Gerätefunktionen validieren die Werte und lesen Änderungen zurück. Eine Anfragekennung verbindet Rückmeldung und Bedienung; ausstehende Aktionen sind gesperrt. Der einmalige Rückmelde-Timeout folgt dem konfigurierten HTTP-Timeout. Ein Timeout bestätigt oder verwirft keine Geräteänderung: danach zuerst aktualisieren. Allein die Kachelberechtigung erweitert niemals den globalen Schreibzugriff.
+
+Unbekannte oder fehlende Messwerte werden als „—“ angezeigt. Bei Nichterreichbarkeit bleibt die Instanz in Standby 106, der Modultimer läuft weiter, Bedienung wird gesperrt und die Anzeige erholt sich nach erfolgreichem Abruf. Konfigurations-, Authentifizierungs- und API-Fehler bleiben sichtbar. Hinweise stehen in der Kachel und im Konfigurationsformular auch ohne Fehler-Statusvariable zur Verfügung.
+
+### Update und Vorschau
+
+Die vollständige Bibliothek im eigenen Repository übernehmen und über Module Control aktualisieren; die bestehende Instanz beibehalten. Modul-/Bibliotheks-GUIDs, Präfix und Daten-Idents bleiben unverändert. Bei direkter Dateikopie den Symcon-Dienst neu starten. Die vorbereitete Repositoryadresse in den Metadaten wurde in dieser Sitzung nicht veröffentlicht.
+
+[Designvorschau mit Testdaten](docs/KACHEL-VORSCHAU.html), [Variablenübersicht](docs/VARIABLEN.md), [Lieferumfang A–I](docs/LIEFERUMFANG.md), [vollständiger Quellcode](docs/QUELLCODE.md) und [Prüfbericht](docs/VALIDIERUNG.md). Die Vorschau nutzt denselben von PHP erzeugten Kachelcode, hat aber keine Verbindung zu Symcon oder einem Gerät.
 
 ## Funktionsumfang
 
@@ -160,7 +183,7 @@ Die gewünschten Temperaturvariablen in Symcon zur Archivierung aktivieren; das 
 
 Kanalnummern werden vom Mini V3 vergeben. Beim Entfernen oder Neuzuordnen von Bluetooth-Kanälen können Nummern und damit deren Zuordnung wechseln. Deshalb nach einer solchen Änderung die Namen und Archiv-/Automationszuordnungen kontrollieren. Entfernte Kanalvariablen werden zur Erhaltung bestehender Referenzen nicht automatisch gelöscht. Sonstige zusätzliche API-Felder behalten bei Wegfall ihren letzten Wert; ihre Aktualität ist über `LastUpdate`/`GetSnapshot()` einzuordnen.
 
-Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementierten Datenendpunkte betrifft. Nicht implementiert sind direkte Bluetooth-Verbindungen vom Symcon-Server, MEATER-Cloud, WLAN-Zugangsdatenänderung, Firmware-Update, Werksreset sowie Verwaltungs-/Diagnoseendpunkte außerhalb dieser Schnittstellen. Version 1.3.0 wurde hier automatisiert geprüft; ein erneuter Test der Änderungen am realen Mini V3 und in Symcon 9.0 steht noch aus. Details zur geprüften Firmwarebasis und zu den Tests stehen in `docs/VALIDIERUNG.md`.
+Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementierten Datenendpunkte betrifft. Nicht implementiert sind direkte Bluetooth-Verbindungen vom Symcon-Server, MEATER-Cloud, WLAN-Zugangsdatenänderung, Firmware-Update, Werksreset sowie Verwaltungs-/Diagnoseendpunkte außerhalb dieser Schnittstellen. Version 1.4.0 wurde hier automatisiert geprüft; ein erneuter Test der Änderungen am realen Mini V3 und in Symcon 9.0 steht noch aus. Details zur geprüften Firmwarebasis und zu den Tests stehen in `docs/VALIDIERUNG.md`.
 
 ## Offizielle Grundlagen
 
@@ -175,14 +198,34 @@ Die API-Antworten werden vollständig ausgelesen, soweit es die drei implementie
 - [Offizieller HTTP-/Bluetooth-Handler, geprüfter Stand](https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/blob/06d456ca232bc26784d3349f79f222de41436921/src/WebHandler.cpp)
 - [Offizielle Bluetooth-Bedienoberfläche](https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/blob/06d456ca232bc26784d3349f79f222de41436921/webui/src/components/Bluetooth.vue)
 
-Die Firmwaregrundlage und die Besonderheiten der HTTP-/Bluetooth-Anbindung wurden aus der Dokumentation der Ausgangsversion übernommen. In Version 1.3.0 wurden diese Endpunkte nicht erweitert; ihre Kompatibilität mit dem Benutzergerät ist weiterhin am Zielsystem zu prüfen. Das Modul wurde eigenständig implementiert; Firmwarecode wird nicht mitgeliefert.
+Die Firmwaregrundlage und die Besonderheiten der HTTP-/Bluetooth-Anbindung wurden aus der Dokumentation der Ausgangsversion übernommen. In Version 1.4.0 wurden diese Endpunkte nicht erweitert; ihre Kompatibilität mit dem Benutzergerät ist weiterhin am Zielsystem zu prüfen. Das Modul wurde eigenständig implementiert; Firmwarecode wird nicht mitgeliefert.
 
-### Technische Entscheidungen in Version 1.3.0
+### Technische Entscheidungen
 
-- [MaintainVariable](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/maintainvariable/): nur mit `true` aufrufen, weil `false` eine Variable löscht.
+- [MaintainVariable](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/maintainvariable/): zur normalen Registrierung nur mit `true` aufrufen. Löschen erfolgt gesondert ausschließlich nach expliziter Bestätigung über `UnregisterVariable`.
 - [Darstellungen](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/darstellungen/): Temperatur als Wertanzeige mit °C/°F, Sollwerte als Schieberegler in 1-Grad-Schritten, Prozent als 0–100, Modi und Alarmierung als Aufzählung, Zeitstempel als Datum/Uhrzeit, Bluetooth als Schalter.
 - [Konfigurationslisten](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/konfigurationsformulare/list/): gespeicherte Auswahl und neue Felder nach stabilem Ident zusammenführen; Änderungen ausschließlich mit Übernehmen speichern.
 - [Store-Reviewvorgaben](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/store/einreichen/): Name, Position und Sichtbarkeit nur als Folge der im Formular erklärten Benutzerauswahl verändern; keine Änderungen an fremden Objekten, Archivierung oder benutzerdefinierten Profilen/Aktionen.
 - [IPS_SetHidden](https://www.symcon.de/de/service/dokumentation/befehlsreferenz/objektverwaltung/ips-sethidden/) und [IPS_GetObject](https://www.symcon.de/de/service/dokumentation/befehlsreferenz/objektverwaltung/ips-getobject/): vorherige Sichtbarkeit persistent merken und bei Reaktivierung wiederherstellen.
 
-Die Oberfläche ist unmittelbar deutsch beschriftet; eine `locale.json` ist daher für die mitgelieferte deutsche Sprache nicht erforderlich. Externe Symcon-Variablen werden nicht eingebunden; ein `SelectVariable` wäre dafür ohne Funktion. Es gibt keinen Parent-/Child-Datenfluss und deshalb keine leeren ReceiveData-/ForwardData-Methoden. Die Ressourcen bestehen ausschließlich aus dem registrierten Timer und werden von der Symcon-Basisklasse verwaltet.
+Die Oberfläche ist unmittelbar deutsch beschriftet; eine `locale.json` ist daher für die mitgelieferte deutsche Sprache nicht erforderlich. Externe Datenziele werden über `SelectVariable` ausgewählt und auf Existenz, Datentyp und Schreibbarkeit geprüft. Es gibt keinen Parent-/Child-Datenfluss und deshalb keine leeren ReceiveData-/ForwardData-Methoden. Timer und HTML-Kachel werden über die Symcon-Basisklasse verwaltet; externe Datenziele werden als Referenzen geführt.
+
+### Offizielle Grundlagen der Kachel
+
+- [HTML-SDK](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/html-sdk/)
+- [SetVisualizationType](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setvisualizationtype/) mit Versionsgrenze des Vollbildtyps ab 9.1
+- [GetVisualizationTile](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/getvisualizationtile/)
+- [UpdateVisualizationValue](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/updatevisualizationvalue/)
+- [handleMessage](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/html-sdk/handlemessage/)
+- [requestAction](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/html-sdk/requestaction/) für Aktionen ohne Statusvariablen
+- [Kachelvisualisierung](https://www.symcon.de/de/service/dokumentation/komponenten/kachel-visualisierung/)
+- [IPS_GetVariable](https://www.symcon.de/de/service/dokumentation/befehlsreferenz/variablenverwaltung/ips-getvariable/) zur Typprüfung vorhandener Ziele
+
+### Kachel in Symcon einrichten
+
+1. Bibliothek über Module Control installieren/aktualisieren und die WLANThermo-Instanz konfigurieren.
+2. Unter Premium-Visualisierung die Grill-Kachel aktivieren und Einstellungen übernehmen.
+3. Die Instanz in einer für die Kachelvisualisierung sichtbaren Kategorie platzieren bzw. dort verlinken; Berechtigungen und Startkategorie der Visualisierung beachten.
+4. Im Bearbeitungsmodus der Kachelvisualisierung die Instanz als Kachel anzeigen, bei Bedarf die angebotene individuelle Darstellung wählen und eine passende Kachelgröße einstellen.
+5. Mit mindestens mittlerer Kachelgröße die Fühler und Pitmaster prüfen. Kleine Kacheln reduzieren den Inhalt absichtlich. Ab unterstütztem Vollbildtyp auch die maximierte Ansicht prüfen.
+6. Optional nur die für Archivierung oder Automationen benötigten Statusvariablen aktivieren. Für die Kachel selbst sind keine erforderlich.

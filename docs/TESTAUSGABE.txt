@@ -122,4 +122,56 @@ OK 121: Metadata changes apply even while thermometer is offline
 OK 122: Polling does not overwrite later manual name or position changes
 OK 123: Manual refresh handles malformed saved selection without uncaught exception
 OK 124: Reject duplicate channel numbers
-124 assertions passed.
+OK 125: Neuinstallation sammelt Daten ohne eine einzige Statusvariable
+OK 126: Symcon 9.0 verwendet den unterstützten HTML-Typ
+OK 127: Kachel erhält echte Daten ohne Statusvariablen
+OK 128: Kachelkonfiguration und Daten enthalten keine Zugangsdaten
+OK 129: Empfohlene Auswahl wird nur vorbereitet: Online plus Temperatur und Gültigkeit pro Kanal
+OK 130: Übernehmen legt ausschließlich die sieben empfohlenen Variablen an
+OK 131: Abwahl erhält alte Variablen ausgeblendet
+OK 132: Löschfunktion verweigert Entfernen ohne ausdrückliche Bestätigung
+OK 133: Bestätigte Bereinigung entfernt nur ungenutzte eigene Variablen; Polling bleibt aktiv
+OK 134: Bereinigte deaktivierte Variablen werden beim Polling nicht erneut angelegt
+OK 135: Empfohlener Standard gilt auch für neu erkannte Felder
+OK 136: Update bewahrt den bisherigen Variablenumfang und alle IDs
+OK 137: Vorhandene Float-Zielvariable erhält Daten ohne doppelte Modulvariable
+OK 138: Vorhandene Zielvariable wird als Referenz registriert
+OK 139: Falscher Datentyp einer vorhandenen Variable wird abgewiesen
+OK 140: Schreibgeschützte Variablen anderer Module werden abgewiesen
+OK 141: Doppelte aktive Zielzuordnung wird abgewiesen
+OK 142: Nicht vorhandene Zielvariable wird abgewiesen
+OK 143: Entfernte Zuordnung löst die Referenz
+OK 144: Kachel ändert Alarmgrenzen mit Rücklesebestätigung ohne Statusvariablen
+OK 145: Kachel wechselt Pitmaster-Modus und Sollwert gemeinsam
+OK 146: Kachel stellt manuellen Stellwert ein
+OK 147: Kachel schaltet Bluetooth mit tatsächlichem Rücklesen
+OK 148: Manipulierte Kachelanfrage umgeht den globalen Schreibschutz nicht
+OK 149: Manuelles Aktualisieren funktioniert auch im Lesemodus
+OK 150: Deaktivierte Kachelbedienung wird serverseitig erzwungen
+OK 151: Ausgeblendete Kachelkanäle werden weder übertragen noch über die Kachel bedient
+OK 152: Kachelparameter durchlaufen dieselbe serverseitige Ganzgradvalidierung
+OK 153: Unbekannte Kachelparameter werden zurückgewiesen
+OK 154: Offline-Kachel zeigt ungültige Messwerte und gesperrte Bedienung
+OK 155: Live-Aktualisierung erholt sich automatisch ohne Kachelneuladen
+OK 156: Initiale Gerätedaten sind sicher gegen Script-Ausbruch kodiert
+OK 157: Deaktivierte Kachel liefert kein HTML und nimmt keine Aktionen an
+OK 158: Laufzeit mit dem dokumentierten Vollbildtyp verwendet dieselbe responsive HTML-Kachel
+OK 159: Vollständig bedienbare Vorschaukachel benötigt null zusätzliche Variablen
+159 assertions passed.
+
+UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
+UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert
+UI OK 3: Tastaturauswahl wechselt den Hauptfühler
+UI OK 4: Aktualisieren sendet genau eine SDK-Anfrage und sperrt Doppelaktionen
+UI OK 5: Ausstehende Anfrage verhindert Doppelsenden
+UI OK 6: Passende Serverbestätigung hebt die Sperre auf
+UI OK 7: Manueller Modus zeigt den Stellwert statt Solltemperatur
+UI OK 8: Pitmaster sendet strukturierte ganzzahlige Werte
+UI OK 9: Fehlerquittierung zeigt verständlichen Fehler und entsperrt
+UI OK 10: Offline zeigt keine scheinbar gültige Temperatur und sperrt Eingaben
+UI OK 11: Live-Konfiguration setzt helles Design, Kompaktmodus und reduzierte Animation
+UI OK 12: Entfernte Fühler und Pitmaster verschwinden aus der Ansicht
+UI OK 13: Dynamische Namen werden als Text eingefügt
+UI OK 14: Fehlende Bestätigung endet mit entsperrter Timeout-Rückmeldung
+UI OK 15: Deaktivierung sperrt die bereits geöffnete Kachel
+15 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

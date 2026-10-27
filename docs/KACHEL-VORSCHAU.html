@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WLANThermo · Grillstation</title>
+<style>:root{color-scheme:dark;--bg:#101519;--surface:#191f24;--raised:#212930;--text:#f2f4f5;--muted:#a6b2ba;--border:#303c44;--accent:#f48941;--ok:#7bd9b0;--danger:#ffab89;--shadow:0 18px 52px #0002;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+:root[data-theme="light"]{color-scheme:light;--bg:#f2f4f2;--surface:#fff;--raised:#eaf0ec;--text:#1c2c2a;--muted:#536962;--border:#d4dfd8;--ok:#14714c;--danger:#a93919;--shadow:0 18px 52px #2333280a}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:light;--bg:#f2f4f2;--surface:#fff;--raised:#eaf0ec;--text:#1c2c2a;--muted:#536962;--border:#d4dfd8;--ok:#14714c;--danger:#a93919;--shadow:0 18px 52px #2333280a}}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{overflow-x:hidden}button,input,select{font:inherit}button{color:inherit;cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}button,input,select{min-height:42px;border-radius:10px}button{border:1px solid var(--border);background:var(--raised);padding:9px 13px}button:hover:enabled{border-color:var(--accent)}svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}h1,h2,h3,p{margin:0}h1{font-size:21px;font-weight:650;letter-spacing:-.6px}h2{font-size:16px;font-weight:600}h3{font-size:15px;font-weight:600}#grill{max-width:1440px;margin:auto;padding:24px;display:grid;gap:24px}.topbar,.brand,.top-actions{display:flex;align-items:center;gap:12px}.topbar{justify-content:space-between;min-width:0}.brand{min-width:0}.brandmark{width:43px;height:48px;border:1px solid var(--border);border-radius:14px;display:grid;place-items:center;color:var(--accent);background:var(--surface)}.brandmark svg{width:24px;height:28px;fill:currentColor;stroke:none}.eyebrow{display:block;font-size:10px;letter-spacing:2.1px;font-weight:750;color:var(--muted);margin-bottom:5px}.badge{font-size:11px;font-weight:650;white-space:nowrap;color:var(--muted);padding:7px 10px;border:1px solid var(--border);border-radius:99px}.badge.online{color:var(--ok)}.badge.online:before{content:"";display:inline-block;background:currentColor;width:6px;height:6px;border-radius:50%;margin-right:7px}.icon-button{display:grid;place-items:center;padding:9px;min-width:42px}.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 65%),var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 32px;box-shadow:var(--shadow);min-width:0}.hero-copy{min-width:0}.hero h2{font-size:20px;overflow-wrap:anywhere}.hero-value{display:flex;align-items:baseline;gap:9px;font-variant-numeric:tabular-nums;line-height:1.15;margin:12px 0}.hero-value>span:first-child{font-size:clamp(48px,8vw,88px);font-weight:550;letter-spacing:-5px}.unit{font-size:24px;color:var(--muted)}.state-line{font-size:12px;color:var(--ok);line-height:1.5}.state-line.warning{color:var(--danger)}.range-summary{color:var(--muted);font-size:12px;margin-top:10px}.gauge{--progress:0deg;width:168px;height:168px;border-radius:50%;background:conic-gradient(var(--accent) var(--progress),var(--raised) 0deg);padding:7px;flex-shrink:0;transform:rotate(-90deg)}.gauge-core{border-radius:50%;background:var(--surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;transform:rotate(90deg)}.probe-icon{width:28px;height:28px;color:var(--accent)}.gauge-label{font-size:8px;letter-spacing:1.3px;color:var(--muted);font-weight:700}.gauge strong{font-size:14px;font-weight:600}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-title>span{font-size:11px;color:var(--muted)}.probe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}.probe{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:17px;min-width:0}.probe.selected{border-color:var(--accent)}.probe.choose{cursor:pointer}.probe-head{display:flex;gap:9px;align-items:start;justify-content:space-between}.probe-head h3{overflow-wrap:anywhere}.probe-kicker{font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px}.probe-status{width:7px;height:7px;background:var(--ok);border-radius:50%;margin-top:5px;flex-shrink:0}.probe.warning .probe-status{background:var(--danger)}.probe.invalid .probe-status{background:var(--muted)}.probe-value{font-size:32px;font-weight:550;letter-spacing:-1px;margin:14px 0 8px;font-variant-numeric:tabular-nums}.probe-value small{font-size:14px;color:var(--muted);font-weight:400;margin-left:6px}.probe-label{font-size:11px;line-height:1.5;color:var(--muted)}.rail{height:4px;border-radius:9px;background:var(--raised);margin:12px 0 7px;overflow:hidden}.rail>span{display:block;height:100%;background:var(--accent);border-radius:9px}.rail-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}details{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}summary{font-size:11px;color:var(--muted);cursor:pointer;min-height:26px}.limits-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.limits-form button{grid-column:1/-1}.field{display:grid;gap:6px;font-size:10px;color:var(--muted);min-width:0}.field input,.field select{width:100%;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:9px;font-size:13px}.pitmaster-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}.pitmaster{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:18px;min-width:0}.pm-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.pm-meta{font-size:11px;color:var(--muted)}.pm-fields{display:grid;grid-template-columns:1.15fr 1fr;gap:10px}.pm-fields .submit{grid-column:1/-1;font-size:12px;font-weight:650;background:var(--raised)}footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-top:3px;font-size:10px;color:var(--muted)}#updated{margin-left:auto}.text-button{background:none;min-height:36px;font-size:10px;padding:4px 10px}.subtle{color:var(--muted)}#notice,#device-error{font-size:12px;padding:12px 14px;border-radius:10px;background:var(--raised);overflow-wrap:anywhere;line-height:1.5}#notice.error,#device-error{color:var(--danger)}[hidden]{display:none!important}.empty{color:var(--muted);padding:10px 0;font-size:12px}.no-icons .icon{display:none}.no-details footer{display:none}.compact #grill{padding:14px;gap:16px}.compact .hero{padding:20px}.compact .gauge{width:130px;height:130px}.compact .probe{padding:13px}.disabled .hero{opacity:.55}.busy #refresh svg{animation:spin 1.2s linear infinite}.no-animation *{animation:none!important;transition:none!important}@keyframes spin{to{transform:rotate(360deg)}}
+@media(min-width:1000px){#grill{padding:32px;gap:28px}.hero{padding:36px 42px}.gauge{width:196px;height:196px}.hero-value>span:first-child{font-size:96px}.probe-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}}
+@media(max-width:440px){#grill{padding:14px;gap:18px}.topbar{gap:7px}.brand{gap:8px}.brandmark{width:33px;height:40px}h1{font-size:18px}.eyebrow{font-size:8px;letter-spacing:1.5px}.top-actions{gap:7px}.badge{font-size:9px;padding:6px 8px}.hero{padding:22px 19px;gap:10px}.hero h2{font-size:17px}.hero-value>span:first-child{font-size:58px;letter-spacing:-3px}.unit{font-size:18px}.gauge{width:112px;height:112px;padding:5px}.gauge strong{font-size:11px}.gauge-label{font-size:7px;letter-spacing:.8px}.gauge-core{gap:5px}.probe-icon{width:22px;height:22px}.probe-grid{grid-template-columns:1fr}.probe-value{margin:9px 0 4px}.probe{padding:15px}.pm-fields{gap:9px}#updated{margin-left:0}.subtle{font-size:9px!important}}
+@media(max-width:300px){#grill{padding:9px;gap:13px}.brandmark,.gauge,.section-title>.subtle{display:none}.hero-value>span:first-child{font-size:53px}.hero{padding:18px}.badge{max-width:100px;overflow:hidden;text-overflow:ellipsis}h1{font-size:16px}.top-actions{gap:4px}.icon-button{min-width:36px;min-height:38px;padding:6px}}
+@media(max-height:340px){#grill{gap:12px;padding:12px}.hero{padding:16px 20px}.hero-value{margin:6px 0}.hero-value>span:first-child{font-size:54px}.gauge{width:115px;height:115px}.hero h2{font-size:16px}.hero .range-summary{margin-top:4px}#channels-section,#pitmasters-section,footer{display:none!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+@media(pointer:coarse){button,input,select{min-height:44px}.field input,.field select{font-size:16px}summary{min-height:44px;display:flex;align-items:center}}
+</style>
+</head>
+<body>
+<p style="padding:12px 24px;margin:0;font:12px system-ui;color:#a6b2ba">Designvorschau · Testdaten · ohne Geräteverbindung</p>
+<main id="grill" aria-label="WLANThermo Grillstation">
+  <header class="topbar">
+    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1>Grillstation</h1></div></div>
+    <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
+  </header>
+  <section id="hero" class="hero" aria-label="Hauptmesswert">
+    <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div></div>
+    <div id="gauge" class="gauge" aria-label="Temperatur innerhalb der Alarmgrenzen"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">ALARMBEREICH</span><strong id="gauge-range">—</strong></div></div>
+  </section>
+  <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title"><h2>Fühlerübersicht</h2><span id="probe-count"></span></div><div id="channels" class="probe-grid"></div></section>
+  <section id="pitmasters-section" aria-label="Pitmaster"><div class="section-title"><h2>Pitmaster</h2><span class="subtle">Regelung am Mini V3</span></div><div id="pitmasters" class="pitmaster-grid"></div></section>
+  <footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer>
+  <p id="notice" role="status" aria-live="polite" hidden></p>
+  <p id="device-error" role="status" hidden></p>
+</main>
+<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793125410,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","temperature":110.5,"valid":true,"wireless":false,"min":10,"max":150,"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","temperature":60.3,"valid":true,"wireless":true,"min":10,"max":75,"alarm":0,"outOfRange":false},{"number":14,"name":"MeaterGT","temperature":118.4,"valid":true,"wireless":true,"min":10,"max":150,"alarm":0,"outOfRange":false}],"pitmasters":[{"id":0,"channel":1,"value":38,"set":120,"typ":"auto"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"controls":true,"primary":13}}</script>
+<script>'use strict';
+(() => {
+  const $ = id => document.getElementById(id);
+  let state = {}, selected = 0, pending = null, timeout = null;
+  const probes = new Map(), pitmasters = new Map();
+  const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
+  const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
+  const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
+  const fraction = ch => ch.valid && Number.isFinite(ch.min) && Number.isFinite(ch.max) && ch.max > ch.min ? Math.max(0, Math.min(1, (ch.temperature - ch.min) / (ch.max - ch.min))) : 0;
+  const describe = ch => !ch.valid ? 'Kein aktueller Messwert' : ch.outOfRange ? (ch.temperature > ch.max ? 'Über der oberen Alarmgrenze' : 'Unter der unteren Alarmgrenze') : 'Innerhalb der Alarmgrenzen';
+  function send(action, values = {}) {
+    if (pending) return;
+    if (typeof window.requestAction !== 'function') { announce('Bedienung ist nur in der verbundenen Symcon-Visualisierung verfügbar.', true); return; }
+    const requestId = 'wlt_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+    pending = requestId;
+    announce(action === 'refresh' ? 'Messwerte werden abgerufen …' : 'Änderung wird am Gerät geprüft …');
+    render();
+    timeout = setTimeout(() => { pending = null; announce('Keine Bestätigung erhalten. Vor erneutem Bedienen bitte aktualisieren.', true); render(); }, state.config?.actionTimeout || 35000);
+    try { window.requestAction('TileAction', JSON.stringify({requestId, action, ...values})); }
+    catch (error) { clearTimeout(timeout); pending = null; announce('Anfrage konnte nicht gesendet werden.', true); render(); }
+  }
+  function field(label, type, min, max) {
+    const wrapper = node('label', 'field'); wrapper.append(node('span', '', label));
+    const input = node('input'); input.type = type; input.step = '1'; input.min = String(min); input.max = String(max); input.required = true;
+    wrapper.append(input); return {wrapper, input};
+  }
+  function probe(ch) {
+    const el = node('article', 'probe'); el.tabIndex = 0; el.setAttribute('aria-label', 'Kanal ' + ch.number);
+    const head = node('div', 'probe-head'), names = node('div'), kicker = node('div', 'probe-kicker'), name = node('h3');
+    names.append(kicker, name); head.append(names, node('span', 'probe-status'));
+    const value = node('div', 'probe-value'), label = node('div', 'probe-label'), rail = node('div', 'rail'), bar = node('span'), limits = node('div', 'rail-labels'), low = node('span'), high = node('span');
+    rail.append(bar); limits.append(low, high);
+    const details = node('details'), summary = node('summary', '', 'Alarmgrenzen bearbeiten'), form = node('form', 'limits-form');
+    const min = field('Minimum', 'number', -30, 999), max = field('Maximum', 'number', -30, 999), submit = node('button', '', 'Grenzen übernehmen'); submit.type = 'submit';
+    form.append(min.wrapper, max.wrapper, submit); details.append(summary, form);
+    el.append(head, value, label, rail, limits, details);
+    const choose = () => { selected = ch.number; render(); };
+    head.addEventListener('click', choose); value.addEventListener('click', choose);
+    el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
+    form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, min:Number(min.input.value), max:Number(max.input.value)}); });
+    return {el, kicker, name, value, label, bar, low, high, details, min:min.input, max:max.input, submit};
+  }
+  function pitmaster(pm) {
+    const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
+    const form = node('form', 'pm-fields'), label = node('label', 'field'); label.append(node('span', '', 'Betriebsart'));
+    const mode = node('select'); for (const [value, caption] of [['off','Aus'],['auto','Automatisch'],['manual','Manuell']]) { const option = node('option', '', caption); option.value = value; mode.append(option); }
+    label.append(mode);
+    const target = field('Solltemperatur', 'number', 0, 999), output = field('Stellwert in %', 'number', 0, 100), submit = node('button', 'submit', 'Am Gerät übernehmen'); submit.type = 'submit';
+    form.append(label, target.wrapper, output.wrapper, submit); el.append(heading, form);
+    const sync = () => { target.wrapper.hidden = mode.value !== 'auto'; output.wrapper.hidden = mode.value !== 'manual'; target.input.disabled = mode.disabled || mode.value !== 'auto'; output.input.disabled = mode.disabled || mode.value !== 'manual'; };
+    mode.addEventListener('change', () => { form.dataset.dirty = 'true'; sync(); });
+    form.addEventListener('input', () => { form.dataset.dirty = 'true'; });
+    form.addEventListener('submit', event => { event.preventDefault(); if (!form.reportValidity()) return; const values = {id:pm.id, mode:mode.value}; if (mode.value === 'auto') values.target = Number(target.input.value); if (mode.value === 'manual') values.output = Number(output.input.value); send('pitmaster', values); });
+    return {el, meta, form, mode, target:target.input, targetLabel:target.wrapper.firstChild, output:output.input, submit, sync};
+  }
+  function render() {
+    const cfg = state.config || {}, active = state.enabled !== false, editable = active && state.canWrite && !pending;
+    document.documentElement.dataset.theme = cfg.theme || 'auto';
+    document.documentElement.style.setProperty('--accent', /^#[0-9a-f]{6}$/i.test(cfg.accent || '') ? cfg.accent : '#f48941');
+    document.body.classList.toggle('compact', Boolean(cfg.compact)); document.body.classList.toggle('no-icons', cfg.icons === false); document.body.classList.toggle('no-details', cfg.details === false); document.body.classList.toggle('no-animation', cfg.animations === false); document.body.classList.toggle('disabled', !active); document.body.classList.toggle('busy', Boolean(pending));
+    $('refresh').disabled = !active || !state.canRefresh || Boolean(pending);
+    $('connection').textContent = !active ? 'Kachel deaktiviert' : !state.active ? 'Deaktiviert' : state.online ? 'Verbunden' : state.status >= 200 ? 'Fehler' : 'Standby';
+    $('connection').classList.toggle('online', Boolean(active && state.online));
+    const channels = active ? state.channels || [] : [];
+    if (!channels.some(ch => ch.number === selected)) selected = channels.some(ch => ch.number === cfg.primary) ? cfg.primary : channels[0]?.number || 0;
+    const main = channels.find(ch => ch.number === selected);
+    $('hero-channel').textContent = main ? 'KANAL ' + main.number + (main.wireless ? ' · BLUETOOTH' : ' · FÜHLER') : 'TEMPERATUR';
+    $('hero-name').textContent = main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
+    $('hero-temperature').textContent = fmt(main?.valid ? main.temperature : null); $('hero-unit').textContent = state.unit || '°C';
+    $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
+    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main?.outOfRange));
+    $('hero-range').textContent = main ? 'Alarmgrenzen ' + fmt(main.min) + ' – ' + fmt(main.max) + ' ' + state.unit : '';
+    $('gauge-range').textContent = main ? fmt(main.min) + '–' + fmt(main.max) + ' ' + state.unit : '—';
+    $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
+    $('gauge').setAttribute('aria-label', main ? 'Temperatur relativ zu den Alarmgrenzen: ' + describe(main) : 'Keine Alarmgrenzen verfügbar');
+    $('probe-count').textContent = channels.filter(ch => ch.valid).length + ' / ' + channels.length + ' aktuell';
+    for (const [number, ui] of probes) if (!channels.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
+    channels.forEach(ch => {
+      let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
+      ui.el.className = 'probe choose' + (ch.number === selected ? ' selected' : '') + (!ch.valid ? ' invalid' : ch.outOfRange ? ' warning' : '');
+      ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
+      ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
+      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.low.textContent = fmt(ch.min) + ' ' + state.unit; ui.high.textContent = fmt(ch.max) + ' ' + state.unit;
+      ui.details.hidden = !cfg.controls || !Number.isFinite(ch.min) || !Number.isFinite(ch.max);
+      // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
+      if (!ui.details.open) { ui.min.value = ch.min ?? ''; ui.max.value = ch.max ?? ''; }
+      ui.min.disabled = ui.max.disabled = ui.submit.disabled = !editable;
+    });
+    $('channels-section').hidden = channels.length === 0;
+    const pms = active ? state.pitmasters || [] : [];
+    for (const [id, ui] of pitmasters) if (!pms.some(pm => pm.id === id)) { ui.el.remove(); pitmasters.delete(id); }
+    pms.forEach(pm => {
+      let ui = pitmasters.get(pm.id); if (!ui) { ui = pitmaster(pm); pitmasters.set(pm.id, ui); $('pitmasters').append(ui.el); }
+      ui.meta.textContent = 'Kanal ' + pm.channel + ' · ' + fmt(pm.value) + ' %';
+      if (ui.form.dataset.dirty !== 'true') { ui.mode.value = pm.typ; ui.target.value = pm.set; ui.output.value = pm.value; }
+      ui.targetLabel.textContent = 'Solltemperatur in ' + state.unit; ui.mode.disabled = !editable; ui.submit.disabled = !editable; ui.submit.hidden = cfg.controls === false; ui.sync();
+    });
+    $('pitmasters-section').hidden = pms.length === 0;
+    $('device').textContent = state.device || 'Mini V3';
+    $('telemetry').textContent = [Number.isFinite(state.battery) ? 'Akku ' + fmt(state.battery) + ' %' : '', Number.isFinite(state.rssi) ? 'WLAN ' + fmt(state.rssi) + ' dBm' : ''].filter(Boolean).join(' · ');
+    $('updated').textContent = state.lastUpdate ? 'Stand ' + new Date(state.lastUpdate * 1000).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit', second:'2-digit'}) : 'Noch kein erfolgreicher Abruf';
+    $('bluetooth').hidden = typeof state.bluetooth !== 'boolean'; $('bluetooth').textContent = 'Bluetooth ' + (state.bluetooth ? 'an' : 'aus'); $('bluetooth').setAttribute('aria-pressed', String(Boolean(state.bluetooth))); $('bluetooth').disabled = !editable || Boolean(state.bluetoothError);
+    $('device-error').textContent = [state.error, cfg.details ? state.bluetoothError : ''].filter(Boolean).join(' · '); $('device-error').hidden = !$('device-error').textContent;
+  }
+  window.handleMessage = data => {
+    try { if (typeof data === 'string') data = JSON.parse(data); if (!data || typeof data !== 'object' || Array.isArray(data)) return;
+      if (data.enabled === false) { state = {...state, enabled:false}; if (data.response?.requestId === pending) announce(data.response.message, !data.response.ok); clearTimeout(timeout); pending = null; render(); return; }
+      if (data.version !== 1) return;
+      if (data.config?.primary !== state.config?.primary) selected = data.config?.primary || 0;
+      state = data;
+      if (data.response && data.response.requestId === pending) {
+        clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
+        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
+      }
+      render();
+    } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
+  };
+  $('refresh').addEventListener('click', () => send('refresh'));
+  $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
+  try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }
+})();
+</script>
+</body>
+</html>

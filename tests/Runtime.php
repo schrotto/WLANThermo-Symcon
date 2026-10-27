@@ -5,6 +5,9 @@ declare(strict_types=1);
 $GLOBALS['profiles'] = [];
 $GLOBALS['profileSettings'] = [];
 $GLOBALS['instances'] = [];
+$GLOBALS['externalVariables'] = [];
+define('INSTANCE_VISUALIZATION_TYPE_NONE', 0);
+define('INSTANCE_VISUALIZATION_TYPE_HTML', 1);
 function IPS_SetProperty(int $id, string $name, mixed $value): void { throw new RuntimeException('Module must not change properties itself.'); }
 function IPS_ApplyChanges(int $id): void { throw new RuntimeException('Module must not apply properties itself.'); }
 function IPS_SemaphoreEnter(string $name, int $wait): bool { return true; }
@@ -29,7 +32,13 @@ function testObject(int $id): array {
 function IPS_SetName(int $id, string $name): bool { [$m, $ident] = testObject($id); $m->variables[$ident]['name'] = $name; return true; }
 function IPS_SetPosition(int $id, int $pos): bool { [$m, $ident] = testObject($id); $m->variables[$ident]['pos'] = $pos; return true; }
 function IPS_SetHidden(int $id, bool $hidden): bool { [$m, $ident] = testObject($id); $m->variables[$ident]['hidden'] = $hidden; return true; }
-function IPS_GetObject(int $id): array { [$m, $ident] = testObject($id); return ['ObjectIsHidden' => $m->variables[$ident]['hidden'] ?? false]; }
+function IPS_GetObject(int $id): array {
+    if (isset($GLOBALS['externalVariables'][$id])) { return ['ObjectIsHidden' => false, 'ObjectIsReadOnly' => $GLOBALS['externalVariables'][$id]['readonly'] ?? false, 'ParentID' => 0]; }
+    [$m, $ident] = testObject($id); return ['ObjectIsHidden' => $m->variables[$ident]['hidden'] ?? false, 'ObjectIsReadOnly' => true, 'ParentID' => $m->InstanceID];
+}
+function IPS_VariableExists(int $id): bool { if (isset($GLOBALS['externalVariables'][$id])) return true; try { testObject($id); return true; } catch (Throwable $e) { return false; } }
+function IPS_GetVariable(int $id): array { if (isset($GLOBALS['externalVariables'][$id])) return ['VariableType' => $GLOBALS['externalVariables'][$id]['type']]; [$m, $ident] = testObject($id); return ['VariableType' => $m->variables[$ident]['type']]; }
+function SetValue(int $id, mixed $value): bool { $GLOBALS['externalVariables'][$id]['value'] = $value; return true; }
 
 /** Small contract stub, not a replacement for a real Symcon runtime test. */
 class IPSModuleStrict
@@ -45,6 +54,10 @@ class IPSModuleStrict
     public array $attributes = [];
     public array $timers = [];
     public int $status = 0;
+    public int $visualizationType = 0;
+    public array $visualizationMessages = [];
+    public array $references = [];
+    public array $formUpdates = [];
     public function Create(): void {}
     public function ApplyChanges(): void {}
     public function RequestAction(string $Ident, mixed $Value): void {}
@@ -85,6 +98,13 @@ class IPSModuleStrict
     protected function DisableAction(string $id): void { $this->actions[$id] = false; }
     protected function SetBuffer(string $id, string $value): void { $this->buffers[$id] = $value; }
     protected function GetBuffer(string $id): string { return $this->buffers[$id] ?? ''; }
+    protected function GetStatus(): int { return $this->status; }
+    protected function SetVisualizationType(int $type): bool { $this->visualizationType = $type; return true; }
+    protected function UpdateVisualizationValue(mixed $value): bool { $this->visualizationMessages[] = $value; return true; }
+    protected function GetReferenceList(): array { return $this->references; }
+    protected function RegisterReference(int $id): void { $this->references[] = $id; }
+    protected function UnregisterReference(int $id): void { $this->references = array_values(array_diff($this->references, [$id])); }
+    protected function UpdateFormField(string $name, string $field, string $value): void { $this->formUpdates[$name][$field] = $value; }
     protected function SetStatus(int $status): void { $this->status = $status; }
     protected function SetSummary(string $text): void {}
     protected function SendDebug(string $message, mixed $data, int $format): void {}

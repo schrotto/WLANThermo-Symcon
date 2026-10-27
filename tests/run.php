@@ -15,13 +15,14 @@ class TestDevice extends WLANThermo
     public bool $reject = false;
     public bool $ignore = false;
     public bool $btUnavailable = false;
-    public function __construct()
+    public function __construct(bool $allVariables = true)
     {
         $this->deviceData = json_decode(file_get_contents(__DIR__ . '/fixtures/data.json'), true);
         $this->deviceSettings = json_decode(file_get_contents(__DIR__ . '/fixtures/settings.json'), true);
         $this->bt = json_decode(file_get_contents(__DIR__ . '/fixtures/bluetooth.json'), true);
         $GLOBALS['instances'][$this->InstanceID] = $this;
         $this->Create();
+        $this->properties['VariableMode'] = $allVariables ? 'all' : 'automatic';
         $this->properties['Host'] = '192.0.2.20';
         $this->properties['ExposeRaw'] = true;
         $this->ApplyChanges();
@@ -378,4 +379,5 @@ $layout = new TestDevice();
 file_put_contents(__DIR__ . '/baseline-form.generated.json', $layout->GetConfigurationForm());
 $m->deviceData['channel'][] = $m->deviceData['channel'][0];
 check(!$m->Update(), 'Reject duplicate channel numbers');
+require __DIR__ . '/premium.php';
 echo $count . " assertions passed.\n";

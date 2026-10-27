@@ -1,5 +1,17 @@
 # Änderungen
 
+## 1.4.0 – 27.10.2026
+
+- Responsive Grill-Kachel über das HTML-SDK, ohne zusätzliche Statusvariablen.
+- Live-Temperaturen, Alarmbereiche, Pitmaster und Bluetooth mit Rücklesebestätigung.
+- Helles/dunkles Design, Akzentfarbe, Kompaktmodus und individuelle Kachelkanäle.
+- Neue Instanzen starten mit null Variablen; bestehende Instanzen behalten ihren Umfang.
+- Sammelauswahl, empfohlener Umfang und Variablenzähler.
+- Vorhandene externe Datenziele mit Typ-/Schreibbarkeitsprüfung und Referenzverwaltung.
+- Gesondert bestätigte Bereinigung eigener ungenutzter Variablen.
+- 159 Modulprüfungen, 15 JavaScript-Vertragsprüfungen, PHP-/JS-Syntax und JSON-/Strukturprüfung erfolgreich.
+- Browserdarstellung und echter Symcon-/Gerätebetrieb noch nicht verifiziert.
+
 ## 1.3.0 – 27.10.2026
 
 - Variablen bei Abwahl erhalten statt löschen; IDs, Werte und Archivzuordnungen bleiben bestehen.
