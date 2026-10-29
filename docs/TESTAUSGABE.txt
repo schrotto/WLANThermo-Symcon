@@ -155,28 +155,43 @@ OK 154: Offline-Kachel zeigt ungültige Messwerte und gesperrte Bedienung
 OK 155: Live-Aktualisierung erholt sich automatisch ohne Kachelneuladen
 OK 156: Initiale Gerätedaten sind sicher gegen Script-Ausbruch kodiert
 OK 157: Deaktivierte Kachel liefert kein HTML und nimmt keine Aktionen an
-OK 158: Laufzeit mit dem dokumentierten Vollbildtyp verwendet dieselbe responsive HTML-Kachel
-OK 159: Vollständig bedienbare Vorschaukachel benötigt null zusätzliche Variablen
-OK 160: Alle Live-Kachelnachrichten werden als JSON-Text an die native SDK-Grenze übergeben
-OK 161: Auch Deaktivierung und Fehlerquittierung verwenden JSON-Text
-OK 162: Instanz lässt sich ohne Host und ohne Statusvariablen fehlerfrei initialisieren
-OK 163: Unkonfigurierte Instanz überträgt den Diagnosezustand als JSON-Text
-OK 164: Deaktivierte Instanz initialisiert sich ebenfalls ohne Wertkonvertierungsfehler
-164 assertions passed.
+OK 158: Standardtyp bleibt auch auf neueren Laufzeiten für IPSView TileHtml geeignet
+OK 159: Laufzeit mit dem dokumentierten Vollbildtyp verwendet dieselbe responsive HTML-Kachel
+OK 160: Vollständig bedienbare Vorschaukachel benötigt null zusätzliche Variablen
+OK 161: Alle Live-Kachelnachrichten werden als JSON-Text an die native SDK-Grenze übergeben
+OK 162: Auch Deaktivierung und Fehlerquittierung verwenden JSON-Text
+OK 163: Instanz lässt sich ohne Host und ohne Statusvariablen fehlerfrei initialisieren
+OK 164: Unkonfigurierte Instanz überträgt den Diagnosezustand als JSON-Text
+OK 165: Deaktivierte Instanz initialisiert sich ebenfalls ohne Wertkonvertierungsfehler
+OK 166: Große Hauptanzeige ist standardmäßig ausgeschaltet
+OK 167: Fehlerwert 999 und getrennter Bluetooth-Fühler werden nicht an die Visu übertragen
+OK 168: Ausblenden verändert keine bestehenden Variablen-IDs oder Gültigkeitsmerkmale
+OK 169: Ungültiger Fühler wird auch bei direkter Kachelanfrage nicht bedient
+OK 170: Wieder angeschlossene Fühler kehren zurück; kabelgebundener Nullgradwert bleibt gültig
+OK 171: Optionale Hauptanzeige und fester Garraumkanal werden gespeichert und übertragen
+OK 172: Bei Geräteausfall werden alle ungültigen Fühler aus der Visu entfernt
+OK 173: Fühleranzeige erholt sich nach Geräteausfall automatisch
+173 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert
-UI OK 3: Tastaturauswahl wechselt den Hauptfühler
-UI OK 4: Aktualisieren sendet genau eine SDK-Anfrage und sperrt Doppelaktionen
-UI OK 5: Ausstehende Anfrage verhindert Doppelsenden
-UI OK 6: Passende Serverbestätigung hebt die Sperre auf
-UI OK 7: Manueller Modus zeigt den Stellwert statt Solltemperatur
-UI OK 8: Pitmaster sendet strukturierte ganzzahlige Werte
-UI OK 9: Fehlerquittierung zeigt verständlichen Fehler und entsperrt
-UI OK 10: Offline zeigt keine scheinbar gültige Temperatur und sperrt Eingaben
-UI OK 11: Live-Konfiguration setzt helles Design, Kompaktmodus und reduzierte Animation
-UI OK 12: Entfernte Fühler und Pitmaster verschwinden aus der Ansicht
-UI OK 13: Dynamische Namen werden als Text eingefügt
-UI OK 14: Fehlende Bestätigung endet mit entsperrter Timeout-Rückmeldung
-UI OK 15: Deaktivierung sperrt die bereits geöffnete Kachel
-15 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 3: Große Hauptanzeige ist standardmäßig unsichtbar
+UI OK 4: Hauptanzeige lässt sich für einen festen Fühler einschalten
+UI OK 5: Bei automatischer Hauptanzeige lässt sich der Hauptfühler per Tastatur wählen
+UI OK 6: Aktualisieren sendet genau eine SDK-Anfrage und sperrt Doppelaktionen
+UI OK 7: Ausstehende Anfrage verhindert Doppelsenden
+UI OK 8: Passende Serverbestätigung hebt die Sperre auf
+UI OK 9: Manueller Modus zeigt den Stellwert statt Solltemperatur
+UI OK 10: Pitmaster sendet strukturierte ganzzahlige Werte
+UI OK 11: Fehlerquittierung zeigt verständlichen Fehler und entsperrt
+UI OK 12: Offline zeigt keine scheinbar gültige Temperatur und sperrt Eingaben
+UI OK 13: Live-Konfiguration setzt helles Design, Kompaktmodus und reduzierte Animation
+UI OK 14: Entfernte Fühler und Pitmaster verschwinden aus der Ansicht
+UI OK 15: Dynamische Namen werden als Text eingefügt
+UI OK 16: Fehlende Bestätigung endet mit entsperrter Timeout-Rückmeldung
+UI OK 17: Ungültige Fühler verschwinden; ein fehlender fester Hauptfühler wird nicht ersetzt
+UI OK 18: Gültige Fühler und optionale Garraum-Hauptanzeige erscheinen wieder
+UI OK 19: Ausschalten der Hauptanzeige erhält die normale Fühlerübersicht
+UI OK 20: Ohne gültige Fühler erscheint ein Hinweis statt leerer Fühlerkarten
+UI OK 21: Deaktivierung sperrt die bereits geöffnete Kachel
+21 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

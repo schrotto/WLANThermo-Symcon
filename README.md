@@ -2,6 +2,25 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.4.2: Gültige Fühler und IPSView
+
+Die Fühlerübersicht zeigt ausschließlich aktuelle, gültige Temperaturwerte. Nicht angeschlossene Fühler (Fehlerwert 999), fehlende/nicht numerische Werte und getrennte Bluetooth-Fühler werden automatisch ausgeblendet. Bei Geräteausfall sind keine aktuellen Fühlerkarten sichtbar; ein Hinweis und der Verbindungsstatus bleiben erhalten. Nach dem nächsten erfolgreichen Abruf kehren gültige Fühler zurück. Bestehende Symcon-Variablen, ihre IDs und Archivzuordnungen werden dadurch nicht gelöscht oder verändert.
+
+Die **große Haupttemperatur oben ist standardmäßig aus**. Unter Premium-Visualisierung kann sie optional eingeschaltet werden, z. B. für den Garraum. Im Feld **Kanal für die optionale Hauptanzeige** den gewünschten Kanal einstellen. Ist ein fester Hauptkanal ungültig oder ausgeblendet, verschwindet die Hauptanzeige; es wird kein anderer Fühler als Ersatz eingeblendet. Mit Kanal 0 wird der erste gültige Fühler genutzt; nur in diesem automatischen Modus kann die Auswahl lokal per Fühlerkopf/Tastatur gewechselt werden.
+
+### IPSView als TileHtml
+
+Die Kachel wird standardmäßig als normaler HTML-SDK-Instanztyp bereitgestellt. Dieser ist der vorgesehene Weg für **TileHtml** in IPSView:
+
+1. Im IPSView-Designer ein **TileHtml** auf der gewünschten Seite platzieren.
+2. In dessen Eigenschaft **ID** die ID der WLANThermo-Modulinstanz eintragen – keine Variablen-ID.
+3. Premium-Visualisierung in der Instanz aktivieren und **Erweiterte HTML-Vollbildansicht verwenden** ausgeschaltet lassen.
+4. View auf den IPSView-Client übertragen/neu laden und eine zur Fühlerzahl passende Breite/Höhe einstellen. Im Designer kann nur ein Symbol erscheinen; der tatsächliche Inhalt wird im Client geladen.
+
+Es wird weder eine zusätzliche HTML-Box noch eine Container-Variable benötigt. Live-Daten und Bedienung verwenden weiterhin das offizielle HTML-SDK. Die [IPSView-Herstellerdokumentation zu TileHtml](https://docu.brownson.at/viewdesigner/WebHelp/DesignerRepositoryTypeTile.html) beschreibt diese Zuordnung per Instanz-ID. Die Einbindung ist entsprechend vorbereitet; ohne deinen konkreten IPSView-Client kann der tatsächliche Anzeige-/Bedienbetrieb nicht als getestet bestätigt werden.
+
+Für die Symcon-Kachelvisualisierung kann **Erweiterte HTML-Vollbildansicht verwenden** optional aktiviert werden. Dieser Typ wird nur verwendet, wenn die Laufzeit ihn unterstützt (Symcon ab 9.1). Die Einstellung ist standardmäßig aus, auch beim Update. In niedrigen Kacheln bleibt die Fühlerübersicht jetzt auch ohne große Hauptanzeige sichtbar.
+
 ## Hotfix 1.4.1: Instanzerstellung korrigiert
 
 Version 1.4.0 übergab PHP-Arrays an `UpdateVisualizationValue()`. Die gemeldete native Symcon-Wertkonvertierung wies diese mit „Cannot auto-convert value for parameter Value (Type is not supported)“ zurück; dadurch konnte bereits die Instanzerstellung scheitern.
@@ -12,7 +31,7 @@ Die Moduldateien vollständig ersetzen und bei direkter Dateikopie den Symcon-Di
 
 ## Version 1.4.0: Grill-Kachel ohne zusätzliche Variablen
 
-Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Alarmbereichen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Kanalüberschriften oder die Tastatur wechseln den Hauptfühler. Alarmgrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zu den tatsächlichen Alarmgrenzen, keinen Garfortschritt.
+Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Alarmbereichen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Bei aktivierter Hauptanzeige mit Kanal 0 wechseln Kanalüberschriften oder die Tastatur den Hauptfühler. Alarmgrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zu den tatsächlichen Alarmgrenzen, keinen Garfortschritt.
 
 **Neue Instanzen erzeugen standardmäßig 0 Statusvariablen.** Alle Daten werden intern gepuffert und über das offizielle HTML-SDK direkt an die Kachel übertragen. Keine HTML-Box, keine Container-, Platzhalter- oder versteckten Hilfsvariablen. Die Kachel funktioniert auch bei vollständig abgewählten Variablen. Bei bestehenden Instanzen wird der bisherige Variablenumfang übernommen; vorhandene IDs, Werte und gespeicherte Einzelentscheidungen bleiben erhalten.
 
@@ -41,11 +60,11 @@ Das Modul aktualisiert nur den Wert eines zugewiesenen Ziels. Name, Position, Da
 
 ### Premium-Visualisierung konfigurieren
 
-**Premium-Visualisierung** bietet Aktivierung, Automatisch/Hell/Dunkel, Akzentfarbe, Kompaktmodus, Zusatzinformationen, Symbole, reduzierte Animation, Bedienfreigabe, Pitmaster-Anzeige, Hauptkanal und individuelle Fühlerauswahl. Die Fühlerauswahl der Kachel ist vollständig unabhängig von der Variablenanlage. Nach dem ersten Abruf das Formular erneut öffnen. Ein Hauptkanal von 0 nutzt den ersten sichtbaren Fühler; in der geöffneten Kachel kann lokal ein anderer gewählt werden.
+**Premium-Visualisierung** bietet Aktivierung, Automatisch/Hell/Dunkel, Akzentfarbe, Kompaktmodus, Zusatzinformationen, Symbole, reduzierte Animation, Bedienfreigabe, Pitmaster-Anzeige, Hauptkanal und individuelle Fühlerauswahl. Die Fühlerauswahl der Kachel ist vollständig unabhängig von der Variablenanlage. Nach dem ersten Abruf das Formular erneut öffnen. Bei aktivierter Hauptanzeige nutzt Hauptkanal 0 den ersten gültigen sichtbaren Fühler; in diesem automatischen Modus kann lokal ein anderer gewählt werden.
 
 Die Kachel passt das Layout per Breite und Höhe an. Kleine Kacheln zeigen vor allem Haupttemperatur, Status und Aktualisieren; größere zeigen Fühler, Bedienelemente und Pitmaster. Auf Touchgeräten sind die Eingaben vergrößert; Tastaturfokus, Fehlertexte und `prefers-reduced-motion` werden berücksichtigt. Die tatsächlichen Layouts in den Symcon-Clients sind noch zu prüfen.
 
-**IP-Symcon ab 9.0** bleibt Mindestversion. Unter 9.0 wird `INSTANCE_VISUALIZATION_TYPE_HTML` verwendet. Bietet die Laufzeit den erst ab 9.1 dokumentierten Typ `INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN`, wird dieselbe Kachel auch maximiert verwendet. Für 9.0 wird keine eigene HTML-Vollbildansicht zugesichert; der Host kann dort beim Maximieren die normale Objektliste zeigen. WebFront ist nicht Ziel dieser HTML-SDK-Kachel.
+**IP-Symcon ab 9.0** bleibt Mindestversion. Unter 9.0 wird `INSTANCE_VISUALIZATION_TYPE_HTML` verwendet. Ist die optionale erweiterte HTML-Vollbildansicht eingeschaltet und bietet die Laufzeit den erst ab 9.1 dokumentierten Typ `INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN`, wird dieselbe Kachel auch maximiert verwendet. Für 9.0 wird keine eigene HTML-Vollbildansicht zugesichert; der Host kann dort beim Maximieren die normale Objektliste zeigen. WebFront ist nicht Ziel dieser HTML-SDK-Kachel.
 
 ### Datenfluss und Sicherheit
 
@@ -53,7 +72,7 @@ Die Kachel passt das Layout per Breite und Höhe an. Kleine Kacheln zeigen vor a
 
 `requestAction('TileAction', ...)` sendet strukturierte Aktionen. PHP prüft Aktivierung, Kachelbedienfreigabe, globalen Schreibschutz, sichtbare Kanäle/Pitmaster, Aktion und Parameter. Die vorhandenen geprüften Gerätefunktionen validieren die Werte und lesen Änderungen zurück. Eine Anfragekennung verbindet Rückmeldung und Bedienung; ausstehende Aktionen sind gesperrt. Der einmalige Rückmelde-Timeout folgt dem konfigurierten HTTP-Timeout. Ein Timeout bestätigt oder verwirft keine Geräteänderung: danach zuerst aktualisieren. Allein die Kachelberechtigung erweitert niemals den globalen Schreibzugriff.
 
-Unbekannte oder fehlende Messwerte werden als „—“ angezeigt. Bei Nichterreichbarkeit bleibt die Instanz in Standby 106, der Modultimer läuft weiter, Bedienung wird gesperrt und die Anzeige erholt sich nach erfolgreichem Abruf. Konfigurations-, Authentifizierungs- und API-Fehler bleiben sichtbar. Hinweise stehen in der Kachel und im Konfigurationsformular auch ohne Fehler-Statusvariable zur Verfügung.
+Unbekannte oder fehlende Messwerte werden nicht als Fühlerkarte angezeigt. Bei Nichterreichbarkeit bleibt die Instanz in Standby 106, der Modultimer läuft weiter, Bedienung wird gesperrt und die Anzeige erholt sich nach erfolgreichem Abruf. Konfigurations-, Authentifizierungs- und API-Fehler bleiben sichtbar. Hinweise stehen in der Kachel und im Konfigurationsformular auch ohne Fehler-Statusvariable zur Verfügung.
 
 ### Update und Vorschau
 
@@ -66,7 +85,7 @@ Die vollständige Bibliothek im eigenen Repository übernehmen und über Module 
 - Liest `/data` automatisch (Standard 10 Sekunden), `/settings` alle 5 Minuten und `/getbluetooth` pro Abruf. Manuelle Aktualisierung verfügbar.
 - Übernimmt alle von diesen drei Antworten gelieferten Datenfelder: alle Temperaturkanäle, Systemwerte, WLAN-Signal, Akkuinformationen soweit vorhanden, Gerätemodell, Firmware, Fühlertypen, PID-Profile und weitere Einstellungen. Zusätzliche Felder können rekursiv als lesbare Statusvariablen angelegt werden. Gruppen und einzelne Variablen lassen sich über Kontrollkästchen auswählen. Schlüssel, die Zugangsdaten enthalten, werden ausgeblendet.
 - Kanalvariablen für Temperatur, Name, Fühlertyp, Alarm Minimum/Maximum, Alarmierungsart, Farbe, festen Fühlertyp und Funkverbindungsstatus. Name, Grenzen, Alarmierungsart, Farbe und veränderbare Fühlertypen sind bedienbar.
-- Kennzeichnet fehlende Messwerte (`999`), getrennte Bluetooth-Fühler, entfernte Kanäle und Geräteausfälle. Die letzte Temperatur bleibt sichtbar; `Valid` und `Online` zeigen, ob sie aktuell verwendbar ist.
+- Kennzeichnet fehlende Messwerte (`999`), getrennte Bluetooth-Fühler, entfernte Kanäle und Geräteausfälle. Die letzte Temperatur bleibt in vorhandenen Symcon-Variablen erhalten; `Valid` und `Online` zeigen, ob sie aktuell verwendbar ist. In der Kachel sind nur gültige aktuelle Fühler sichtbar.
 - Pitmaster: Betriebsart, Solltemperatur, manueller Stellwert, Kanal und PID-Profil. PID-Profile und Systemeinstellungen über JSON-Eingabe; MQTT-/Cloud-Einstellungen ebenfalls über JSON.
 - Bluetooth-Liste mit Geräteadresse, Name und gemeldeter Sensoranzahl. Individuelle Checkboxen für jeden Sensorkanal, auch bei mehreren gleichnamigen MEATER-Geräten. Jede Änderung wird sofort gesendet und zurückgelesen.
 - HTTP Basic/Digest-Anmeldung, konfigurierbare Zeitlimits, Sperre gegen parallele Abfragen und ein schreibgeschützter Betriebsmodus.

@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.4.1"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.4.2"
         },
         {
             "type": "ExpansionPanel",
@@ -332,15 +332,20 @@
                     "caption": "Pitmaster anzeigen"
                 },
                 {
+                    "type": "CheckBox",
+                    "name": "TileHero",
+                    "caption": "Große Haupttemperatur oben anzeigen (z. B. Garraum)"
+                },
+                {
                     "type": "NumberSpinner",
                     "name": "TilePrimary",
-                    "caption": "Bevorzugter Hauptkanal (0 = erster sichtbarer Kanal)",
+                    "caption": "Kanal für die optionale Hauptanzeige (0 = erster gültiger Fühler)",
                     "minimum": 0,
                     "maximum": 255
                 },
                 {
                     "type": "Label",
-                    "caption": "Die Kachelauswahl ist unabhängig von der Variablenanlage. Alle erkannten Kanäle werden zunächst angezeigt. Nach dem Abruf das Formular erneut öffnen. In der Kachel einen Fühlerkopf anklicken, um den Hauptmesswert lokal zu wechseln."
+                    "caption": "In der Kachel erscheinen nur aktuell gültige Fühlerwerte. Nicht angeschlossene Fühler und getrennte Bluetooth-Fühler werden ausgeblendet. Die große Hauptanzeige ist optional und standardmäßig aus. Ein fest gewählter Hauptfühler wird bei ungültigem Wert ausgeblendet und nicht durch einen anderen ersetzt."
                 },
                 {
                     "type": "List",
@@ -377,7 +382,12 @@
                 },
                 {
                     "type": "Label",
-                    "caption": "Symcon 9.0 verwendet die normale HTML-Kachel. Wenn die Laufzeit den Vollbildtyp ab 9.1 anbietet, wird derselbe responsive Inhalt auch maximiert verwendet. Keine zusätzliche HTML-Box-Variable erforderlich."
+                    "caption": "IPSView: TileHtml auf der Seite platzieren und die ID dieser WLANThermo-Instanz zuweisen. Der normale HTML-Typ ist standardmäßig aktiv. HTML-Vollbild nur bei Bedarf für die Symcon-Kachelvisualisierung einschalten; benötigt Symcon ab 9.1."
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileFullscreen",
+                    "caption": "Erweiterte HTML-Vollbildansicht verwenden (Symcon ab 9.1; für IPSView ausgeschaltet lassen)"
                 }
             ]
         },

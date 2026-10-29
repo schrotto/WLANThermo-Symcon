@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.4.1
+# Vollständiger Quellcode – WLANThermo 1.4.2
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,9 +13,9 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.4.1",
-    "build": 7,
-    "date": 1793059200
+    "version": "1.4.2",
+    "build": 8,
+    "date": 1793232000
 }
 
 ````
@@ -93,7 +93,7 @@ class WLANThermo extends IPSModuleStrict
             $this->WriteAttributeString('VariableDefaults', $legacy ? 'all' : 'none');
         }
         $this->SetVisualizationType($this->ReadPropertyBoolean('TileEnabled') ?
-            (defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN') ? INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN : INSTANCE_VISUALIZATION_TYPE_HTML) : INSTANCE_VISUALIZATION_TYPE_NONE);
+            ($this->ReadPropertyBoolean('TileFullscreen') && defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN') ? INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN : INSTANCE_VISUALIZATION_TYPE_HTML) : INSTANCE_VISUALIZATION_TYPE_NONE);
         try {
             $this->validateVisualization();
             $this->selectionOverrides();
@@ -591,11 +591,7 @@ class WLANThermo extends IPSModuleStrict
                     $this->action($prefix . $suffix, $suffix !== 'Type' || empty($ch['fixed']));
                 }
             }
-            $wireless = (int) ($ch['typ'] ?? -1) === 16;
-            foreach ($settings['sensors'] ?? [] as $sensor) {
-                if ((int) $sensor['type'] === (int) ($ch['typ'] ?? -1) && stripos($sensor['name'], 'Bluetooth') !== false) { $wireless = true; }
-            }
-            $valid = is_numeric($ch['temp']) && is_finite((float) $ch['temp']) && (float) $ch['temp'] !== 999.0 && (!$wireless || !empty($ch['connected']));
+            $valid = $this->channelHasValidTemperature($ch, $settings);
             $this->variable($prefix . 'Valid', $label . ': Messwert gültig', 0, '~Switch', $position++, $valid);
             $this->variable($prefix . 'Present', $label . ': Kanal vorhanden', 0, '~Switch', $position++, true);
             $this->variable($prefix . 'OutOfRange', $label . ': Temperatur außerhalb Grenzen', 0, '~Switch', $position++,
@@ -975,7 +971,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.4.1"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.4.2"
         },
         {
             "type": "ExpansionPanel",
@@ -1305,15 +1301,20 @@ class WLANThermo extends IPSModuleStrict
                     "caption": "Pitmaster anzeigen"
                 },
                 {
+                    "type": "CheckBox",
+                    "name": "TileHero",
+                    "caption": "Große Haupttemperatur oben anzeigen (z. B. Garraum)"
+                },
+                {
                     "type": "NumberSpinner",
                     "name": "TilePrimary",
-                    "caption": "Bevorzugter Hauptkanal (0 = erster sichtbarer Kanal)",
+                    "caption": "Kanal für die optionale Hauptanzeige (0 = erster gültiger Fühler)",
                     "minimum": 0,
                     "maximum": 255
                 },
                 {
                     "type": "Label",
-                    "caption": "Die Kachelauswahl ist unabhängig von der Variablenanlage. Alle erkannten Kanäle werden zunächst angezeigt. Nach dem Abruf das Formular erneut öffnen. In der Kachel einen Fühlerkopf anklicken, um den Hauptmesswert lokal zu wechseln."
+                    "caption": "In der Kachel erscheinen nur aktuell gültige Fühlerwerte. Nicht angeschlossene Fühler und getrennte Bluetooth-Fühler werden ausgeblendet. Die große Hauptanzeige ist optional und standardmäßig aus. Ein fest gewählter Hauptfühler wird bei ungültigem Wert ausgeblendet und nicht durch einen anderen ersetzt."
                 },
                 {
                     "type": "List",
@@ -1350,7 +1351,12 @@ class WLANThermo extends IPSModuleStrict
                 },
                 {
                     "type": "Label",
-                    "caption": "Symcon 9.0 verwendet die normale HTML-Kachel. Wenn die Laufzeit den Vollbildtyp ab 9.1 anbietet, wird derselbe responsive Inhalt auch maximiert verwendet. Keine zusätzliche HTML-Box-Variable erforderlich."
+                    "caption": "IPSView: TileHtml auf der Seite platzieren und die ID dieser WLANThermo-Instanz zuweisen. Der normale HTML-Typ ist standardmäßig aktiv. HTML-Vollbild nur bei Bedarf für die Symcon-Kachelvisualisierung einschalten; benötigt Symcon ab 9.1."
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileFullscreen",
+                    "caption": "Erweiterte HTML-Vollbildansicht verwenden (Symcon ab 9.1; für IPSView ausgeschaltet lassen)"
                 }
             ]
         },
@@ -1543,10 +1549,11 @@ class WLANThermo extends IPSModuleStrict
     <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1>Grillstation</h1></div></div>
     <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
   </header>
-  <section id="hero" class="hero" aria-label="Hauptmesswert">
+  <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
     <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div></div>
     <div id="gauge" class="gauge" aria-label="Temperatur innerhalb der Alarmgrenzen"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">ALARMBEREICH</span><strong id="gauge-range">—</strong></div></div>
   </section>
+  <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
   <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title"><h2>Fühlerübersicht</h2><span id="probe-count"></span></div><div id="channels" class="probe-grid"></div></section>
   <section id="pitmasters-section" aria-label="Pitmaster"><div class="section-title"><h2>Pitmaster</h2><span class="subtle">Regelung am Mini V3</span></div><div id="pitmasters" class="pitmaster-grid"></div></section>
   <footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer>
@@ -1566,11 +1573,11 @@ class WLANThermo extends IPSModuleStrict
 :root{color-scheme:dark;--bg:#101519;--surface:#191f24;--raised:#212930;--text:#f2f4f5;--muted:#a6b2ba;--border:#303c44;--accent:#f48941;--ok:#7bd9b0;--danger:#ffab89;--shadow:0 18px 52px #0002;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 :root[data-theme="light"]{color-scheme:light;--bg:#f2f4f2;--surface:#fff;--raised:#eaf0ec;--text:#1c2c2a;--muted:#536962;--border:#d4dfd8;--ok:#14714c;--danger:#a93919;--shadow:0 18px 52px #2333280a}
 @media(prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:light;--bg:#f2f4f2;--surface:#fff;--raised:#eaf0ec;--text:#1c2c2a;--muted:#536962;--border:#d4dfd8;--ok:#14714c;--danger:#a93919;--shadow:0 18px 52px #2333280a}}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{overflow-x:hidden}button,input,select{font:inherit}button{color:inherit;cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}button,input,select{min-height:42px;border-radius:10px}button{border:1px solid var(--border);background:var(--raised);padding:9px 13px}button:hover:enabled{border-color:var(--accent)}svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}h1,h2,h3,p{margin:0}h1{font-size:21px;font-weight:650;letter-spacing:-.6px}h2{font-size:16px;font-weight:600}h3{font-size:15px;font-weight:600}#grill{max-width:1440px;margin:auto;padding:24px;display:grid;gap:24px}.topbar,.brand,.top-actions{display:flex;align-items:center;gap:12px}.topbar{justify-content:space-between;min-width:0}.brand{min-width:0}.brandmark{width:43px;height:48px;border:1px solid var(--border);border-radius:14px;display:grid;place-items:center;color:var(--accent);background:var(--surface)}.brandmark svg{width:24px;height:28px;fill:currentColor;stroke:none}.eyebrow{display:block;font-size:10px;letter-spacing:2.1px;font-weight:750;color:var(--muted);margin-bottom:5px}.badge{font-size:11px;font-weight:650;white-space:nowrap;color:var(--muted);padding:7px 10px;border:1px solid var(--border);border-radius:99px}.badge.online{color:var(--ok)}.badge.online:before{content:"";display:inline-block;background:currentColor;width:6px;height:6px;border-radius:50%;margin-right:7px}.icon-button{display:grid;place-items:center;padding:9px;min-width:42px}.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 65%),var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 32px;box-shadow:var(--shadow);min-width:0}.hero-copy{min-width:0}.hero h2{font-size:20px;overflow-wrap:anywhere}.hero-value{display:flex;align-items:baseline;gap:9px;font-variant-numeric:tabular-nums;line-height:1.15;margin:12px 0}.hero-value>span:first-child{font-size:clamp(48px,8vw,88px);font-weight:550;letter-spacing:-5px}.unit{font-size:24px;color:var(--muted)}.state-line{font-size:12px;color:var(--ok);line-height:1.5}.state-line.warning{color:var(--danger)}.range-summary{color:var(--muted);font-size:12px;margin-top:10px}.gauge{--progress:0deg;width:168px;height:168px;border-radius:50%;background:conic-gradient(var(--accent) var(--progress),var(--raised) 0deg);padding:7px;flex-shrink:0;transform:rotate(-90deg)}.gauge-core{border-radius:50%;background:var(--surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;transform:rotate(90deg)}.probe-icon{width:28px;height:28px;color:var(--accent)}.gauge-label{font-size:8px;letter-spacing:1.3px;color:var(--muted);font-weight:700}.gauge strong{font-size:14px;font-weight:600}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-title>span{font-size:11px;color:var(--muted)}.probe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}.probe{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:17px;min-width:0}.probe.selected{border-color:var(--accent)}.probe.choose{cursor:pointer}.probe-head{display:flex;gap:9px;align-items:start;justify-content:space-between}.probe-head h3{overflow-wrap:anywhere}.probe-kicker{font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px}.probe-status{width:7px;height:7px;background:var(--ok);border-radius:50%;margin-top:5px;flex-shrink:0}.probe.warning .probe-status{background:var(--danger)}.probe.invalid .probe-status{background:var(--muted)}.probe-value{font-size:32px;font-weight:550;letter-spacing:-1px;margin:14px 0 8px;font-variant-numeric:tabular-nums}.probe-value small{font-size:14px;color:var(--muted);font-weight:400;margin-left:6px}.probe-label{font-size:11px;line-height:1.5;color:var(--muted)}.rail{height:4px;border-radius:9px;background:var(--raised);margin:12px 0 7px;overflow:hidden}.rail>span{display:block;height:100%;background:var(--accent);border-radius:9px}.rail-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}details{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}summary{font-size:11px;color:var(--muted);cursor:pointer;min-height:26px}.limits-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.limits-form button{grid-column:1/-1}.field{display:grid;gap:6px;font-size:10px;color:var(--muted);min-width:0}.field input,.field select{width:100%;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:9px;font-size:13px}.pitmaster-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}.pitmaster{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:18px;min-width:0}.pm-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.pm-meta{font-size:11px;color:var(--muted)}.pm-fields{display:grid;grid-template-columns:1.15fr 1fr;gap:10px}.pm-fields .submit{grid-column:1/-1;font-size:12px;font-weight:650;background:var(--raised)}footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-top:3px;font-size:10px;color:var(--muted)}#updated{margin-left:auto}.text-button{background:none;min-height:36px;font-size:10px;padding:4px 10px}.subtle{color:var(--muted)}#notice,#device-error{font-size:12px;padding:12px 14px;border-radius:10px;background:var(--raised);overflow-wrap:anywhere;line-height:1.5}#notice.error,#device-error{color:var(--danger)}[hidden]{display:none!important}.empty{color:var(--muted);padding:10px 0;font-size:12px}.no-icons .icon{display:none}.no-details footer{display:none}.compact #grill{padding:14px;gap:16px}.compact .hero{padding:20px}.compact .gauge{width:130px;height:130px}.compact .probe{padding:13px}.disabled .hero{opacity:.55}.busy #refresh svg{animation:spin 1.2s linear infinite}.no-animation *{animation:none!important;transition:none!important}@keyframes spin{to{transform:rotate(360deg)}}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{overflow-x:hidden}button,input,select{font:inherit}button{color:inherit;cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}button,input,select{min-height:42px;border-radius:10px}button{border:1px solid var(--border);background:var(--raised);padding:9px 13px}button:hover:enabled{border-color:var(--accent)}svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}h1,h2,h3,p{margin:0}h1{font-size:21px;font-weight:650;letter-spacing:-.6px}h2{font-size:16px;font-weight:600}h3{font-size:15px;font-weight:600}#grill{max-width:1440px;margin:auto;padding:24px;display:grid;gap:24px}.topbar,.brand,.top-actions{display:flex;align-items:center;gap:12px}.topbar{justify-content:space-between;min-width:0}.brand{min-width:0}.brandmark{width:43px;height:48px;border:1px solid var(--border);border-radius:14px;display:grid;place-items:center;color:var(--accent);background:var(--surface)}.brandmark svg{width:24px;height:28px;fill:currentColor;stroke:none}.eyebrow{display:block;font-size:10px;letter-spacing:2.1px;font-weight:750;color:var(--muted);margin-bottom:5px}.badge{font-size:11px;font-weight:650;white-space:nowrap;color:var(--muted);padding:7px 10px;border:1px solid var(--border);border-radius:99px}.badge.online{color:var(--ok)}.badge.online:before{content:"";display:inline-block;background:currentColor;width:6px;height:6px;border-radius:50%;margin-right:7px}.icon-button{display:grid;place-items:center;padding:9px;min-width:42px}.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--surface);background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 65%),var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 32px;box-shadow:var(--shadow);min-width:0}.hero-copy{min-width:0}.hero h2{font-size:20px;overflow-wrap:anywhere}.hero-value{display:flex;align-items:baseline;gap:9px;font-variant-numeric:tabular-nums;line-height:1.15;margin:12px 0}.hero-value>span:first-child{font-size:clamp(48px,8vw,88px);font-weight:550;letter-spacing:-5px}.unit{font-size:24px;color:var(--muted)}.state-line{font-size:12px;color:var(--ok);line-height:1.5}.state-line.warning{color:var(--danger)}.range-summary{color:var(--muted);font-size:12px;margin-top:10px}.gauge{--progress:0deg;width:168px;height:168px;border-radius:50%;background:conic-gradient(var(--accent) var(--progress),var(--raised) 0deg);padding:7px;flex-shrink:0;transform:rotate(-90deg)}.gauge-core{border-radius:50%;background:var(--surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;transform:rotate(90deg)}.probe-icon{width:28px;height:28px;color:var(--accent)}.gauge-label{font-size:8px;letter-spacing:1.3px;color:var(--muted);font-weight:700}.gauge strong{font-size:14px;font-weight:600}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-title>span{font-size:11px;color:var(--muted)}.probe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}.probe{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:17px;min-width:0}.probe.selected{border-color:var(--accent)}.probe.choose{cursor:pointer}.probe-head{display:flex;gap:9px;align-items:start;justify-content:space-between}.probe-head h3{overflow-wrap:anywhere}.probe-kicker{font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px}.probe-status{width:7px;height:7px;background:var(--ok);border-radius:50%;margin-top:5px;flex-shrink:0}.probe.warning .probe-status{background:var(--danger)}.probe.invalid .probe-status{background:var(--muted)}.probe-value{font-size:32px;font-weight:550;letter-spacing:-1px;margin:14px 0 8px;font-variant-numeric:tabular-nums}.probe-value small{font-size:14px;color:var(--muted);font-weight:400;margin-left:6px}.probe-label{font-size:11px;line-height:1.5;color:var(--muted)}.rail{height:4px;border-radius:9px;background:var(--raised);margin:12px 0 7px;overflow:hidden}.rail>span{display:block;height:100%;background:var(--accent);border-radius:9px}.rail-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}details{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}summary{font-size:11px;color:var(--muted);cursor:pointer;min-height:26px}.limits-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.limits-form button{grid-column:1/-1}.field{display:grid;gap:6px;font-size:10px;color:var(--muted);min-width:0}.field input,.field select{width:100%;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:9px;font-size:13px}.pitmaster-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}.pitmaster{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:18px;min-width:0}.pm-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.pm-meta{font-size:11px;color:var(--muted)}.pm-fields{display:grid;grid-template-columns:1.15fr 1fr;gap:10px}.pm-fields .submit{grid-column:1/-1;font-size:12px;font-weight:650;background:var(--raised)}footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-top:3px;font-size:10px;color:var(--muted)}#updated{margin-left:auto}.text-button{background:none;min-height:36px;font-size:10px;padding:4px 10px}.subtle{color:var(--muted)}#notice,#device-error{font-size:12px;padding:12px 14px;border-radius:10px;background:var(--raised);overflow-wrap:anywhere;line-height:1.5}#notice.error,#device-error{color:var(--danger)}[hidden]{display:none!important}.empty{color:var(--muted);padding:10px 0;font-size:12px}.no-icons .icon{display:none}.no-details footer{display:none}.compact #grill{padding:14px;gap:16px}.compact .hero{padding:20px}.compact .gauge{width:130px;height:130px}.compact .probe{padding:13px}.disabled .hero{opacity:.55}.busy #refresh svg{animation:spin 1.2s linear infinite}.no-animation *{animation:none!important;transition:none!important}@keyframes spin{to{transform:rotate(360deg)}}
 @media(min-width:1000px){#grill{padding:32px;gap:28px}.hero{padding:36px 42px}.gauge{width:196px;height:196px}.hero-value>span:first-child{font-size:96px}.probe-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}}
 @media(max-width:440px){#grill{padding:14px;gap:18px}.topbar{gap:7px}.brand{gap:8px}.brandmark{width:33px;height:40px}h1{font-size:18px}.eyebrow{font-size:8px;letter-spacing:1.5px}.top-actions{gap:7px}.badge{font-size:9px;padding:6px 8px}.hero{padding:22px 19px;gap:10px}.hero h2{font-size:17px}.hero-value>span:first-child{font-size:58px;letter-spacing:-3px}.unit{font-size:18px}.gauge{width:112px;height:112px;padding:5px}.gauge strong{font-size:11px}.gauge-label{font-size:7px;letter-spacing:.8px}.gauge-core{gap:5px}.probe-icon{width:22px;height:22px}.probe-grid{grid-template-columns:1fr}.probe-value{margin:9px 0 4px}.probe{padding:15px}.pm-fields{gap:9px}#updated{margin-left:0}.subtle{font-size:9px!important}}
 @media(max-width:300px){#grill{padding:9px;gap:13px}.brandmark,.gauge,.section-title>.subtle{display:none}.hero-value>span:first-child{font-size:53px}.hero{padding:18px}.badge{max-width:100px;overflow:hidden;text-overflow:ellipsis}h1{font-size:16px}.top-actions{gap:4px}.icon-button{min-width:36px;min-height:38px;padding:6px}}
-@media(max-height:340px){#grill{gap:12px;padding:12px}.hero{padding:16px 20px}.hero-value{margin:6px 0}.hero-value>span:first-child{font-size:54px}.gauge{width:115px;height:115px}.hero h2{font-size:16px}.hero .range-summary{margin-top:4px}#channels-section,#pitmasters-section,footer{display:none!important}}
+@media(max-height:340px){#grill{gap:12px;padding:12px}.hero{padding:16px 20px}.hero-value{margin:6px 0}.hero-value>span:first-child{font-size:54px}.gauge{width:115px;height:115px}.hero h2{font-size:16px}.hero .range-summary{margin-top:4px}#pitmasters-section,footer{display:none!important}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 @media(pointer:coarse){button,input,select{min-height:44px}.field input,.field select{font-size:16px}summary{min-height:44px;display:flex;align-items:center}}
@@ -1616,7 +1623,7 @@ class WLANThermo extends IPSModuleStrict
     const min = field('Minimum', 'number', -30, 999), max = field('Maximum', 'number', -30, 999), submit = node('button', '', 'Grenzen übernehmen'); submit.type = 'submit';
     form.append(min.wrapper, max.wrapper, submit); details.append(summary, form);
     el.append(head, value, label, rail, limits, details);
-    const choose = () => { selected = ch.number; render(); };
+    const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
     form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, min:Number(min.input.value), max:Number(max.input.value)}); });
@@ -1643,9 +1650,13 @@ class WLANThermo extends IPSModuleStrict
     $('refresh').disabled = !active || !state.canRefresh || Boolean(pending);
     $('connection').textContent = !active ? 'Kachel deaktiviert' : !state.active ? 'Deaktiviert' : state.online ? 'Verbunden' : state.status >= 200 ? 'Fehler' : 'Standby';
     $('connection').classList.toggle('online', Boolean(active && state.online));
-    const channels = active ? state.channels || [] : [];
-    if (!channels.some(ch => ch.number === selected)) selected = channels.some(ch => ch.number === cfg.primary) ? cfg.primary : channels[0]?.number || 0;
-    const main = channels.find(ch => ch.number === selected);
+    const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
+    if (!channels.some(ch => ch.number === selected)) selected = cfg.primary > 0 ? (channels.some(ch => ch.number === cfg.primary) ? cfg.primary : 0) : channels[0]?.number || 0;
+    const main = channels.find(ch => ch.number === (cfg.primary > 0 ? cfg.primary : selected));
+    $('hero').hidden = !cfg.hero || !main;
+    document.body.classList.toggle('has-hero', !$('hero').hidden);
+    $('empty-state').hidden = !active || channels.length > 0;
+    $('empty-state').textContent = state.online ? 'Keine gültigen Fühlerwerte verfügbar. Nicht angeschlossene Fühler werden automatisch ausgeblendet.' : 'Keine aktuellen Fühlerwerte – Gerät nicht erreichbar oder noch kein erfolgreicher Abruf.';
     $('hero-channel').textContent = main ? 'KANAL ' + main.number + (main.wireless ? ' · BLUETOOTH' : ' · FÜHLER') : 'TEMPERATUR';
     $('hero-name').textContent = main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
     $('hero-temperature').textContent = fmt(main?.valid ? main.temperature : null); $('hero-unit').textContent = state.unit || '°C';
@@ -1655,11 +1666,12 @@ class WLANThermo extends IPSModuleStrict
     $('gauge-range').textContent = main ? fmt(main.min) + '–' + fmt(main.max) + ' ' + state.unit : '—';
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
     $('gauge').setAttribute('aria-label', main ? 'Temperatur relativ zu den Alarmgrenzen: ' + describe(main) : 'Keine Alarmgrenzen verfügbar');
-    $('probe-count').textContent = channels.filter(ch => ch.valid).length + ' / ' + channels.length + ' aktuell';
+    $('probe-count').textContent = channels.length + (channels.length === 1 ? ' gültiger Fühler' : ' gültige Fühler');
     for (const [number, ui] of probes) if (!channels.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     channels.forEach(ch => {
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
-      ui.el.className = 'probe choose' + (ch.number === selected ? ' selected' : '') + (!ch.valid ? ' invalid' : ch.outOfRange ? ' warning' : '');
+      ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
+      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : ch.outOfRange ? ' warning' : '');
       ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
       ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
       ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.low.textContent = fmt(ch.min) + ' ' + state.unit; ui.high.textContent = fmt(ch.max) + ' ' + state.unit;
@@ -1961,6 +1973,8 @@ trait WLTVisualization
     private function registerVisualization(): void
     {
         $this->RegisterPropertyBoolean('TileEnabled', true);
+        $this->RegisterPropertyBoolean('TileHero', false);
+        $this->RegisterPropertyBoolean('TileFullscreen', false);
         $this->RegisterPropertyString('TileTheme', 'auto');
         $this->RegisterPropertyInteger('TileAccent', 16025665);
         $this->RegisterPropertyBoolean('TileCompact', false);
@@ -2022,6 +2036,23 @@ trait WLTVisualization
         unset($element);
     }
 
+    private function channelIsWireless(array $channel, array $settings): bool
+    {
+        if ((int) ($channel['typ'] ?? -1) === 16) { return true; }
+        foreach ($settings['sensors'] ?? [] as $sensor) {
+            if ((int) $sensor['type'] === (int) ($channel['typ'] ?? -1) && stripos($sensor['name'], 'Bluetooth') !== false) { return true; }
+        }
+        return false;
+    }
+
+    private function channelHasValidTemperature(array $channel, array $settings): bool
+    {
+        $value = $channel['temp'] ?? null;
+        // connected ist bei kabelgebundenen Fühlern kein Verfügbarkeitsmerkmal.
+        return is_numeric($value) && is_finite((float) $value) && (float) $value !== 999.0 &&
+            (!$this->channelIsWireless($channel, $settings) || !empty($channel['connected']));
+    }
+
     /** Nur benötigte, freigegebene Daten an die Kachel übertragen. */
     private function visualizationData(): array
     {
@@ -2032,11 +2063,9 @@ trait WLTVisualization
         $channels = [];
         foreach ($data['channel'] ?? [] as $ch) {
             if (!($choices[$ch['number']] ?? true)) { continue; }
-            $wireless = (int) ($ch['typ'] ?? -1) === 16;
-            foreach ($settings['sensors'] ?? [] as $sensor) {
-                if ((int) $sensor['type'] === (int) ($ch['typ'] ?? -1) && stripos($sensor['name'], 'Bluetooth') !== false) { $wireless = true; }
-            }
-            $valid = $online && is_numeric($ch['temp']) && is_finite((float) $ch['temp']) && (float) $ch['temp'] !== 999.0 && (!$wireless || !empty($ch['connected']));
+            $wireless = $this->channelIsWireless($ch, $settings);
+            $valid = $online && $this->channelHasValidTemperature($ch, $settings);
+            if (!$valid) { continue; }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'temperature' => $valid ? (float) $ch['temp'] : null,
                 'valid' => $valid, 'wireless' => $wireless, 'min' => $ch['min'] ?? null, 'max' => $ch['max'] ?? null,
                 'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['min'], $ch['max']) && ($ch['temp'] < $ch['min'] || $ch['temp'] > $ch['max'])];
@@ -2059,6 +2088,7 @@ trait WLTVisualization
                 'compact' => $this->ReadPropertyBoolean('TileCompact'), 'details' => $this->ReadPropertyBoolean('TileDetails'),
                 'icons' => $this->ReadPropertyBoolean('TileIcons'), 'animations' => $this->ReadPropertyBoolean('TileAnimations'),
                 'actionTimeout' => max(35000, $this->ReadPropertyInteger('Timeout') * 7000 + 2000),
+                'hero' => $this->ReadPropertyBoolean('TileHero'),
                 'controls' => $this->ReadPropertyBoolean('TileControls'), 'primary' => $this->ReadPropertyInteger('TilePrimary')]];
     }
 
@@ -2118,6 +2148,10 @@ trait WLTVisualization
             elseif ($action === 'channel') {
                 $number = WLTApi::integer($request['number'] ?? null, 1, 255);
                 if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist in der Kachel ausgeblendet.'); }
+                $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+                if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
+                    throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
+                }
                 $ok = $this->SetChannel($number, WLTApi::encode(['min' => $request['min'] ?? null, 'max' => $request['max'] ?? null]));
             } elseif ($action === 'pitmaster') {
                 if (!$this->ReadPropertyBoolean('TilePitmaster')) { throw new InvalidArgumentException('Pitmaster ist in der Kachel ausgeblendet.'); }
@@ -2148,6 +2182,25 @@ trait WLTVisualization
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.4.2: Gültige Fühler und IPSView
+
+Die Fühlerübersicht zeigt ausschließlich aktuelle, gültige Temperaturwerte. Nicht angeschlossene Fühler (Fehlerwert 999), fehlende/nicht numerische Werte und getrennte Bluetooth-Fühler werden automatisch ausgeblendet. Bei Geräteausfall sind keine aktuellen Fühlerkarten sichtbar; ein Hinweis und der Verbindungsstatus bleiben erhalten. Nach dem nächsten erfolgreichen Abruf kehren gültige Fühler zurück. Bestehende Symcon-Variablen, ihre IDs und Archivzuordnungen werden dadurch nicht gelöscht oder verändert.
+
+Die **große Haupttemperatur oben ist standardmäßig aus**. Unter Premium-Visualisierung kann sie optional eingeschaltet werden, z. B. für den Garraum. Im Feld **Kanal für die optionale Hauptanzeige** den gewünschten Kanal einstellen. Ist ein fester Hauptkanal ungültig oder ausgeblendet, verschwindet die Hauptanzeige; es wird kein anderer Fühler als Ersatz eingeblendet. Mit Kanal 0 wird der erste gültige Fühler genutzt; nur in diesem automatischen Modus kann die Auswahl lokal per Fühlerkopf/Tastatur gewechselt werden.
+
+### IPSView als TileHtml
+
+Die Kachel wird standardmäßig als normaler HTML-SDK-Instanztyp bereitgestellt. Dieser ist der vorgesehene Weg für **TileHtml** in IPSView:
+
+1. Im IPSView-Designer ein **TileHtml** auf der gewünschten Seite platzieren.
+2. In dessen Eigenschaft **ID** die ID der WLANThermo-Modulinstanz eintragen – keine Variablen-ID.
+3. Premium-Visualisierung in der Instanz aktivieren und **Erweiterte HTML-Vollbildansicht verwenden** ausgeschaltet lassen.
+4. View auf den IPSView-Client übertragen/neu laden und eine zur Fühlerzahl passende Breite/Höhe einstellen. Im Designer kann nur ein Symbol erscheinen; der tatsächliche Inhalt wird im Client geladen.
+
+Es wird weder eine zusätzliche HTML-Box noch eine Container-Variable benötigt. Live-Daten und Bedienung verwenden weiterhin das offizielle HTML-SDK. Die [IPSView-Herstellerdokumentation zu TileHtml](https://docu.brownson.at/viewdesigner/WebHelp/DesignerRepositoryTypeTile.html) beschreibt diese Zuordnung per Instanz-ID. Die Einbindung ist entsprechend vorbereitet; ohne deinen konkreten IPSView-Client kann der tatsächliche Anzeige-/Bedienbetrieb nicht als getestet bestätigt werden.
+
+Für die Symcon-Kachelvisualisierung kann **Erweiterte HTML-Vollbildansicht verwenden** optional aktiviert werden. Dieser Typ wird nur verwendet, wenn die Laufzeit ihn unterstützt (Symcon ab 9.1). Die Einstellung ist standardmäßig aus, auch beim Update. In niedrigen Kacheln bleibt die Fühlerübersicht jetzt auch ohne große Hauptanzeige sichtbar.
+
 ## Hotfix 1.4.1: Instanzerstellung korrigiert
 
 Version 1.4.0 übergab PHP-Arrays an `UpdateVisualizationValue()`. Die gemeldete native Symcon-Wertkonvertierung wies diese mit „Cannot auto-convert value for parameter Value (Type is not supported)“ zurück; dadurch konnte bereits die Instanzerstellung scheitern.
@@ -2158,7 +2211,7 @@ Die Moduldateien vollständig ersetzen und bei direkter Dateikopie den Symcon-Di
 
 ## Version 1.4.0: Grill-Kachel ohne zusätzliche Variablen
 
-Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Alarmbereichen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Kanalüberschriften oder die Tastatur wechseln den Hauptfühler. Alarmgrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zu den tatsächlichen Alarmgrenzen, keinen Garfortschritt.
+Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Alarmbereichen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Bei aktivierter Hauptanzeige mit Kanal 0 wechseln Kanalüberschriften oder die Tastatur den Hauptfühler. Alarmgrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zu den tatsächlichen Alarmgrenzen, keinen Garfortschritt.
 
 **Neue Instanzen erzeugen standardmäßig 0 Statusvariablen.** Alle Daten werden intern gepuffert und über das offizielle HTML-SDK direkt an die Kachel übertragen. Keine HTML-Box, keine Container-, Platzhalter- oder versteckten Hilfsvariablen. Die Kachel funktioniert auch bei vollständig abgewählten Variablen. Bei bestehenden Instanzen wird der bisherige Variablenumfang übernommen; vorhandene IDs, Werte und gespeicherte Einzelentscheidungen bleiben erhalten.
 
@@ -2187,11 +2240,11 @@ Das Modul aktualisiert nur den Wert eines zugewiesenen Ziels. Name, Position, Da
 
 ### Premium-Visualisierung konfigurieren
 
-**Premium-Visualisierung** bietet Aktivierung, Automatisch/Hell/Dunkel, Akzentfarbe, Kompaktmodus, Zusatzinformationen, Symbole, reduzierte Animation, Bedienfreigabe, Pitmaster-Anzeige, Hauptkanal und individuelle Fühlerauswahl. Die Fühlerauswahl der Kachel ist vollständig unabhängig von der Variablenanlage. Nach dem ersten Abruf das Formular erneut öffnen. Ein Hauptkanal von 0 nutzt den ersten sichtbaren Fühler; in der geöffneten Kachel kann lokal ein anderer gewählt werden.
+**Premium-Visualisierung** bietet Aktivierung, Automatisch/Hell/Dunkel, Akzentfarbe, Kompaktmodus, Zusatzinformationen, Symbole, reduzierte Animation, Bedienfreigabe, Pitmaster-Anzeige, Hauptkanal und individuelle Fühlerauswahl. Die Fühlerauswahl der Kachel ist vollständig unabhängig von der Variablenanlage. Nach dem ersten Abruf das Formular erneut öffnen. Bei aktivierter Hauptanzeige nutzt Hauptkanal 0 den ersten gültigen sichtbaren Fühler; in diesem automatischen Modus kann lokal ein anderer gewählt werden.
 
 Die Kachel passt das Layout per Breite und Höhe an. Kleine Kacheln zeigen vor allem Haupttemperatur, Status und Aktualisieren; größere zeigen Fühler, Bedienelemente und Pitmaster. Auf Touchgeräten sind die Eingaben vergrößert; Tastaturfokus, Fehlertexte und `prefers-reduced-motion` werden berücksichtigt. Die tatsächlichen Layouts in den Symcon-Clients sind noch zu prüfen.
 
-**IP-Symcon ab 9.0** bleibt Mindestversion. Unter 9.0 wird `INSTANCE_VISUALIZATION_TYPE_HTML` verwendet. Bietet die Laufzeit den erst ab 9.1 dokumentierten Typ `INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN`, wird dieselbe Kachel auch maximiert verwendet. Für 9.0 wird keine eigene HTML-Vollbildansicht zugesichert; der Host kann dort beim Maximieren die normale Objektliste zeigen. WebFront ist nicht Ziel dieser HTML-SDK-Kachel.
+**IP-Symcon ab 9.0** bleibt Mindestversion. Unter 9.0 wird `INSTANCE_VISUALIZATION_TYPE_HTML` verwendet. Ist die optionale erweiterte HTML-Vollbildansicht eingeschaltet und bietet die Laufzeit den erst ab 9.1 dokumentierten Typ `INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN`, wird dieselbe Kachel auch maximiert verwendet. Für 9.0 wird keine eigene HTML-Vollbildansicht zugesichert; der Host kann dort beim Maximieren die normale Objektliste zeigen. WebFront ist nicht Ziel dieser HTML-SDK-Kachel.
 
 ### Datenfluss und Sicherheit
 
@@ -2199,7 +2252,7 @@ Die Kachel passt das Layout per Breite und Höhe an. Kleine Kacheln zeigen vor a
 
 `requestAction('TileAction', ...)` sendet strukturierte Aktionen. PHP prüft Aktivierung, Kachelbedienfreigabe, globalen Schreibschutz, sichtbare Kanäle/Pitmaster, Aktion und Parameter. Die vorhandenen geprüften Gerätefunktionen validieren die Werte und lesen Änderungen zurück. Eine Anfragekennung verbindet Rückmeldung und Bedienung; ausstehende Aktionen sind gesperrt. Der einmalige Rückmelde-Timeout folgt dem konfigurierten HTTP-Timeout. Ein Timeout bestätigt oder verwirft keine Geräteänderung: danach zuerst aktualisieren. Allein die Kachelberechtigung erweitert niemals den globalen Schreibzugriff.
 
-Unbekannte oder fehlende Messwerte werden als „—“ angezeigt. Bei Nichterreichbarkeit bleibt die Instanz in Standby 106, der Modultimer läuft weiter, Bedienung wird gesperrt und die Anzeige erholt sich nach erfolgreichem Abruf. Konfigurations-, Authentifizierungs- und API-Fehler bleiben sichtbar. Hinweise stehen in der Kachel und im Konfigurationsformular auch ohne Fehler-Statusvariable zur Verfügung.
+Unbekannte oder fehlende Messwerte werden nicht als Fühlerkarte angezeigt. Bei Nichterreichbarkeit bleibt die Instanz in Standby 106, der Modultimer läuft weiter, Bedienung wird gesperrt und die Anzeige erholt sich nach erfolgreichem Abruf. Konfigurations-, Authentifizierungs- und API-Fehler bleiben sichtbar. Hinweise stehen in der Kachel und im Konfigurationsformular auch ohne Fehler-Statusvariable zur Verfügung.
 
 ### Update und Vorschau
 
@@ -2212,7 +2265,7 @@ Die vollständige Bibliothek im eigenen Repository übernehmen und über Module 
 - Liest `/data` automatisch (Standard 10 Sekunden), `/settings` alle 5 Minuten und `/getbluetooth` pro Abruf. Manuelle Aktualisierung verfügbar.
 - Übernimmt alle von diesen drei Antworten gelieferten Datenfelder: alle Temperaturkanäle, Systemwerte, WLAN-Signal, Akkuinformationen soweit vorhanden, Gerätemodell, Firmware, Fühlertypen, PID-Profile und weitere Einstellungen. Zusätzliche Felder können rekursiv als lesbare Statusvariablen angelegt werden. Gruppen und einzelne Variablen lassen sich über Kontrollkästchen auswählen. Schlüssel, die Zugangsdaten enthalten, werden ausgeblendet.
 - Kanalvariablen für Temperatur, Name, Fühlertyp, Alarm Minimum/Maximum, Alarmierungsart, Farbe, festen Fühlertyp und Funkverbindungsstatus. Name, Grenzen, Alarmierungsart, Farbe und veränderbare Fühlertypen sind bedienbar.
-- Kennzeichnet fehlende Messwerte (`999`), getrennte Bluetooth-Fühler, entfernte Kanäle und Geräteausfälle. Die letzte Temperatur bleibt sichtbar; `Valid` und `Online` zeigen, ob sie aktuell verwendbar ist.
+- Kennzeichnet fehlende Messwerte (`999`), getrennte Bluetooth-Fühler, entfernte Kanäle und Geräteausfälle. Die letzte Temperatur bleibt in vorhandenen Symcon-Variablen erhalten; `Valid` und `Online` zeigen, ob sie aktuell verwendbar ist. In der Kachel sind nur gültige aktuelle Fühler sichtbar.
 - Pitmaster: Betriebsart, Solltemperatur, manueller Stellwert, Kanal und PID-Profil. PID-Profile und Systemeinstellungen über JSON-Eingabe; MQTT-/Cloud-Einstellungen ebenfalls über JSON.
 - Bluetooth-Liste mit Geräteadresse, Name und gemeldeter Sensoranzahl. Individuelle Checkboxen für jeden Sensorkanal, auch bei mehreren gleichnamigen MEATER-Geräten. Jede Änderung wird sofort gesendet und zurückgelesen.
 - HTTP Basic/Digest-Anmeldung, konfigurierbare Zeitlimits, Sperre gegen parallele Abfragen und ein schreibgeschützter Betriebsmodus.

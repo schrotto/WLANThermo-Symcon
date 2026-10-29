@@ -7,6 +7,8 @@ trait WLTVisualization
     private function registerVisualization(): void
     {
         $this->RegisterPropertyBoolean('TileEnabled', true);
+        $this->RegisterPropertyBoolean('TileHero', false);
+        $this->RegisterPropertyBoolean('TileFullscreen', false);
         $this->RegisterPropertyString('TileTheme', 'auto');
         $this->RegisterPropertyInteger('TileAccent', 16025665);
         $this->RegisterPropertyBoolean('TileCompact', false);
@@ -68,6 +70,23 @@ trait WLTVisualization
         unset($element);
     }
 
+    private function channelIsWireless(array $channel, array $settings): bool
+    {
+        if ((int) ($channel['typ'] ?? -1) === 16) { return true; }
+        foreach ($settings['sensors'] ?? [] as $sensor) {
+            if ((int) $sensor['type'] === (int) ($channel['typ'] ?? -1) && stripos($sensor['name'], 'Bluetooth') !== false) { return true; }
+        }
+        return false;
+    }
+
+    private function channelHasValidTemperature(array $channel, array $settings): bool
+    {
+        $value = $channel['temp'] ?? null;
+        // connected ist bei kabelgebundenen Fühlern kein Verfügbarkeitsmerkmal.
+        return is_numeric($value) && is_finite((float) $value) && (float) $value !== 999.0 &&
+            (!$this->channelIsWireless($channel, $settings) || !empty($channel['connected']));
+    }
+
     /** Nur benötigte, freigegebene Daten an die Kachel übertragen. */
     private function visualizationData(): array
     {
@@ -78,11 +97,9 @@ trait WLTVisualization
         $channels = [];
         foreach ($data['channel'] ?? [] as $ch) {
             if (!($choices[$ch['number']] ?? true)) { continue; }
-            $wireless = (int) ($ch['typ'] ?? -1) === 16;
-            foreach ($settings['sensors'] ?? [] as $sensor) {
-                if ((int) $sensor['type'] === (int) ($ch['typ'] ?? -1) && stripos($sensor['name'], 'Bluetooth') !== false) { $wireless = true; }
-            }
-            $valid = $online && is_numeric($ch['temp']) && is_finite((float) $ch['temp']) && (float) $ch['temp'] !== 999.0 && (!$wireless || !empty($ch['connected']));
+            $wireless = $this->channelIsWireless($ch, $settings);
+            $valid = $online && $this->channelHasValidTemperature($ch, $settings);
+            if (!$valid) { continue; }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'temperature' => $valid ? (float) $ch['temp'] : null,
                 'valid' => $valid, 'wireless' => $wireless, 'min' => $ch['min'] ?? null, 'max' => $ch['max'] ?? null,
                 'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['min'], $ch['max']) && ($ch['temp'] < $ch['min'] || $ch['temp'] > $ch['max'])];
@@ -105,6 +122,7 @@ trait WLTVisualization
                 'compact' => $this->ReadPropertyBoolean('TileCompact'), 'details' => $this->ReadPropertyBoolean('TileDetails'),
                 'icons' => $this->ReadPropertyBoolean('TileIcons'), 'animations' => $this->ReadPropertyBoolean('TileAnimations'),
                 'actionTimeout' => max(35000, $this->ReadPropertyInteger('Timeout') * 7000 + 2000),
+                'hero' => $this->ReadPropertyBoolean('TileHero'),
                 'controls' => $this->ReadPropertyBoolean('TileControls'), 'primary' => $this->ReadPropertyInteger('TilePrimary')]];
     }
 
@@ -164,6 +182,10 @@ trait WLTVisualization
             elseif ($action === 'channel') {
                 $number = WLTApi::integer($request['number'] ?? null, 1, 255);
                 if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist in der Kachel ausgeblendet.'); }
+                $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+                if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
+                    throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
+                }
                 $ok = $this->SetChannel($number, WLTApi::encode(['min' => $request['min'] ?? null, 'max' => $request['max'] ?? null]));
             } elseif ($action === 'pitmaster') {
                 if (!$this->ReadPropertyBoolean('TilePitmaster')) { throw new InvalidArgumentException('Pitmaster ist in der Kachel ausgeblendet.'); }

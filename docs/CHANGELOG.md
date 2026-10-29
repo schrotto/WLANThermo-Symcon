@@ -1,5 +1,15 @@
 # Änderungen
 
+## 1.4.2 – 29.10.2026
+
+- Nur gültige aktuelle Fühler an die Kachel übertragen und darstellen; ungültige, getrennte und offline gewordene Fühler verschwinden automatisch.
+- Gemeinsame Gültigkeitsprüfung für Kanalstatus und Visualisierung.
+- Große Hauptanzeige standardmäßig aus; optional für festen Kanal oder automatische Auswahl.
+- Fehlender fester Hauptkanal wird ausgeblendet und nicht durch anderen Fühler ersetzt.
+- Normaler HTML-Kacheltyp als Standard für IPSView TileHtml; HTML-Vollbild ab 9.1 gesondert optional.
+- Fühlerübersicht bleibt in niedrigen Kacheln auch ohne Hauptanzeige sichtbar.
+- 173 PHP-Modulprüfungen und 21 JavaScript-Vertragsprüfungen erfolgreich; tatsächlicher IPSView-Clientbetrieb noch nicht getestet.
+
 ## 1.4.1 – 27.10.2026
 
 - Fehler bei Instanzerstellung durch nicht unterstützte Array-Übergabe an UpdateVisualizationValue behoben.

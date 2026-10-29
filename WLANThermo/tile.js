@@ -34,7 +34,7 @@
     const min = field('Minimum', 'number', -30, 999), max = field('Maximum', 'number', -30, 999), submit = node('button', '', 'Grenzen übernehmen'); submit.type = 'submit';
     form.append(min.wrapper, max.wrapper, submit); details.append(summary, form);
     el.append(head, value, label, rail, limits, details);
-    const choose = () => { selected = ch.number; render(); };
+    const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
     form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, min:Number(min.input.value), max:Number(max.input.value)}); });
@@ -61,9 +61,13 @@
     $('refresh').disabled = !active || !state.canRefresh || Boolean(pending);
     $('connection').textContent = !active ? 'Kachel deaktiviert' : !state.active ? 'Deaktiviert' : state.online ? 'Verbunden' : state.status >= 200 ? 'Fehler' : 'Standby';
     $('connection').classList.toggle('online', Boolean(active && state.online));
-    const channels = active ? state.channels || [] : [];
-    if (!channels.some(ch => ch.number === selected)) selected = channels.some(ch => ch.number === cfg.primary) ? cfg.primary : channels[0]?.number || 0;
-    const main = channels.find(ch => ch.number === selected);
+    const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
+    if (!channels.some(ch => ch.number === selected)) selected = cfg.primary > 0 ? (channels.some(ch => ch.number === cfg.primary) ? cfg.primary : 0) : channels[0]?.number || 0;
+    const main = channels.find(ch => ch.number === (cfg.primary > 0 ? cfg.primary : selected));
+    $('hero').hidden = !cfg.hero || !main;
+    document.body.classList.toggle('has-hero', !$('hero').hidden);
+    $('empty-state').hidden = !active || channels.length > 0;
+    $('empty-state').textContent = state.online ? 'Keine gültigen Fühlerwerte verfügbar. Nicht angeschlossene Fühler werden automatisch ausgeblendet.' : 'Keine aktuellen Fühlerwerte – Gerät nicht erreichbar oder noch kein erfolgreicher Abruf.';
     $('hero-channel').textContent = main ? 'KANAL ' + main.number + (main.wireless ? ' · BLUETOOTH' : ' · FÜHLER') : 'TEMPERATUR';
     $('hero-name').textContent = main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
     $('hero-temperature').textContent = fmt(main?.valid ? main.temperature : null); $('hero-unit').textContent = state.unit || '°C';
@@ -73,11 +77,12 @@
     $('gauge-range').textContent = main ? fmt(main.min) + '–' + fmt(main.max) + ' ' + state.unit : '—';
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
     $('gauge').setAttribute('aria-label', main ? 'Temperatur relativ zu den Alarmgrenzen: ' + describe(main) : 'Keine Alarmgrenzen verfügbar');
-    $('probe-count').textContent = channels.filter(ch => ch.valid).length + ' / ' + channels.length + ' aktuell';
+    $('probe-count').textContent = channels.length + (channels.length === 1 ? ' gültiger Fühler' : ' gültige Fühler');
     for (const [number, ui] of probes) if (!channels.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     channels.forEach(ch => {
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
-      ui.el.className = 'probe choose' + (ch.number === selected ? ' selected' : '') + (!ch.valid ? ' invalid' : ch.outOfRange ? ' warning' : '');
+      ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
+      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : ch.outOfRange ? ' warning' : '');
       ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
       ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
       ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.low.textContent = fmt(ch.min) + ' ' + state.unit; ui.high.textContent = fmt(ch.max) + ' ' + state.unit;

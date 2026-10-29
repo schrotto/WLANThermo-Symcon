@@ -47,7 +47,7 @@ class WLANThermo extends IPSModuleStrict
             $this->WriteAttributeString('VariableDefaults', $legacy ? 'all' : 'none');
         }
         $this->SetVisualizationType($this->ReadPropertyBoolean('TileEnabled') ?
-            (defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN') ? INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN : INSTANCE_VISUALIZATION_TYPE_HTML) : INSTANCE_VISUALIZATION_TYPE_NONE);
+            ($this->ReadPropertyBoolean('TileFullscreen') && defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN') ? INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN : INSTANCE_VISUALIZATION_TYPE_HTML) : INSTANCE_VISUALIZATION_TYPE_NONE);
         try {
             $this->validateVisualization();
             $this->selectionOverrides();
@@ -545,11 +545,7 @@ class WLANThermo extends IPSModuleStrict
                     $this->action($prefix . $suffix, $suffix !== 'Type' || empty($ch['fixed']));
                 }
             }
-            $wireless = (int) ($ch['typ'] ?? -1) === 16;
-            foreach ($settings['sensors'] ?? [] as $sensor) {
-                if ((int) $sensor['type'] === (int) ($ch['typ'] ?? -1) && stripos($sensor['name'], 'Bluetooth') !== false) { $wireless = true; }
-            }
-            $valid = is_numeric($ch['temp']) && is_finite((float) $ch['temp']) && (float) $ch['temp'] !== 999.0 && (!$wireless || !empty($ch['connected']));
+            $valid = $this->channelHasValidTemperature($ch, $settings);
             $this->variable($prefix . 'Valid', $label . ': Messwert gültig', 0, '~Switch', $position++, $valid);
             $this->variable($prefix . 'Present', $label . ': Kanal vorhanden', 0, '~Switch', $position++, true);
             $this->variable($prefix . 'OutOfRange', $label . ': Temperatur außerhalb Grenzen', 0, '~Switch', $position++,
