@@ -19,6 +19,9 @@ trait WLTVisualization
         $this->RegisterPropertyBoolean('TilePitmaster', true);
         $this->RegisterPropertyInteger('TilePrimary', 0);
         $this->RegisterPropertyString('TileChannels', '[]');
+        $this->RegisterPropertyBoolean('ForecastEnabled', true);
+        $this->RegisterPropertyBoolean('ForecastChart', true);
+        $this->RegisterPropertyInteger('ForecastWindow', 10);
     }
 
     private function validateVisualization(): void
@@ -28,6 +31,7 @@ trait WLTVisualization
         }
         WLTApi::integer($this->ReadPropertyInteger('TileAccent'), 0, 0xffffff);
         WLTApi::integer($this->ReadPropertyInteger('TilePrimary'), 0, 255);
+        WLTApi::integer($this->ReadPropertyInteger('ForecastWindow'), 5, 60);
         $this->tileChannelSelection();
     }
 
@@ -101,8 +105,9 @@ trait WLTVisualization
             $valid = $online && $this->channelHasValidTemperature($ch, $settings);
             if (!$valid) { continue; }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'temperature' => $valid ? (float) $ch['temp'] : null,
-                'valid' => $valid, 'wireless' => $wireless, 'min' => $ch['min'] ?? null, 'max' => $ch['max'] ?? null,
-                'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['min'], $ch['max']) && ($ch['temp'] < $ch['min'] || $ch['temp'] > $ch['max'])];
+                'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null,
+                'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
+                'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']];
         }
         $bt = $this->cached('BluetoothData');
         return ['version' => 1, 'enabled' => $this->ReadPropertyBoolean('TileEnabled'), 'online' => $online,
@@ -123,6 +128,7 @@ trait WLTVisualization
                 'icons' => $this->ReadPropertyBoolean('TileIcons'), 'animations' => $this->ReadPropertyBoolean('TileAnimations'),
                 'actionTimeout' => max(35000, $this->ReadPropertyInteger('Timeout') * 7000 + 2000),
                 'hero' => $this->ReadPropertyBoolean('TileHero'),
+                'forecast' => $this->ReadPropertyBoolean('ForecastEnabled'), 'forecastChart' => $this->ReadPropertyBoolean('ForecastChart'),
                 'controls' => $this->ReadPropertyBoolean('TileControls'), 'primary' => $this->ReadPropertyInteger('TilePrimary')]];
     }
 
@@ -145,10 +151,11 @@ trait WLTVisualization
         $data = $this->visualizationData();
         if ($response !== null) { $data['response'] = $response; }
         $encoded = WLTApi::encode($data);
-        if ($response !== null || $encoded !== $this->GetBuffer('VisualizationLast')) {
+        $signature = hash('sha256', $encoded);
+        if ($response !== null || $signature !== $this->GetBuffer('VisualizationLast')) {
             // Native Symcon-Werte unterstützen keine PHP-Arrays: JSON-Text übertragen.
             if ($this->UpdateVisualizationValue($encoded)) {
-                $this->SetBuffer('VisualizationLast', $encoded);
+                $this->SetBuffer('VisualizationLast', $signature);
             }
         }
     }
@@ -169,16 +176,24 @@ trait WLTVisualization
             $action = $request['action'] ?? '';
             $allowed = match ($action) {
                 'refresh' => ['requestId', 'action'],
-                'channel' => ['requestId', 'action', 'number', 'min', 'max'],
+                'forecastReset' => ['requestId', 'action', 'number'],
+                'channel' => ['requestId', 'action', 'number', 'max'],
                 'pitmaster' => ['requestId', 'action', 'id', 'mode', 'target', 'output'],
                 'bluetooth' => ['requestId', 'action', 'enabled'],
                 default => throw new InvalidArgumentException('Unbekannte Kachelaktion.')
             };
             if (array_diff(array_keys($request), $allowed)) { throw new InvalidArgumentException('Unbekannte Aktionsparameter.'); }
-            if ($action !== 'refresh' && (!$this->ReadPropertyBoolean('TileControls') || !$this->ReadPropertyBoolean('AllowWrite') || !$this->stateValue('Online', false))) {
+            if (!in_array($action, ['refresh', 'forecastReset'], true) && (!$this->ReadPropertyBoolean('TileControls') || !$this->ReadPropertyBoolean('AllowWrite') || !$this->stateValue('Online', false))) {
                 throw new RuntimeException('Bedienung ist gesperrt oder das Gerät ist nicht erreichbar.');
             }
             if ($action === 'refresh') { $ok = $this->Update(); }
+            elseif ($action === 'forecastReset') {
+                if (!$this->ReadPropertyBoolean('TileControls')) { throw new RuntimeException('Kachelbedienung ist gesperrt.'); }
+                $number = WLTApi::integer($request['number'] ?? null, 1, 255);
+                if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist ausgeblendet.'); }
+                $this->resetChannelForecast($number);
+                $ok = true;
+            }
             elseif ($action === 'channel') {
                 $number = WLTApi::integer($request['number'] ?? null, 1, 255);
                 if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist in der Kachel ausgeblendet.'); }
@@ -186,7 +201,7 @@ trait WLTVisualization
                 if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
                     throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
                 }
-                $ok = $this->SetChannel($number, WLTApi::encode(['min' => $request['min'] ?? null, 'max' => $request['max'] ?? null]));
+                $ok = $this->SetChannel($number, WLTApi::encode(['max' => $request['max'] ?? null]));
             } elseif ($action === 'pitmaster') {
                 if (!$this->ReadPropertyBoolean('TilePitmaster')) { throw new InvalidArgumentException('Pitmaster ist in der Kachel ausgeblendet.'); }
                 $id = WLTApi::integer($request['id'] ?? null, 0, 255);
@@ -200,7 +215,7 @@ trait WLTVisualization
                 $this->boolean($request['enabled'] ?? null);
                 $ok = $this->SetBluetoothEnabled($request['enabled']);
             }
-            $message = $ok ? ($action === 'refresh' ? 'Messwerte aktualisiert.' : 'Änderung am Gerät bestätigt.') : ($this->GetLastError() ?: 'Instanz ist beschäftigt. Bitte erneut versuchen.');
+            $message = $ok ? ($action === 'refresh' ? 'Messwerte aktualisiert.' : ($action === 'forecastReset' ? 'Temperaturverlauf neu gestartet.' : 'Änderung am Gerät bestätigt.')) : ($this->GetLastError() ?: 'Instanz ist beschäftigt. Bitte erneut versuchen.');
         } catch (Throwable $e) { $ok = false; $message = $e->getMessage(); }
         // Auch Fehler quittieren; keine Erfolgsmeldung vor dem tatsächlichen Rücklesen.
         $this->pushVisualization(['requestId' => $requestID, 'ok' => $ok, 'message' => $message]);

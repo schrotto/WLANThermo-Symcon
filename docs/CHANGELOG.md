@@ -1,5 +1,22 @@
 # Änderungen
 
+## 1.5.0 – 29.10.2026
+
+- Restzeitschätzung bis zur Obergrenze mit geglättetem Temperaturtrend und voraussichtlichem Zielzeitpunkt.
+- Echte Messkurve, punktierte Obergrenze und gestrichelte Trendfortschreibung.
+- Temperaturfortschritt seit Start statt zeitlichem Garfortschritt.
+- Lernphase, Plateau-, Abkühlungs-, Instabilitäts- und Veraltet-Erkennung.
+- Begrenzte interne Verläufe ohne zusätzliche Statusvariablen; je Fühler manuell neu startbar.
+- Neues Verhalten durch deterministische Messreihen und JavaScript-Verträge geprüft; keine reale Hardware-/Clientprüfung behauptet.
+
+## 1.4.3 – 29.10.2026
+
+- Min-Wert und Min-Eingabe aus der Kachel entfernt; nur Obergrenze sichtbar und bedienbar.
+- Kachelnachrichten enthalten keinen Min-Wert; Geräteänderungen über die Kachel schreiben ausschließlich max.
+- Warnungen und Temperaturanzeige beziehen sich nur auf die Obergrenze.
+- Gespeicherte Geräte-Untergrenzen, optionale Variablen und Skriptschnittstellen bleiben erhalten.
+- 178 PHP-Modulprüfungen und 26 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.4.2 – 29.10.2026
 
 - Nur gültige aktuelle Fühler an die Kachel übertragen und darstellen; ungültige, getrennte und offline gewordene Fühler verschwinden automatisch.

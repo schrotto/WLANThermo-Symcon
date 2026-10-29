@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.4.2"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.5.0"
         },
         {
             "type": "ExpansionPanel",
@@ -388,6 +388,27 @@
                     "type": "CheckBox",
                     "name": "TileFullscreen",
                     "caption": "Erweiterte HTML-Vollbildansicht verwenden (Symcon ab 9.1; für IPSView ausgeschaltet lassen)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ForecastEnabled",
+                    "caption": "Restzeit bis zur Obergrenze schätzen (ohne zusätzliche Variablen)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ForecastChart",
+                    "caption": "Temperaturverlauf und gestrichelte Trendfortschreibung anzeigen"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "ForecastWindow",
+                    "caption": "Trendfenster in Minuten",
+                    "minimum": 5,
+                    "maximum": 60
+                },
+                {
+                    "type": "Label",
+                    "caption": "Nach mindestens 3 Minuten und 6 Messpunkten wird nur bei ausreichend gleichmäßigem Anstieg eine Trend-Schätzung angezeigt. Plateau, Abkühlung oder schwankender Verlauf ergeben keine Restzeit. Verlauf und Starttemperatur werden intern gespeichert; Neustart, Fühlerwechsel oder längere Unterbrechungen starten neu. Für einen neuen Garvorgang beim jeweiligen Fühler „Verlauf neu starten“ wählen. Die Prognose ist keine garantierte Garzeit."
                 }
             ]
         },

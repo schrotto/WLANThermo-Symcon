@@ -59,13 +59,13 @@ function tileRequest(TestDevice $device, array $request): array {
     return end($device->visualizationMessages)['response'] ?? [];
 }
 $tile = new TestDevice(false);
-check(tileRequest($tile, ['action' => 'channel', 'number' => 1, 'min' => 20, 'max' => 160])['ok'] && $tile->deviceData['channel'][0]['max'] === 160, 'Kachel ändert Alarmgrenzen mit Rücklesebestätigung ohne Statusvariablen');
+check(tileRequest($tile, ['action' => 'channel', 'number' => 1, 'max' => 160])['ok'] && $tile->deviceData['channel'][0]['max'] === 160, 'Kachel ändert die Obergrenze mit Rücklesebestätigung ohne Statusvariablen');
 check(tileRequest($tile, ['action' => 'pitmaster', 'id' => 0, 'mode' => 'auto', 'target' => 125])['ok'], 'Kachel wechselt Pitmaster-Modus und Sollwert gemeinsam');
 check(tileRequest($tile, ['action' => 'pitmaster', 'id' => 0, 'mode' => 'manual', 'output' => 40])['ok'], 'Kachel stellt manuellen Stellwert ein');
 check(tileRequest($tile, ['action' => 'bluetooth', 'enabled' => false])['ok'] && !$tile->bt['enabled'], 'Kachel schaltet Bluetooth mit tatsächlichem Rücklesen');
 $tile->properties['AllowWrite'] = false;
 $n = count($tile->writes);
-check(!tileRequest($tile, ['action' => 'channel', 'number' => 1, 'min' => 10, 'max' => 170])['ok'] && count($tile->writes) === $n, 'Manipulierte Kachelanfrage umgeht den globalen Schreibschutz nicht');
+check(!tileRequest($tile, ['action' => 'channel', 'number' => 1, 'max' => 170])['ok'] && count($tile->writes) === $n, 'Manipulierte Kachelanfrage umgeht den globalen Schreibschutz nicht');
 check(tileRequest($tile, ['action' => 'refresh'])['ok'], 'Manuelles Aktualisieren funktioniert auch im Lesemodus');
 $tile->properties['AllowWrite'] = true;
 $tile->properties['TileControls'] = false;
@@ -73,8 +73,8 @@ check(!tileRequest($tile, ['action' => 'bluetooth', 'enabled' => true])['ok'], '
 $tile->properties['TileControls'] = true;
 $tile->properties['TileChannels'] = '[{"Number":1,"Enabled":false}]';
 $tile->ApplyChanges();
-check(count(end($tile->visualizationMessages)['channels']) === 2 && !tileRequest($tile, ['action' => 'channel', 'number' => 1, 'min' => 10, 'max' => 170])['ok'], 'Ausgeblendete Kachelkanäle werden weder übertragen noch über die Kachel bedient');
-check(!tileRequest($tile, ['action' => 'channel', 'number' => 13, 'min' => 20.5, 'max' => 170])['ok'], 'Kachelparameter durchlaufen dieselbe serverseitige Ganzgradvalidierung');
+check(count(end($tile->visualizationMessages)['channels']) === 2 && !tileRequest($tile, ['action' => 'channel', 'number' => 1, 'max' => 170])['ok'], 'Ausgeblendete Kachelkanäle werden weder übertragen noch über die Kachel bedient');
+check(!tileRequest($tile, ['action' => 'channel', 'number' => 13, 'max' => 170.5])['ok'], 'Kachelparameter durchlaufen dieselbe serverseitige Ganzgradvalidierung');
 check(!tileRequest($tile, ['action' => 'refresh', 'injected' => true])['ok'], 'Unbekannte Kachelparameter werden zurückgewiesen');
 $tile->properties['TileChannels'] = '[]';
 $tile->offline = true;
@@ -135,7 +135,7 @@ $visible->Update();
 $validView = end($visible->visualizationMessages);
 check(array_column($validView['channels'], 'number') === [14], 'Fehlerwert 999 und getrennter Bluetooth-Fühler werden nicht an die Visu übertragen');
 check($visible->variableIDs === $ids && !$visible->values['CH1_Valid'] && !$visible->values['CH13_Valid'], 'Ausblenden verändert keine bestehenden Variablen-IDs oder Gültigkeitsmerkmale');
-check(!tileRequest($visible, ['action' => 'channel', 'number' => 13, 'min' => 10, 'max' => 120])['ok'], 'Ungültiger Fühler wird auch bei direkter Kachelanfrage nicht bedient');
+check(!tileRequest($visible, ['action' => 'channel', 'number' => 13, 'max' => 120])['ok'], 'Ungültiger Fühler wird auch bei direkter Kachelanfrage nicht bedient');
 $visible->deviceData['channel'][0]['temp'] = 0.0;
 $visible->deviceData['channel'][1]['connected'] = true;
 $visible->Update();
@@ -150,3 +150,17 @@ check(end($visible->visualizationMessages)['channels'] === [], 'Bei Geräteausfa
 $visible->offline = false;
 $visible->Update();
 check(count(end($visible->visualizationMessages)['channels']) === 3, 'Fühleranzeige erholt sich nach Geräteausfall automatisch');
+
+// Version 1.4.3: In der Visu nur Obergrenze bearbeiten.
+$upper = new TestDevice(false);
+$oldMinimum = $upper->deviceData['channel'][0]['min'];
+check(tileRequest($upper, ['action' => 'channel', 'number' => 1, 'max' => 140])['ok'] && $upper->deviceData['channel'][0]['min'] === $oldMinimum, 'Obergrenzenänderung über die Kachel erhält die Untergrenze am Gerät');
+[$writePath, $writePayload] = end($upper->writes);
+check($writePath === '/setchannels' && $writePayload === ['number' => 1, 'max' => 140], 'Kachel schreibt ausschließlich die Obergrenze');
+check(!array_key_exists('min', end($upper->visualizationMessages)['channels'][0]), 'Kacheldaten enthalten keinen Min-Wert mehr');
+$writeCount = count($upper->writes);
+check(!tileRequest($upper, ['action' => 'channel', 'number' => 1, 'min' => 0, 'max' => 150])['ok'] && count($upper->writes) === $writeCount, 'Veraltete Kachelanfrage kann keinen Min-Wert verändern');
+$upper->deviceData['channel'][0]['min'] = 120.0;
+$upper->deviceData['channel'][0]['temp'] = 100.0;
+$upper->Update();
+check(!end($upper->visualizationMessages)['channels'][0]['outOfRange'], 'Untergrenzenalarm wird in der Visu nicht als Obergrenzenüberschreitung angezeigt');

@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.4.2
+# Lieferumfang A–I – WLANThermo 1.5.0
 
 ## A. Modulbeschreibung
 
@@ -23,6 +23,7 @@ libs/
   Api.php
   VariableManagement.php
   Visualization.php
+  Forecast.php
 docs/
   CHANGELOG.md
   KACHEL-VORSCHAU.html
@@ -36,6 +37,7 @@ tests/
   Runtime.php
   run.php
   premium.php
+  forecast.php
   structure.py
   tile-ui.cjs
   http_transport.py
@@ -64,7 +66,7 @@ Neue Instanz: **0 zusätzliche Statusvariablen**, auch bei vollständig bedienba
 
 ## G. Premium-Visu-Kachel
 
-Grillstation mit optionaler großer Haupttemperatur (standardmäßig aus), ausschließlich gültigen Fühlerkarten, tatsächlichen Alarmbereichen und Pitmaster. Kreis und Balken zeigen Temperaturpositionen zwischen Alarmgrenzen, keinen erfundenen Garfortschritt. Direkte Bedienung von Alarmgrenzen, Pitmaster und Bluetooth, dazu Aktualisieren. Daten direkt aus Modulbuffers als JSON-Text über das HTML-SDK, ohne Hilfsvariablen. Designmodi, Akzent, kompakte Ansicht, Details, Icons, Animation und Fühlerauswahl dauerhaft konfigurierbar. Die Vorschau verwendet denselben Code mit Testdaten, ohne Geräteverbindung. Responsives CSS vorhanden; Browser- und Symcon-Layoutprüfung noch offen.
+Grillstation mit optionaler großer Haupttemperatur (standardmäßig aus), ausschließlich gültigen Fühlerkarten, Obergrenzen und Pitmaster. Kreis und Balken zeigen Temperaturpositionen von 0 bis zur positiven Obergrenze, keinen erfundenen Garfortschritt. Direkte Bedienung von Obergrenzen, Pitmaster und Bluetooth, dazu Aktualisieren. Daten direkt aus Modulbuffers als JSON-Text über das HTML-SDK, ohne Hilfsvariablen. Designmodi, Akzent, kompakte Ansicht, Details, Icons, Animation und Fühlerauswahl dauerhaft konfigurierbar. Die Vorschau verwendet denselben Code mit Testdaten, ohne Geräteverbindung. Responsives CSS vorhanden; Browser- und Symcon-Layoutprüfung noch offen.
 
 ## H. Installation
 
@@ -72,6 +74,10 @@ README.md enthält die vollständige Installation/Update-Anleitung für Module C
 
 ## I. Tests und Dokumentation
 
-173 PHP-Modulprüfungen und 21 JavaScript-Vertragsprüfungen erfolgreich, dazu PHP-/JavaScript-Syntax und JSON-/Strukturprüfung. Die unveränderte HTTP-Implementierung wurde in dieser Sitzung separat mit acht echten HTTP-Prüfungen getestet. VALIDIERUNG.md trennt diese Nachweise von offenen Prüfungen in Browser, Symcon und Hardware. README.md verlinkt die aktuelle offizielle Dokumentation für Modulklasse, Darstellung, Variablenverwaltung und HTML-SDK.
+209 PHP-Modulprüfungen und 34 JavaScript-Vertragsprüfungen erfolgreich, dazu PHP-/JavaScript-Syntax und JSON-/Strukturprüfung. Die unveränderte HTTP-Implementierung wurde in dieser Sitzung separat mit acht echten HTTP-Prüfungen getestet. VALIDIERUNG.md trennt diese Nachweise von offenen Prüfungen in Browser, Symcon und Hardware. README.md verlinkt die aktuelle offizielle Dokumentation für Modulklasse, Darstellung, Variablenverwaltung und HTML-SDK.
 
 IPSView wird über das native TileHtml mit der WLANThermo-Instanz-ID angebunden. Keine zusätzliche Variable erforderlich. Die erweiterte HTML-Vollbildoption bleibt dafür aus. Einzelheiten in README.md. Tatsächlicher IPSView-Clientbetrieb bleibt zu prüfen.
+
+Seit 1.4.3 enthält die Kachel ausschließlich die Obergrenze. Bestehende Min-Variablen und Geräte-Untergrenzen bleiben erhalten. Seit 1.5.0 ist eine konservative Restzeitschätzung mit Zielzeitpunkt, internem Verlauf und Grafik enthalten. Keine zusätzlichen Variablen erforderlich. Neustart und unbrauchbare Verläufe führen zu einer neuen Lernphase; echte Prognosegüte muss am Gerät geprüft werden.
+
+Die vollständige Umsetzung der Prognose liegt in libs/Forecast.php: lineare Ausgleichsgerade, Plausibilitätsfilter, begrenzte Messreihen und Modulintegration. Die Kachel zeigt Schätzungen mit ausdrücklicher Kennzeichnung und unterscheidet gemessene von fortgeschriebenen Werten. Einstellungen und Grenzen stehen in README.md.

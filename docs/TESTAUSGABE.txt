@@ -141,7 +141,7 @@ OK 140: Schreibgeschützte Variablen anderer Module werden abgewiesen
 OK 141: Doppelte aktive Zielzuordnung wird abgewiesen
 OK 142: Nicht vorhandene Zielvariable wird abgewiesen
 OK 143: Entfernte Zuordnung löst die Referenz
-OK 144: Kachel ändert Alarmgrenzen mit Rücklesebestätigung ohne Statusvariablen
+OK 144: Kachel ändert die Obergrenze mit Rücklesebestätigung ohne Statusvariablen
 OK 145: Kachel wechselt Pitmaster-Modus und Sollwert gemeinsam
 OK 146: Kachel stellt manuellen Stellwert ein
 OK 147: Kachel schaltet Bluetooth mit tatsächlichem Rücklesen
@@ -171,7 +171,43 @@ OK 170: Wieder angeschlossene Fühler kehren zurück; kabelgebundener Nullgradwe
 OK 171: Optionale Hauptanzeige und fester Garraumkanal werden gespeichert und übertragen
 OK 172: Bei Geräteausfall werden alle ungültigen Fühler aus der Visu entfernt
 OK 173: Fühleranzeige erholt sich nach Geräteausfall automatisch
-173 assertions passed.
+OK 174: Obergrenzenänderung über die Kachel erhält die Untergrenze am Gerät
+OK 175: Kachel schreibt ausschließlich die Obergrenze
+OK 176: Kacheldaten enthalten keinen Min-Wert mehr
+OK 177: Veraltete Kachelanfrage kann keinen Min-Wert verändern
+OK 178: Untergrenzenalarm wird in der Visu nicht als Obergrenzenüberschreitung angezeigt
+OK 179: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
+OK 180: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
+OK 181: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
+OK 182: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
+OK 183: Fehlende Obergrenze erzeugt keine Restzeit
+OK 184: Vor drei Minuten wird keine Restzeit ausgegeben
+OK 185: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
+OK 186: Abkühlung erzeugt keine negative Restzeit
+OK 187: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
+OK 188: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
+OK 189: Veraltete Messhistorie wird nicht zur Prognose verwendet
+OK 190: Fühlerwechsel setzt Verlauf und Startpunkt zurück
+OK 191: Längere Unterbrechung startet den Verlauf neu
+OK 192: Großer abrupter Temperatursprung startet einen neuen Verlauf
+OK 193: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
+OK 194: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
+OK 195: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
+OK 196: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
+OK 197: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
+OK 198: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
+OK 199: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
+OK 200: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
+OK 201: Reset erzeugt keine künstliche Messung aus alten Cachewerten
+OK 202: Erst der nächste echte Abruf startet die neue Messreihe
+OK 203: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
+OK 204: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
+OK 205: Ungültiger Fühler verwirft seinen Messverlauf
+OK 206: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
+OK 207: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
+OK 208: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
+OK 209: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
+209 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert
@@ -193,5 +229,18 @@ UI OK 17: Ungültige Fühler verschwinden; ein fehlender fester Hauptfühler wir
 UI OK 18: Gültige Fühler und optionale Garraum-Hauptanzeige erscheinen wieder
 UI OK 19: Ausschalten der Hauptanzeige erhält die normale Fühlerübersicht
 UI OK 20: Ohne gültige Fühler erscheint ein Hinweis statt leerer Fühlerkarten
-UI OK 21: Deaktivierung sperrt die bereits geöffnete Kachel
-21 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 21: Frühere Untergrenze beeinflusst Status und Warnfarbe in der Visu nicht
+UI OK 22: Fühlerformular enthält ausschließlich die Obergrenze und die Schaltfläche
+UI OK 23: Kachel sendet bei Änderung keinen versteckten Min-Wert
+UI OK 24: Optionale Hauptanzeige und Ring zeigen nur die Obergrenze
+UI OK 25: Für nichtpositive Obergrenzen wird keine irreführende Verhältnisgrafik dargestellt
+UI OK 26: Restzeit erscheint in Fühlerkarte und optionaler Hauptanzeige
+UI OK 27: Kachel zeigt Zielzeitpunkt und geglätteten Anstieg
+UI OK 28: Verlauf, Obergrenze und gestrichelte Prognose erhalten gültige Diagrammkoordinaten
+UI OK 29: Balken zeigt Temperaturfortschritt seit Start statt verstrichener Garzeit
+UI OK 30: Diagramm lässt sich ohne Abschalten der Restzeit ausblenden
+UI OK 31: Plateau entfernt die alte Restzeit und den Prognoseabschnitt
+UI OK 32: Verlauf-Reset sendet eine interne Aktion ohne Geräteeinstellungen
+UI OK 33: Prognose lässt sich vollständig ausblenden
+UI OK 34: Deaktivierung sperrt die bereits geöffnete Kachel
+34 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

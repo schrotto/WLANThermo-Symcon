@@ -4,11 +4,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/Api.php';
 require_once __DIR__ . '/../libs/VariableManagement.php';
 require_once __DIR__ . '/../libs/Visualization.php';
+require_once __DIR__ . '/../libs/Forecast.php';
 
 class WLANThermo extends IPSModuleStrict
 {
     use WLTVariableManagement;
     use WLTVisualization;
+    use WLTForecastSupport;
     public function Create(): void
     {
         parent::Create();
@@ -424,6 +426,7 @@ class WLANThermo extends IPSModuleStrict
         }
         $data = $this->readData();
         $this->SetBuffer('Data', WLTApi::encode($data));
+        $this->recordForecast($data, $settings);
         $this->publishData($data, $settings);
         $this->publishTree('SET', 'Einstellungen', $settings, 5000);
         $this->safeSet('Device', WLTApi::encode($settings['device'] ?? []));

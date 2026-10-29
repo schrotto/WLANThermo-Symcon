@@ -2,6 +2,46 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.5.0: Restzeitschätzung bis zur Obergrenze
+
+Die Fühlerkarten zeigen jetzt eine **ungefähre Restzeit**, den **voraussichtlichen Zielzeitpunkt** und den **Temperaturanstieg pro Minute**. Ziel ist ausschließlich die eingestellte Obergrenze. Die optionale große Hauptanzeige zeigt ebenfalls die Restzeit. Min-Wert und Min-Eingabe bleiben aus der Kachel entfernt.
+
+Die kleine Verlaufsgrafik enthält nur tatsächlich abgerufene Messpunkte. Eine punktierte Linie markiert die Obergrenze. Ein gestrichelter Abschnitt schreibt den aktuellen Trend fort, solange eine Schätzung möglich ist. Um den Messverlauf nicht zusammenzudrücken, zeigt die Grafik höchstens einen zusätzlichen Trendabschnitt von der Länge des sichtbaren Messfensters (mindestens fünf Minuten); weiter entfernte Zielzeiten stehen als Text. Eine lange Restzeit bedeutet deshalb nicht, dass die gestrichelte Linie im Diagrammausschnitt bereits die Obergrenze erreicht.
+
+### Verwendung
+
+1. Modul aktualisieren und Kachel bzw. IPSView neu laden. Bei direkter Dateikopie den Symcon-Dienst neu starten.
+2. Unter Premium-Visualisierung ist **Restzeit bis zur Obergrenze schätzen** standardmäßig aktiv. Das Diagramm lässt sich separat ein-/ausschalten. Standard für das Trendfenster: **10 Minuten**, einstellbar von 5 bis 60 Minuten.
+3. Nach mindestens **3 Minuten und 6 Messpunkten** wird nur bei ausreichend gleichmäßigem Anstieg eine Restzeit angezeigt. Bei langem Abrufintervall dauert das Sammeln entsprechend länger; der normale 10-Sekunden-Abruf ist geeignet.
+4. Für einen neuen Garvorgang am jeweiligen Fühler **Verlauf neu starten** drücken. Das ändert keine Geräteparameter und funktioniert auch bei global deaktivierten Geräteschreibzugriffen, sofern die Kachelbedienung erlaubt ist. Der nächste tatsächliche Geräteabruf beginnt den neuen Verlauf.
+5. Ändert sich die Obergrenze, wird die Restzeit aus dem bisherigen Temperaturverlauf neu berechnet. Ein neuer Garvorgang benötigt dagegen einen neuen Startpunkt.
+
+### Berechnung und Grenzen
+
+Die Schätzung verwendet eine lineare Ausgleichsgerade über das gewählte Zeitfenster. Zusätzlich wird der jüngste Trend geprüft. Restzeit = Abstand zur Obergrenze / positiver Temperaturanstieg. Die Anzeige bezeichnet sich ausdrücklich als **Trend-Schätzung**; sie modelliert weder Fleischart noch Nachgaren oder eine zukünftige Änderung der Heizleistung.
+
+- Bei Plateau, Abkühlung, zu wenig Temperaturanstieg oder stark schwankendem Verlauf erscheint ein Hinweis statt einer Restzeit. Auch eine über zwölf Stunden entfernte lineare Prognose wird nicht als belastbare Zeit angezeigt.
+- Voraussetzung für die Schätzung sind unter anderem mindestens 0,3 °C Temperaturanstieg im Fenster, ein Anstieg über 0,02 °C/min und eine ausreichend gleichmäßige Messreihe. Für Fahrenheit werden diese Kriterien äquivalent umgerechnet. Diese Prüfkriterien sind Plausibilitätsfilter, keine statistische Garantie.
+- Bei ungültigen/entfernten Fühlern wird der zugehörige Verlauf verworfen. Fühlername/-typ, Geräteadresse oder Einheit ändern den Verlaufskontext. Eine Unterbrechung von mehr als dem größeren Wert aus zwei Minuten und drei Abrufintervallen startet neu. Auch ein abrupter Sprung von mindestens 6 °C innerhalb einer Minute startet konservativ neu.
+- Ein identisch benannter Ersatzfühler oder ein neues Gargut lässt sich nicht immer automatisch erkennen. Dafür gibt es den manuellen Neustart des Verlaufs.
+- Große Fleischstücke können lange Temperaturplateaus entwickeln; diese und wechselnde Garraumtemperaturen können eine vorherige Prognose stark verändern. Die Anzeige wird mit neuen Messwerten nachgeführt. Sie ist keine Zusicherung einer Garzeit.
+
+### Balken und Lizenzverbrauch
+
+Sobald ein Startwert vorhanden und die Obergrenze höher als dieser Startwert ist, zeigen Balken und Ring den **Temperaturfortschritt seit Start**: `(aktuell − Start) / (Obergrenze − Start)`. Das ist kein Anteil der bereits abgelaufenen Garzeit. Ohne geeigneten Startwert bleibt die bisherige Temperaturanzeige relativ zur positiven Obergrenze verfügbar.
+
+Es werden **keine zusätzlichen Symcon-Variablen** und kein Archiv benötigt. Der Verlauf liegt je Fühler in einem internen Buffer: höchstens 361 Messpunkte, für die Kachel höchstens 48 echte Punkte. Nach einem Symcon-Neustart beginnt die Lernphase neu; dauerhaftes Archivieren wird nicht automatisch aktiviert. Eine deaktivierte Prognose verwirft ihre internen Reihen beim nächsten Abruf. Die vorhandene IPSView-TileHtml-Anbindung bleibt bestehen.
+
+## Version 1.4.3: In der Visu nur die Obergrenze
+
+Die Kachel zeigt und bearbeitet je Fühler nur noch die **Obergrenze**. Der Min-Wert und seine Eingabe sind aus Fühlerkarten, Hauptanzeige und Kacheldaten entfernt. Status und Warnfarbe beziehen sich ausschließlich auf die Obergrenze: verbleibende Temperaturdifferenz, erreicht oder überschritten. Eine Unterschreitung der am Gerät hinterlegten Untergrenze wird in der Kachel nicht als Überschreitung angezeigt.
+
+Änderungen über die Kachel senden ausschließlich `max` an den Mini V3. Bestehende Untergrenzen am Gerät, optionale Min-Statusvariablen, deren IDs und die Skriptfunktionen bleiben erhalten. Die bestehende Gerätevalidierung verhindert weiterhin widersprüchliche Grenzen; das Modul setzt den Min-Wert nicht automatisch herab.
+
+Balken und optionaler Ring zeigen für positive Obergrenzen die aktuelle Temperatur relativ zur Obergrenze mit einer festen Basis von 0 in der gewählten Geräteeinheit. Sie zeigen weder eine Restzeit noch einen zeitlichen Garfortschritt. Bei einer Obergrenze von 0 oder darunter wird diese Verhältnisgrafik ausgeblendet; die Obergrenze als Zahl bleibt sichtbar. Ab Version 1.5.0 ergänzt die oben beschriebene Restzeitschätzung diese Temperaturanzeige.
+
+Nach dem Update die Kachel bzw. IPSView-View neu laden, damit das neue Obergrenzenformular geladen wird. Bei direkter Dateikopie zusätzlich den Symcon-Dienst neu starten.
+
 ## Version 1.4.2: Gültige Fühler und IPSView
 
 Die Fühlerübersicht zeigt ausschließlich aktuelle, gültige Temperaturwerte. Nicht angeschlossene Fühler (Fehlerwert 999), fehlende/nicht numerische Werte und getrennte Bluetooth-Fühler werden automatisch ausgeblendet. Bei Geräteausfall sind keine aktuellen Fühlerkarten sichtbar; ein Hinweis und der Verbindungsstatus bleiben erhalten. Nach dem nächsten erfolgreichen Abruf kehren gültige Fühler zurück. Bestehende Symcon-Variablen, ihre IDs und Archivzuordnungen werden dadurch nicht gelöscht oder verändert.
@@ -31,7 +71,7 @@ Die Moduldateien vollständig ersetzen und bei direkter Dateikopie den Symcon-Di
 
 ## Version 1.4.0: Grill-Kachel ohne zusätzliche Variablen
 
-Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Alarmbereichen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Bei aktivierter Hauptanzeige mit Kanal 0 wechseln Kanalüberschriften oder die Tastatur den Hauptfühler. Alarmgrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zu den tatsächlichen Alarmgrenzen, keinen Garfortschritt.
+Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Obergrenzen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Bei aktivierter Hauptanzeige mit Kanal 0 wechseln Kanalüberschriften oder die Tastatur den Hauptfühler. Obergrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zur Obergrenze, keinen Garfortschritt.
 
 **Neue Instanzen erzeugen standardmäßig 0 Statusvariablen.** Alle Daten werden intern gepuffert und über das offizielle HTML-SDK direkt an die Kachel übertragen. Keine HTML-Box, keine Container-, Platzhalter- oder versteckten Hilfsvariablen. Die Kachel funktioniert auch bei vollständig abgewählten Variablen. Bei bestehenden Instanzen wird der bisherige Variablenumfang übernommen; vorhandene IDs, Werte und gespeicherte Einzelentscheidungen bleiben erhalten.
 
@@ -256,3 +296,8 @@ Die Oberfläche ist unmittelbar deutsch beschriftet; eine `locale.json` ist dahe
 4. Im Bearbeitungsmodus der Kachelvisualisierung die Instanz als Kachel anzeigen, bei Bedarf die angebotene individuelle Darstellung wählen und eine passende Kachelgröße einstellen.
 5. Mit mindestens mittlerer Kachelgröße die Fühler und Pitmaster prüfen. Kleine Kacheln reduzieren den Inhalt absichtlich. Ab unterstütztem Vollbildtyp auch die maximierte Ansicht prüfen.
 6. Optional nur die für Archivierung oder Automationen benötigten Statusvariablen aktivieren. Für die Kachel selbst sind keine erforderlich.
+
+### Grundlagen der Prognose
+
+- [Symcon GetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/getbuffer/) und [SetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setbuffer/): interner, begrenzter Zustand ohne Lizenzvariablen; bei Dienstneustart nicht persistent.
+- [MEATER: Grenzen von Garzeitprognosen](https://support.meater.com/hc/en-us/articles/36914985836315-Cook-Time-Estimate-in-the-MEATER-App): Hintergrund zu Temperaturplateaus und wechselnden Bedingungen. Das Modul verwendet eine eigene einfache Trendberechnung, nicht den MEATER-Algorithmus.

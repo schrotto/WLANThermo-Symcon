@@ -6,8 +6,67 @@
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
   const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
-  const fraction = ch => ch.valid && Number.isFinite(ch.min) && Number.isFinite(ch.max) && ch.max > ch.min ? Math.max(0, Math.min(1, (ch.temperature - ch.min) / (ch.max - ch.min))) : 0;
-  const describe = ch => !ch.valid ? 'Kein aktueller Messwert' : ch.outOfRange ? (ch.temperature > ch.max ? 'Über der oberen Alarmgrenze' : 'Unter der unteren Alarmgrenze') : 'Innerhalb der Alarmgrenzen';
+  const fraction = ch => state.config?.forecast !== false && Number.isFinite(ch.forecast?.progress) ? ch.forecast.progress : ch.valid && Number.isFinite(ch.max) && ch.max > 0 ? Math.max(0, Math.min(1, ch.temperature / ch.max)) : 0;
+  const aboveMaximum = ch => ch.valid && Number.isFinite(ch.max) && ch.temperature > ch.max;
+  const describe = ch => !ch.valid ? 'Kein aktueller Messwert' : !Number.isFinite(ch.max) ? 'Keine Obergrenze verfügbar' : ch.temperature > ch.max ? 'Obergrenze überschritten' : ch.temperature === ch.max ? 'Obergrenze erreicht' : 'Noch ' + fmt(ch.max - ch.temperature) + ' ' + state.unit + ' bis zur Obergrenze';
+  const forecastText = forecast => {
+    if (!forecast) return 'Temperaturverlauf wird gesammelt …';
+    if (forecast.status === 'estimated' && Number.isFinite(forecast.seconds)) {
+      if (forecast.seconds < 60) return 'Noch weniger als 1 Min.';
+      const minutes = Math.max(1, Math.round(forecast.seconds / 60));
+      const duration = minutes >= 60 ? Math.floor(minutes / 60) + ' Std. ' + (minutes % 60) + ' Min.' : minutes + ' Min.';
+      return 'Noch ca. ' + duration;
+    }
+    return ({reached:'Obergrenze erreicht', learning:'Temperaturverlauf wird gesammelt …', stalled:'Temperaturplateau – keine Restzeitschätzung', cooling:'Temperatur fällt – keine Restzeitschätzung', unstable:'Schwankender Verlauf – keine verlässliche Restzeit', distant:'Ziel zu weit entfernt – noch keine verlässliche Restzeit', stale:'Messverlauf nicht aktuell', no_target:'Keine Obergrenze verfügbar', disabled:''})[forecast.status] || 'Noch keine verlässliche Restzeit';
+  };
+  function forecastElements(number) {
+    const el = node('section', 'forecast'); el.setAttribute('aria-label', 'Restzeitschätzung und Temperaturverlauf');
+    const title = node('p', 'forecast-title'), detail = node('p', 'forecast-detail');
+    const svgNode = tag => document.createElementNS('http://www.w3.org/2000/svg', tag);
+    const chart = svgNode('svg'); chart.setAttribute('viewBox', '0 0 320 104'); chart.setAttribute('role', 'img'); chart.classList.add('forecast-chart');
+    const target = svgNode('line'), actual = svgNode('polyline'), predicted = svgNode('line');
+    target.setAttribute('class', 'forecast-target'); actual.setAttribute('class', 'forecast-actual'); predicted.setAttribute('class', 'forecast-predicted');
+    chart.append(target, actual, predicted);
+    const legend = node('div', 'forecast-legend', 'Messverlauf · Trend gestrichelt · Obergrenze punktiert');
+    const times = node('div', 'forecast-times'), startTime = node('span'), endTime = node('span'); times.append(startTime, endTime);
+    const reset = node('button', 'forecast-reset', 'Verlauf neu starten'); reset.type = 'button'; reset.setAttribute('aria-label', 'Temperaturverlauf für Kanal ' + number + ' neu starten');
+    reset.addEventListener('click', () => send('forecastReset', {number}));
+    el.append(title, detail, chart, legend, times, reset);
+    return {el, title, detail, chart, target, actual, predicted, legend, times, startTime, endTime, reset};
+  }
+  function renderForecast(ui, ch, cfg) {
+    const forecast = ch.forecast, enabled = cfg.forecast !== false;
+    ui.el.hidden = !enabled;
+    if (!enabled) return;
+    ui.title.textContent = forecastText(forecast);
+    const estimated = forecast?.status === 'estimated' && Number.isFinite(forecast.eta);
+    const details = [];
+    if (estimated) details.push('Ziel voraussichtlich gegen ' + new Date(forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ' · Trend-Schätzung');
+    if (Number.isFinite(forecast?.rate)) details.push((forecast.rate > 0 ? '+' : '') + new Intl.NumberFormat('de-DE', {maximumFractionDigits:2}).format(forecast.rate) + ' ' + state.unit + '/min');
+    if (!details.length) details.push('Mindestens 3 Minuten gültige Messwerte erforderlich.');
+    ui.detail.textContent = details.join(' · ');
+    ui.reset.hidden = !cfg.controls; ui.reset.disabled = Boolean(pending) || !state.online;
+    const points = (forecast?.points || []).filter(p => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
+    const visible = cfg.forecastChart !== false && points.length >= 2 && Number.isFinite(ch.max);
+    ui.chart.hidden = ui.legend.hidden = ui.times.hidden = !visible;
+    if (!visible) return;
+    const first = points[0], last = points[points.length - 1];
+    const horizon = estimated ? Math.min(forecast.seconds, Math.max(300, last[0] - first[0])) : 0;
+    const end = last[0] + horizon;
+    const nextValue = estimated ? Math.min(ch.max, last[1] + forecast.rate * horizon / 60) : last[1];
+    const values = points.map(p => p[1]).concat([ch.max, nextValue]);
+    const bottom = Math.min(...values), top = Math.max(...values), pad = Math.max(0.5, (top - bottom) * 0.12);
+    const x = time => 8 + 304 * (time - first[0]) / Math.max(1, end - first[0]);
+    const y = value => 96 - 88 * (value - bottom + pad) / Math.max(1, top - bottom + 2 * pad);
+    ui.actual.setAttribute('points', points.map(p => x(p[0]).toFixed(2) + ',' + y(p[1]).toFixed(2)).join(' '));
+    for (const [key, val] of Object.entries({x1:8,x2:312,y1:y(ch.max),y2:y(ch.max)})) ui.target.setAttribute(key, val);
+    ui.predicted.hidden = !estimated;
+    ui.predicted.setAttribute('visibility', estimated ? 'visible' : 'hidden');
+    if (estimated) for (const [key, val] of Object.entries({x1:x(last[0]),y1:y(last[1]),x2:x(end),y2:y(nextValue)})) ui.predicted.setAttribute(key, val);
+    ui.chart.setAttribute('aria-label', 'Gemessener Temperaturverlauf bis ' + fmt(ch.temperature) + ' ' + state.unit + ', Obergrenze ' + fmt(ch.max) + ' ' + state.unit + (estimated ? ', gestrichelte Trendfortschreibung' : ''));
+    const clock = time => new Date(time * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+    ui.startTime.textContent = clock(first[0]); ui.endTime.textContent = clock(end) + (estimated ? ' · Trend' : '');
+  }
   function send(action, values = {}) {
     if (pending) return;
     if (typeof window.requestAction !== 'function') { announce('Bedienung ist nur in der verbundenen Symcon-Visualisierung verfügbar.', true); return; }
@@ -28,17 +87,18 @@
     const el = node('article', 'probe'); el.tabIndex = 0; el.setAttribute('aria-label', 'Kanal ' + ch.number);
     const head = node('div', 'probe-head'), names = node('div'), kicker = node('div', 'probe-kicker'), name = node('h3');
     names.append(kicker, name); head.append(names, node('span', 'probe-status'));
-    const value = node('div', 'probe-value'), label = node('div', 'probe-label'), rail = node('div', 'rail'), bar = node('span'), limits = node('div', 'rail-labels'), low = node('span'), high = node('span');
-    rail.append(bar); limits.append(low, high);
-    const details = node('details'), summary = node('summary', '', 'Alarmgrenzen bearbeiten'), form = node('form', 'limits-form');
-    const min = field('Minimum', 'number', -30, 999), max = field('Maximum', 'number', -30, 999), submit = node('button', '', 'Grenzen übernehmen'); submit.type = 'submit';
-    form.append(min.wrapper, max.wrapper, submit); details.append(summary, form);
-    el.append(head, value, label, rail, limits, details);
+    const value = node('div', 'probe-value'), label = node('div', 'probe-label'), rail = node('div', 'rail'), bar = node('span'), limits = node('div', 'rail-labels'), high = node('span');
+    rail.append(bar); limits.append(high);
+    const details = node('details'), summary = node('summary', '', 'Obergrenze bearbeiten'), form = node('form', 'limits-form');
+    const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
+    form.append(max.wrapper, submit); details.append(summary, form);
+    const forecast = forecastElements(ch.number);
+    el.append(head, value, label, rail, limits, forecast.el, details);
     const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
-    form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, min:Number(min.input.value), max:Number(max.input.value)}); });
-    return {el, kicker, name, value, label, bar, low, high, details, min:min.input, max:max.input, submit};
+    form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
+    return {el, kicker, name, value, label, bar, rail, high, details, forecast, max:max.input, submit};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -72,24 +132,28 @@
     $('hero-name').textContent = main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
     $('hero-temperature').textContent = fmt(main?.valid ? main.temperature : null); $('hero-unit').textContent = state.unit || '°C';
     $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
-    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main?.outOfRange));
-    $('hero-range').textContent = main ? 'Alarmgrenzen ' + fmt(main.min) + ' – ' + fmt(main.max) + ' ' + state.unit : '';
-    $('gauge-range').textContent = main ? fmt(main.min) + '–' + fmt(main.max) + ' ' + state.unit : '—';
+    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && aboveMaximum(main)));
+    $('hero-forecast').hidden = !main || cfg.forecast === false;
+    $('hero-forecast').textContent = main ? forecastText(main.forecast) : '';
+    $('hero-range').textContent = main ? 'Obergrenze ' + fmt(main.max) + ' ' + state.unit : '';
+    $('gauge-range').textContent = main ? fmt(main.max) + ' ' + state.unit : '—';
+    $('gauge').hidden = !main || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
-    $('gauge').setAttribute('aria-label', main ? 'Temperatur relativ zu den Alarmgrenzen: ' + describe(main) : 'Keine Alarmgrenzen verfügbar');
+    $('gauge').setAttribute('aria-label', main && cfg.forecast !== false && Number.isFinite(main.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(main.forecast.progress * 100) + ' Prozent' : main ? 'Temperatur im Verhältnis zur Obergrenze: ' + describe(main) : 'Keine Obergrenze verfügbar');
     $('probe-count').textContent = channels.length + (channels.length === 1 ? ' gültiger Fühler' : ' gültige Fühler');
     for (const [number, ui] of probes) if (!channels.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     channels.forEach(ch => {
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
-      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : ch.outOfRange ? ' warning' : '');
+      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : aboveMaximum(ch) ? ' warning' : '');
       ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
       ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
-      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.low.textContent = fmt(ch.min) + ' ' + state.unit; ui.high.textContent = fmt(ch.max) + ' ' + state.unit;
-      ui.details.hidden = !cfg.controls || !Number.isFinite(ch.min) || !Number.isFinite(ch.max);
+      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
+      renderForecast(ui.forecast, ch, cfg);
+      ui.details.hidden = !cfg.controls || !Number.isFinite(ch.max);
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
-      if (!ui.details.open) { ui.min.value = ch.min ?? ''; ui.max.value = ch.max ?? ''; }
-      ui.min.disabled = ui.max.disabled = ui.submit.disabled = !editable;
+      if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
+      ui.max.disabled = ui.submit.disabled = !editable;
     });
     $('channels-section').hidden = channels.length === 0;
     const pms = active ? state.pitmasters || [] : [];

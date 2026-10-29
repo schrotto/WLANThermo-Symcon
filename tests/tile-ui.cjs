@@ -14,13 +14,13 @@ class Element {
   addEventListener(name, handler) { this.events[name] = handler; }
   dispatch(name, extra={}) { return this.events[name]?.({target:this, preventDefault(){}, ...extra}); }
   reportValidity() { return true; }
-  get classList() { return {toggle:(cls,on) => { const classes = new Set(this.className.split(' ').filter(Boolean)); if (on) classes.add(cls); else classes.delete(cls); this.className = [...classes].join(' '); }}; }
+  get classList() { return {add:cls => { this.className = (this.className + ' ' + cls).trim(); },toggle:(cls,on) => { const classes = new Set(this.className.split(' ').filter(Boolean)); if (on) classes.add(cls); else classes.delete(cls); this.className = [...classes].join(' '); }}; }
 }
 const fixture = JSON.parse(fs.readFileSync(__dirname + '/tile-state.generated.json','utf8'));
 const ids = [...fs.readFileSync(__dirname + '/../WLANThermo/module.html','utf8').matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
 const elements = Object.fromEntries(ids.map(id => [id, new Element('div')]));
 elements['initial-state'].textContent = JSON.stringify(fixture);
-const document = { getElementById:id => {assert(elements[id], 'Fehlendes Element: '+id); return elements[id];}, createElement:tag => new Element(tag), createTextNode:text => {const el = new Element('#text');el.textContent = text; return el;}, documentElement:new Element('html'), body:new Element('body') };
+const document = { getElementById:id => {assert(elements[id], 'Fehlendes Element: '+id); return elements[id];}, createElement:tag => new Element(tag), createElementNS:(_namespace,tag) => new Element(tag), createTextNode:text => {const el = new Element('#text');el.textContent = text; return el;}, documentElement:new Element('html'), body:new Element('body') };
 let requested = [], timers = [];
 const window = {requestAction:(ident,value) => requested.push({ident,...JSON.parse(value)})};
 const context = vm.createContext({document,window,console,Intl,Date,Math,JSON,Number,Boolean,String,Map,Set,setTimeout:callback => {timers.push(callback);return timers.length;},clearTimeout:()=>{}});
@@ -68,6 +68,37 @@ data.config.hero = false; window.handleMessage(data);
 check(elements.hero.hidden && elements.channels.children.length === 3, 'Ausschalten der Hauptanzeige erhält die normale Fühlerübersicht');
 data.channels.forEach(ch => {ch.valid = false; ch.temperature = null;}); window.handleMessage(data);
 check(elements.channels.children.length === 0 && !elements['empty-state'].hidden, 'Ohne gültige Fühler erscheint ein Hinweis statt leerer Fühlerkarten');
+data = clone(); data.channels[0].temperature = 5; data.channels[0].min = 20; data.channels[0].outOfRange = true; window.handleMessage(data);
+check(elements.channels.children[0].children[2].textContent.includes('bis zur Obergrenze') && !elements.channels.children[0].className.includes('warning'), 'Frühere Untergrenze beeinflusst Status und Warnfarbe in der Visu nicht');
+const upperDetails = elements.channels.children[0].children.at(-1), upperForm = upperDetails.children[1];
+check(upperForm.children.length === 2 && upperForm.children[0].firstChild.textContent === 'Obergrenze', 'Fühlerformular enthält ausschließlich die Obergrenze und die Schaltfläche');
+upperForm.children[0].children[1].value = '145'; upperForm.dispatch('submit');
+check(requested.at(-1).max === 145 && !('min' in requested.at(-1)), 'Kachel sendet bei Änderung keinen versteckten Min-Wert');
+data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Bestätigt'}; window.handleMessage(data);
+data.config.hero = true; data.config.primary = 1; window.handleMessage(data);
+check(elements['hero-range'].textContent.startsWith('Obergrenze ') && !elements['gauge-range'].textContent.includes('–'), 'Optionale Hauptanzeige und Ring zeigen nur die Obergrenze');
+data.channels[0].max = -5; data.channels[0].forecast = {status:'learning',progress:null}; window.handleMessage(data);
+check(elements.gauge.hidden && elements.channels.children[0].children[3].hidden, 'Für nichtpositive Obergrenzen wird keine irreführende Verhältnisgrafik dargestellt');
+data = clone(); data.config.forecast = true; data.config.forecastChart = true; data.config.hero = true; data.config.primary = 1;
+const forecastNow = Math.floor(Date.now()/1000);
+data.channels[0].temperature = 75; data.channels[0].max = 82;
+data.channels[0].forecast = {status:'estimated',seconds:1400,eta:forecastNow+1400,rate:0.3,progress:0.3,points:[[forecastNow-600,72],[forecastNow,75]]};
+window.handleMessage(data);
+const forecastUI = elements.channels.children[0].children[5];
+check(forecastUI.children[0].textContent === 'Noch ca. 23 Min.' && elements['hero-forecast'].textContent === 'Noch ca. 23 Min.', 'Restzeit erscheint in Fühlerkarte und optionaler Hauptanzeige');
+check(forecastUI.children[1].textContent.includes('Ziel voraussichtlich gegen') && forecastUI.children[1].textContent.includes('0,3'), 'Kachel zeigt Zielzeitpunkt und geglätteten Anstieg');
+check(!forecastUI.children[2].hidden && forecastUI.children[2].children[1].attrs.points.includes(',') && !forecastUI.children[2].children[1].attrs.points.includes('NaN') && forecastUI.children[2].children[2].attrs.visibility === 'visible', 'Verlauf, Obergrenze und gestrichelte Prognose erhalten gültige Diagrammkoordinaten');
+check(elements.channels.children[0].children[3].children[0].style.width === '30%', 'Balken zeigt Temperaturfortschritt seit Start statt verstrichener Garzeit');
+data.config.forecastChart = false; window.handleMessage(data);
+check(forecastUI.children[2].hidden && !forecastUI.hidden && forecastUI.children[0].textContent.includes('23 Min.'), 'Diagramm lässt sich ohne Abschalten der Restzeit ausblenden');
+data.config.forecastChart = true; data.channels[0].forecast.status = 'stalled'; window.handleMessage(data);
+check(forecastUI.children[0].textContent.toLowerCase().includes('plateau') && forecastUI.children[2].children[2].attrs.visibility === 'hidden', 'Plateau entfernt die alte Restzeit und den Prognoseabschnitt');
+data.canWrite = false; window.handleMessage(data);
+const resetButton = forecastUI.children.at(-1); resetButton.dispatch('click');
+check(requested.at(-1).action === 'forecastReset' && requested.at(-1).number === 1 && !('max' in requested.at(-1)), 'Verlauf-Reset sendet eine interne Aktion ohne Geräteeinstellungen');
+data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Temperaturverlauf neu gestartet.'}; window.handleMessage(data);
+data.config.forecast = false; window.handleMessage(data);
+check(forecastUI.hidden && elements['hero-forecast'].hidden, 'Prognose lässt sich vollständig ausblenden');
 window.handleMessage({enabled:false});
 check(elements.refresh.disabled && elements.connection.textContent === 'Kachel deaktiviert', 'Deaktivierung sperrt die bereits geöffnete Kachel');
 console.log(count + ' UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.');

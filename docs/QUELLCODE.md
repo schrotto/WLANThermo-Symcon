@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.4.2
+# Vollständiger Quellcode – WLANThermo 1.5.0
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.4.2",
-    "build": 8,
+    "version": "1.5.0",
+    "build": 10,
     "date": 1793232000
 }
 
@@ -50,11 +50,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/Api.php';
 require_once __DIR__ . '/../libs/VariableManagement.php';
 require_once __DIR__ . '/../libs/Visualization.php';
+require_once __DIR__ . '/../libs/Forecast.php';
 
 class WLANThermo extends IPSModuleStrict
 {
     use WLTVariableManagement;
     use WLTVisualization;
+    use WLTForecastSupport;
     public function Create(): void
     {
         parent::Create();
@@ -470,6 +472,7 @@ class WLANThermo extends IPSModuleStrict
         }
         $data = $this->readData();
         $this->SetBuffer('Data', WLTApi::encode($data));
+        $this->recordForecast($data, $settings);
         $this->publishData($data, $settings);
         $this->publishTree('SET', 'Einstellungen', $settings, 5000);
         $this->safeSet('Device', WLTApi::encode($settings['device'] ?? []));
@@ -971,7 +974,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.4.2"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.5.0"
         },
         {
             "type": "ExpansionPanel",
@@ -1357,6 +1360,27 @@ class WLANThermo extends IPSModuleStrict
                     "type": "CheckBox",
                     "name": "TileFullscreen",
                     "caption": "Erweiterte HTML-Vollbildansicht verwenden (Symcon ab 9.1; für IPSView ausgeschaltet lassen)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ForecastEnabled",
+                    "caption": "Restzeit bis zur Obergrenze schätzen (ohne zusätzliche Variablen)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "ForecastChart",
+                    "caption": "Temperaturverlauf und gestrichelte Trendfortschreibung anzeigen"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "ForecastWindow",
+                    "caption": "Trendfenster in Minuten",
+                    "minimum": 5,
+                    "maximum": 60
+                },
+                {
+                    "type": "Label",
+                    "caption": "Nach mindestens 3 Minuten und 6 Messpunkten wird nur bei ausreichend gleichmäßigem Anstieg eine Trend-Schätzung angezeigt. Plateau, Abkühlung oder schwankender Verlauf ergeben keine Restzeit. Verlauf und Starttemperatur werden intern gespeichert; Neustart, Fühlerwechsel oder längere Unterbrechungen starten neu. Für einen neuen Garvorgang beim jeweiligen Fühler „Verlauf neu starten“ wählen. Die Prognose ist keine garantierte Garzeit."
                 }
             ]
         },
@@ -1550,8 +1574,8 @@ class WLANThermo extends IPSModuleStrict
     <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
-    <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div></div>
-    <div id="gauge" class="gauge" aria-label="Temperatur innerhalb der Alarmgrenzen"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">ALARMBEREICH</span><strong id="gauge-range">—</strong></div></div>
+    <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><p id="hero-forecast" class="hero-forecast" hidden></p></div>
+    <div id="gauge" class="gauge" aria-label="Temperatur im Verhältnis zur Obergrenze"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">OBERGRENZE</span><strong id="gauge-range">—</strong></div></div>
   </section>
   <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
   <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title"><h2>Fühlerübersicht</h2><span id="probe-count"></span></div><div id="channels" class="probe-grid"></div></section>
@@ -1573,7 +1597,7 @@ class WLANThermo extends IPSModuleStrict
 :root{color-scheme:dark;--bg:#101519;--surface:#191f24;--raised:#212930;--text:#f2f4f5;--muted:#a6b2ba;--border:#303c44;--accent:#f48941;--ok:#7bd9b0;--danger:#ffab89;--shadow:0 18px 52px #0002;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 :root[data-theme="light"]{color-scheme:light;--bg:#f2f4f2;--surface:#fff;--raised:#eaf0ec;--text:#1c2c2a;--muted:#536962;--border:#d4dfd8;--ok:#14714c;--danger:#a93919;--shadow:0 18px 52px #2333280a}
 @media(prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:light;--bg:#f2f4f2;--surface:#fff;--raised:#eaf0ec;--text:#1c2c2a;--muted:#536962;--border:#d4dfd8;--ok:#14714c;--danger:#a93919;--shadow:0 18px 52px #2333280a}}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{overflow-x:hidden}button,input,select{font:inherit}button{color:inherit;cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}button,input,select{min-height:42px;border-radius:10px}button{border:1px solid var(--border);background:var(--raised);padding:9px 13px}button:hover:enabled{border-color:var(--accent)}svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}h1,h2,h3,p{margin:0}h1{font-size:21px;font-weight:650;letter-spacing:-.6px}h2{font-size:16px;font-weight:600}h3{font-size:15px;font-weight:600}#grill{max-width:1440px;margin:auto;padding:24px;display:grid;gap:24px}.topbar,.brand,.top-actions{display:flex;align-items:center;gap:12px}.topbar{justify-content:space-between;min-width:0}.brand{min-width:0}.brandmark{width:43px;height:48px;border:1px solid var(--border);border-radius:14px;display:grid;place-items:center;color:var(--accent);background:var(--surface)}.brandmark svg{width:24px;height:28px;fill:currentColor;stroke:none}.eyebrow{display:block;font-size:10px;letter-spacing:2.1px;font-weight:750;color:var(--muted);margin-bottom:5px}.badge{font-size:11px;font-weight:650;white-space:nowrap;color:var(--muted);padding:7px 10px;border:1px solid var(--border);border-radius:99px}.badge.online{color:var(--ok)}.badge.online:before{content:"";display:inline-block;background:currentColor;width:6px;height:6px;border-radius:50%;margin-right:7px}.icon-button{display:grid;place-items:center;padding:9px;min-width:42px}.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--surface);background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 65%),var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 32px;box-shadow:var(--shadow);min-width:0}.hero-copy{min-width:0}.hero h2{font-size:20px;overflow-wrap:anywhere}.hero-value{display:flex;align-items:baseline;gap:9px;font-variant-numeric:tabular-nums;line-height:1.15;margin:12px 0}.hero-value>span:first-child{font-size:clamp(48px,8vw,88px);font-weight:550;letter-spacing:-5px}.unit{font-size:24px;color:var(--muted)}.state-line{font-size:12px;color:var(--ok);line-height:1.5}.state-line.warning{color:var(--danger)}.range-summary{color:var(--muted);font-size:12px;margin-top:10px}.gauge{--progress:0deg;width:168px;height:168px;border-radius:50%;background:conic-gradient(var(--accent) var(--progress),var(--raised) 0deg);padding:7px;flex-shrink:0;transform:rotate(-90deg)}.gauge-core{border-radius:50%;background:var(--surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;transform:rotate(90deg)}.probe-icon{width:28px;height:28px;color:var(--accent)}.gauge-label{font-size:8px;letter-spacing:1.3px;color:var(--muted);font-weight:700}.gauge strong{font-size:14px;font-weight:600}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-title>span{font-size:11px;color:var(--muted)}.probe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}.probe{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:17px;min-width:0}.probe.selected{border-color:var(--accent)}.probe.choose{cursor:pointer}.probe-head{display:flex;gap:9px;align-items:start;justify-content:space-between}.probe-head h3{overflow-wrap:anywhere}.probe-kicker{font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px}.probe-status{width:7px;height:7px;background:var(--ok);border-radius:50%;margin-top:5px;flex-shrink:0}.probe.warning .probe-status{background:var(--danger)}.probe.invalid .probe-status{background:var(--muted)}.probe-value{font-size:32px;font-weight:550;letter-spacing:-1px;margin:14px 0 8px;font-variant-numeric:tabular-nums}.probe-value small{font-size:14px;color:var(--muted);font-weight:400;margin-left:6px}.probe-label{font-size:11px;line-height:1.5;color:var(--muted)}.rail{height:4px;border-radius:9px;background:var(--raised);margin:12px 0 7px;overflow:hidden}.rail>span{display:block;height:100%;background:var(--accent);border-radius:9px}.rail-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}details{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}summary{font-size:11px;color:var(--muted);cursor:pointer;min-height:26px}.limits-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.limits-form button{grid-column:1/-1}.field{display:grid;gap:6px;font-size:10px;color:var(--muted);min-width:0}.field input,.field select{width:100%;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:9px;font-size:13px}.pitmaster-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}.pitmaster{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:18px;min-width:0}.pm-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.pm-meta{font-size:11px;color:var(--muted)}.pm-fields{display:grid;grid-template-columns:1.15fr 1fr;gap:10px}.pm-fields .submit{grid-column:1/-1;font-size:12px;font-weight:650;background:var(--raised)}footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-top:3px;font-size:10px;color:var(--muted)}#updated{margin-left:auto}.text-button{background:none;min-height:36px;font-size:10px;padding:4px 10px}.subtle{color:var(--muted)}#notice,#device-error{font-size:12px;padding:12px 14px;border-radius:10px;background:var(--raised);overflow-wrap:anywhere;line-height:1.5}#notice.error,#device-error{color:var(--danger)}[hidden]{display:none!important}.empty{color:var(--muted);padding:10px 0;font-size:12px}.no-icons .icon{display:none}.no-details footer{display:none}.compact #grill{padding:14px;gap:16px}.compact .hero{padding:20px}.compact .gauge{width:130px;height:130px}.compact .probe{padding:13px}.disabled .hero{opacity:.55}.busy #refresh svg{animation:spin 1.2s linear infinite}.no-animation *{animation:none!important;transition:none!important}@keyframes spin{to{transform:rotate(360deg)}}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{overflow-x:hidden}button,input,select{font:inherit}button{color:inherit;cursor:pointer}button:disabled{cursor:default;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}button,input,select{min-height:42px;border-radius:10px}button{border:1px solid var(--border);background:var(--raised);padding:9px 13px}button:hover:enabled{border-color:var(--accent)}svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}h1,h2,h3,p{margin:0}h1{font-size:21px;font-weight:650;letter-spacing:-.6px}h2{font-size:16px;font-weight:600}h3{font-size:15px;font-weight:600}#grill{max-width:1440px;margin:auto;padding:24px;display:grid;gap:24px}.topbar,.brand,.top-actions{display:flex;align-items:center;gap:12px}.topbar{justify-content:space-between;min-width:0}.brand{min-width:0}.brandmark{width:43px;height:48px;border:1px solid var(--border);border-radius:14px;display:grid;place-items:center;color:var(--accent);background:var(--surface)}.brandmark svg{width:24px;height:28px;fill:currentColor;stroke:none}.eyebrow{display:block;font-size:10px;letter-spacing:2.1px;font-weight:750;color:var(--muted);margin-bottom:5px}.badge{font-size:11px;font-weight:650;white-space:nowrap;color:var(--muted);padding:7px 10px;border:1px solid var(--border);border-radius:99px}.badge.online{color:var(--ok)}.badge.online:before{content:"";display:inline-block;background:currentColor;width:6px;height:6px;border-radius:50%;margin-right:7px}.icon-button{display:grid;place-items:center;padding:9px;min-width:42px}.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--surface);background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 65%),var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 32px;box-shadow:var(--shadow);min-width:0}.hero-copy{min-width:0}.hero h2{font-size:20px;overflow-wrap:anywhere}.hero-value{display:flex;align-items:baseline;gap:9px;font-variant-numeric:tabular-nums;line-height:1.15;margin:12px 0}.hero-value>span:first-child{font-size:clamp(48px,8vw,88px);font-weight:550;letter-spacing:-5px}.unit{font-size:24px;color:var(--muted)}.state-line{font-size:12px;color:var(--ok);line-height:1.5}.state-line.warning{color:var(--danger)}.range-summary{color:var(--muted);font-size:12px;margin-top:10px}.gauge{--progress:0deg;width:168px;height:168px;border-radius:50%;background:conic-gradient(var(--accent) var(--progress),var(--raised) 0deg);padding:7px;flex-shrink:0;transform:rotate(-90deg)}.gauge-core{border-radius:50%;background:var(--surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;transform:rotate(90deg)}.probe-icon{width:28px;height:28px;color:var(--accent)}.gauge-label{font-size:8px;letter-spacing:1.3px;color:var(--muted);font-weight:700}.gauge strong{font-size:14px;font-weight:600}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-title>span{font-size:11px;color:var(--muted)}.probe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}.probe{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:17px;min-width:0}.probe.selected{border-color:var(--accent)}.probe.choose{cursor:pointer}.probe-head{display:flex;gap:9px;align-items:start;justify-content:space-between}.probe-head h3{overflow-wrap:anywhere}.probe-kicker{font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px}.probe-status{width:7px;height:7px;background:var(--ok);border-radius:50%;margin-top:5px;flex-shrink:0}.probe.warning .probe-status{background:var(--danger)}.probe.invalid .probe-status{background:var(--muted)}.probe-value{font-size:32px;font-weight:550;letter-spacing:-1px;margin:14px 0 8px;font-variant-numeric:tabular-nums}.probe-value small{font-size:14px;color:var(--muted);font-weight:400;margin-left:6px}.probe-label{font-size:11px;line-height:1.5;color:var(--muted)}.rail{height:4px;border-radius:9px;background:var(--raised);margin:12px 0 7px;overflow:hidden}.rail>span{display:block;height:100%;background:var(--accent);border-radius:9px}.rail-labels{display:flex;justify-content:flex-end;font-size:10px;color:var(--muted)}details{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}summary{font-size:11px;color:var(--muted);cursor:pointer;min-height:26px}.limits-form{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}.limits-form button{grid-column:1/-1}.field{display:grid;gap:6px;font-size:10px;color:var(--muted);min-width:0}.field input,.field select{width:100%;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:9px;font-size:13px}.pitmaster-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}.pitmaster{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:18px;min-width:0}.pm-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.pm-meta{font-size:11px;color:var(--muted)}.pm-fields{display:grid;grid-template-columns:1.15fr 1fr;gap:10px}.pm-fields .submit{grid-column:1/-1;font-size:12px;font-weight:650;background:var(--raised)}footer{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-top:3px;font-size:10px;color:var(--muted)}#updated{margin-left:auto}.text-button{background:none;min-height:36px;font-size:10px;padding:4px 10px}.subtle{color:var(--muted)}#notice,#device-error{font-size:12px;padding:12px 14px;border-radius:10px;background:var(--raised);overflow-wrap:anywhere;line-height:1.5}#notice.error,#device-error{color:var(--danger)}[hidden]{display:none!important}.empty{color:var(--muted);padding:10px 0;font-size:12px}.no-icons .icon{display:none}.no-details footer{display:none}.compact #grill{padding:14px;gap:16px}.compact .hero{padding:20px}.compact .gauge{width:130px;height:130px}.compact .probe{padding:13px}.disabled .hero{opacity:.55}.busy #refresh svg{animation:spin 1.2s linear infinite}.no-animation *{animation:none!important;transition:none!important}@keyframes spin{to{transform:rotate(360deg)}}
 @media(min-width:1000px){#grill{padding:32px;gap:28px}.hero{padding:36px 42px}.gauge{width:196px;height:196px}.hero-value>span:first-child{font-size:96px}.probe-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}}
 @media(max-width:440px){#grill{padding:14px;gap:18px}.topbar{gap:7px}.brand{gap:8px}.brandmark{width:33px;height:40px}h1{font-size:18px}.eyebrow{font-size:8px;letter-spacing:1.5px}.top-actions{gap:7px}.badge{font-size:9px;padding:6px 8px}.hero{padding:22px 19px;gap:10px}.hero h2{font-size:17px}.hero-value>span:first-child{font-size:58px;letter-spacing:-3px}.unit{font-size:18px}.gauge{width:112px;height:112px;padding:5px}.gauge strong{font-size:11px}.gauge-label{font-size:7px;letter-spacing:.8px}.gauge-core{gap:5px}.probe-icon{width:22px;height:22px}.probe-grid{grid-template-columns:1fr}.probe-value{margin:9px 0 4px}.probe{padding:15px}.pm-fields{gap:9px}#updated{margin-left:0}.subtle{font-size:9px!important}}
 @media(max-width:300px){#grill{padding:9px;gap:13px}.brandmark,.gauge,.section-title>.subtle{display:none}.hero-value>span:first-child{font-size:53px}.hero{padding:18px}.badge{max-width:100px;overflow:hidden;text-overflow:ellipsis}h1{font-size:16px}.top-actions{gap:4px}.icon-button{min-width:36px;min-height:38px;padding:6px}}
@@ -1581,6 +1605,8 @@ class WLANThermo extends IPSModuleStrict
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 @media(pointer:coarse){button,input,select{min-height:44px}.field input,.field select{font-size:16px}summary{min-height:44px;display:flex;align-items:center}}
+
+.forecast{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}.forecast-title,.hero-forecast{font-size:13px;font-weight:600;line-height:1.5;color:var(--text)}.hero-forecast{margin-top:10px}.forecast-detail{font-size:11px;line-height:1.6;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.forecast-chart{display:block;width:100%;height:auto;max-height:145px;margin-top:10px;overflow:visible}.forecast-actual{stroke:var(--accent);stroke-width:2;fill:none;stroke-linejoin:round}.forecast-target{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 4}.forecast-predicted{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 4}.forecast-legend{font-size:10px;line-height:1.5;color:var(--muted);margin-top:4px}.forecast-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px}.forecast-reset{min-height:36px;margin-top:9px;font-size:11px;background:none;padding:6px 9px}@media(pointer:coarse){.forecast-reset{min-height:44px}}
 
 ````
 
@@ -1595,8 +1621,67 @@ class WLANThermo extends IPSModuleStrict
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
   const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
-  const fraction = ch => ch.valid && Number.isFinite(ch.min) && Number.isFinite(ch.max) && ch.max > ch.min ? Math.max(0, Math.min(1, (ch.temperature - ch.min) / (ch.max - ch.min))) : 0;
-  const describe = ch => !ch.valid ? 'Kein aktueller Messwert' : ch.outOfRange ? (ch.temperature > ch.max ? 'Über der oberen Alarmgrenze' : 'Unter der unteren Alarmgrenze') : 'Innerhalb der Alarmgrenzen';
+  const fraction = ch => state.config?.forecast !== false && Number.isFinite(ch.forecast?.progress) ? ch.forecast.progress : ch.valid && Number.isFinite(ch.max) && ch.max > 0 ? Math.max(0, Math.min(1, ch.temperature / ch.max)) : 0;
+  const aboveMaximum = ch => ch.valid && Number.isFinite(ch.max) && ch.temperature > ch.max;
+  const describe = ch => !ch.valid ? 'Kein aktueller Messwert' : !Number.isFinite(ch.max) ? 'Keine Obergrenze verfügbar' : ch.temperature > ch.max ? 'Obergrenze überschritten' : ch.temperature === ch.max ? 'Obergrenze erreicht' : 'Noch ' + fmt(ch.max - ch.temperature) + ' ' + state.unit + ' bis zur Obergrenze';
+  const forecastText = forecast => {
+    if (!forecast) return 'Temperaturverlauf wird gesammelt …';
+    if (forecast.status === 'estimated' && Number.isFinite(forecast.seconds)) {
+      if (forecast.seconds < 60) return 'Noch weniger als 1 Min.';
+      const minutes = Math.max(1, Math.round(forecast.seconds / 60));
+      const duration = minutes >= 60 ? Math.floor(minutes / 60) + ' Std. ' + (minutes % 60) + ' Min.' : minutes + ' Min.';
+      return 'Noch ca. ' + duration;
+    }
+    return ({reached:'Obergrenze erreicht', learning:'Temperaturverlauf wird gesammelt …', stalled:'Temperaturplateau – keine Restzeitschätzung', cooling:'Temperatur fällt – keine Restzeitschätzung', unstable:'Schwankender Verlauf – keine verlässliche Restzeit', distant:'Ziel zu weit entfernt – noch keine verlässliche Restzeit', stale:'Messverlauf nicht aktuell', no_target:'Keine Obergrenze verfügbar', disabled:''})[forecast.status] || 'Noch keine verlässliche Restzeit';
+  };
+  function forecastElements(number) {
+    const el = node('section', 'forecast'); el.setAttribute('aria-label', 'Restzeitschätzung und Temperaturverlauf');
+    const title = node('p', 'forecast-title'), detail = node('p', 'forecast-detail');
+    const svgNode = tag => document.createElementNS('http://www.w3.org/2000/svg', tag);
+    const chart = svgNode('svg'); chart.setAttribute('viewBox', '0 0 320 104'); chart.setAttribute('role', 'img'); chart.classList.add('forecast-chart');
+    const target = svgNode('line'), actual = svgNode('polyline'), predicted = svgNode('line');
+    target.setAttribute('class', 'forecast-target'); actual.setAttribute('class', 'forecast-actual'); predicted.setAttribute('class', 'forecast-predicted');
+    chart.append(target, actual, predicted);
+    const legend = node('div', 'forecast-legend', 'Messverlauf · Trend gestrichelt · Obergrenze punktiert');
+    const times = node('div', 'forecast-times'), startTime = node('span'), endTime = node('span'); times.append(startTime, endTime);
+    const reset = node('button', 'forecast-reset', 'Verlauf neu starten'); reset.type = 'button'; reset.setAttribute('aria-label', 'Temperaturverlauf für Kanal ' + number + ' neu starten');
+    reset.addEventListener('click', () => send('forecastReset', {number}));
+    el.append(title, detail, chart, legend, times, reset);
+    return {el, title, detail, chart, target, actual, predicted, legend, times, startTime, endTime, reset};
+  }
+  function renderForecast(ui, ch, cfg) {
+    const forecast = ch.forecast, enabled = cfg.forecast !== false;
+    ui.el.hidden = !enabled;
+    if (!enabled) return;
+    ui.title.textContent = forecastText(forecast);
+    const estimated = forecast?.status === 'estimated' && Number.isFinite(forecast.eta);
+    const details = [];
+    if (estimated) details.push('Ziel voraussichtlich gegen ' + new Date(forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ' · Trend-Schätzung');
+    if (Number.isFinite(forecast?.rate)) details.push((forecast.rate > 0 ? '+' : '') + new Intl.NumberFormat('de-DE', {maximumFractionDigits:2}).format(forecast.rate) + ' ' + state.unit + '/min');
+    if (!details.length) details.push('Mindestens 3 Minuten gültige Messwerte erforderlich.');
+    ui.detail.textContent = details.join(' · ');
+    ui.reset.hidden = !cfg.controls; ui.reset.disabled = Boolean(pending) || !state.online;
+    const points = (forecast?.points || []).filter(p => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
+    const visible = cfg.forecastChart !== false && points.length >= 2 && Number.isFinite(ch.max);
+    ui.chart.hidden = ui.legend.hidden = ui.times.hidden = !visible;
+    if (!visible) return;
+    const first = points[0], last = points[points.length - 1];
+    const horizon = estimated ? Math.min(forecast.seconds, Math.max(300, last[0] - first[0])) : 0;
+    const end = last[0] + horizon;
+    const nextValue = estimated ? Math.min(ch.max, last[1] + forecast.rate * horizon / 60) : last[1];
+    const values = points.map(p => p[1]).concat([ch.max, nextValue]);
+    const bottom = Math.min(...values), top = Math.max(...values), pad = Math.max(0.5, (top - bottom) * 0.12);
+    const x = time => 8 + 304 * (time - first[0]) / Math.max(1, end - first[0]);
+    const y = value => 96 - 88 * (value - bottom + pad) / Math.max(1, top - bottom + 2 * pad);
+    ui.actual.setAttribute('points', points.map(p => x(p[0]).toFixed(2) + ',' + y(p[1]).toFixed(2)).join(' '));
+    for (const [key, val] of Object.entries({x1:8,x2:312,y1:y(ch.max),y2:y(ch.max)})) ui.target.setAttribute(key, val);
+    ui.predicted.hidden = !estimated;
+    ui.predicted.setAttribute('visibility', estimated ? 'visible' : 'hidden');
+    if (estimated) for (const [key, val] of Object.entries({x1:x(last[0]),y1:y(last[1]),x2:x(end),y2:y(nextValue)})) ui.predicted.setAttribute(key, val);
+    ui.chart.setAttribute('aria-label', 'Gemessener Temperaturverlauf bis ' + fmt(ch.temperature) + ' ' + state.unit + ', Obergrenze ' + fmt(ch.max) + ' ' + state.unit + (estimated ? ', gestrichelte Trendfortschreibung' : ''));
+    const clock = time => new Date(time * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+    ui.startTime.textContent = clock(first[0]); ui.endTime.textContent = clock(end) + (estimated ? ' · Trend' : '');
+  }
   function send(action, values = {}) {
     if (pending) return;
     if (typeof window.requestAction !== 'function') { announce('Bedienung ist nur in der verbundenen Symcon-Visualisierung verfügbar.', true); return; }
@@ -1617,17 +1702,18 @@ class WLANThermo extends IPSModuleStrict
     const el = node('article', 'probe'); el.tabIndex = 0; el.setAttribute('aria-label', 'Kanal ' + ch.number);
     const head = node('div', 'probe-head'), names = node('div'), kicker = node('div', 'probe-kicker'), name = node('h3');
     names.append(kicker, name); head.append(names, node('span', 'probe-status'));
-    const value = node('div', 'probe-value'), label = node('div', 'probe-label'), rail = node('div', 'rail'), bar = node('span'), limits = node('div', 'rail-labels'), low = node('span'), high = node('span');
-    rail.append(bar); limits.append(low, high);
-    const details = node('details'), summary = node('summary', '', 'Alarmgrenzen bearbeiten'), form = node('form', 'limits-form');
-    const min = field('Minimum', 'number', -30, 999), max = field('Maximum', 'number', -30, 999), submit = node('button', '', 'Grenzen übernehmen'); submit.type = 'submit';
-    form.append(min.wrapper, max.wrapper, submit); details.append(summary, form);
-    el.append(head, value, label, rail, limits, details);
+    const value = node('div', 'probe-value'), label = node('div', 'probe-label'), rail = node('div', 'rail'), bar = node('span'), limits = node('div', 'rail-labels'), high = node('span');
+    rail.append(bar); limits.append(high);
+    const details = node('details'), summary = node('summary', '', 'Obergrenze bearbeiten'), form = node('form', 'limits-form');
+    const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
+    form.append(max.wrapper, submit); details.append(summary, form);
+    const forecast = forecastElements(ch.number);
+    el.append(head, value, label, rail, limits, forecast.el, details);
     const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
-    form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, min:Number(min.input.value), max:Number(max.input.value)}); });
-    return {el, kicker, name, value, label, bar, low, high, details, min:min.input, max:max.input, submit};
+    form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
+    return {el, kicker, name, value, label, bar, rail, high, details, forecast, max:max.input, submit};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -1661,24 +1747,28 @@ class WLANThermo extends IPSModuleStrict
     $('hero-name').textContent = main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
     $('hero-temperature').textContent = fmt(main?.valid ? main.temperature : null); $('hero-unit').textContent = state.unit || '°C';
     $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
-    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main?.outOfRange));
-    $('hero-range').textContent = main ? 'Alarmgrenzen ' + fmt(main.min) + ' – ' + fmt(main.max) + ' ' + state.unit : '';
-    $('gauge-range').textContent = main ? fmt(main.min) + '–' + fmt(main.max) + ' ' + state.unit : '—';
+    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && aboveMaximum(main)));
+    $('hero-forecast').hidden = !main || cfg.forecast === false;
+    $('hero-forecast').textContent = main ? forecastText(main.forecast) : '';
+    $('hero-range').textContent = main ? 'Obergrenze ' + fmt(main.max) + ' ' + state.unit : '';
+    $('gauge-range').textContent = main ? fmt(main.max) + ' ' + state.unit : '—';
+    $('gauge').hidden = !main || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
-    $('gauge').setAttribute('aria-label', main ? 'Temperatur relativ zu den Alarmgrenzen: ' + describe(main) : 'Keine Alarmgrenzen verfügbar');
+    $('gauge').setAttribute('aria-label', main && cfg.forecast !== false && Number.isFinite(main.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(main.forecast.progress * 100) + ' Prozent' : main ? 'Temperatur im Verhältnis zur Obergrenze: ' + describe(main) : 'Keine Obergrenze verfügbar');
     $('probe-count').textContent = channels.length + (channels.length === 1 ? ' gültiger Fühler' : ' gültige Fühler');
     for (const [number, ui] of probes) if (!channels.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     channels.forEach(ch => {
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
-      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : ch.outOfRange ? ' warning' : '');
+      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : aboveMaximum(ch) ? ' warning' : '');
       ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
       ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
-      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.low.textContent = fmt(ch.min) + ' ' + state.unit; ui.high.textContent = fmt(ch.max) + ' ' + state.unit;
-      ui.details.hidden = !cfg.controls || !Number.isFinite(ch.min) || !Number.isFinite(ch.max);
+      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
+      renderForecast(ui.forecast, ch, cfg);
+      ui.details.hidden = !cfg.controls || !Number.isFinite(ch.max);
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
-      if (!ui.details.open) { ui.min.value = ch.min ?? ''; ui.max.value = ch.max ?? ''; }
-      ui.min.disabled = ui.max.disabled = ui.submit.disabled = !editable;
+      if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
+      ui.max.disabled = ui.submit.disabled = !editable;
     });
     $('channels-section').hidden = channels.length === 0;
     const pms = active ? state.pitmasters || [] : [];
@@ -1985,6 +2075,9 @@ trait WLTVisualization
         $this->RegisterPropertyBoolean('TilePitmaster', true);
         $this->RegisterPropertyInteger('TilePrimary', 0);
         $this->RegisterPropertyString('TileChannels', '[]');
+        $this->RegisterPropertyBoolean('ForecastEnabled', true);
+        $this->RegisterPropertyBoolean('ForecastChart', true);
+        $this->RegisterPropertyInteger('ForecastWindow', 10);
     }
 
     private function validateVisualization(): void
@@ -1994,6 +2087,7 @@ trait WLTVisualization
         }
         WLTApi::integer($this->ReadPropertyInteger('TileAccent'), 0, 0xffffff);
         WLTApi::integer($this->ReadPropertyInteger('TilePrimary'), 0, 255);
+        WLTApi::integer($this->ReadPropertyInteger('ForecastWindow'), 5, 60);
         $this->tileChannelSelection();
     }
 
@@ -2067,8 +2161,9 @@ trait WLTVisualization
             $valid = $online && $this->channelHasValidTemperature($ch, $settings);
             if (!$valid) { continue; }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'temperature' => $valid ? (float) $ch['temp'] : null,
-                'valid' => $valid, 'wireless' => $wireless, 'min' => $ch['min'] ?? null, 'max' => $ch['max'] ?? null,
-                'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['min'], $ch['max']) && ($ch['temp'] < $ch['min'] || $ch['temp'] > $ch['max'])];
+                'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null,
+                'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
+                'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']];
         }
         $bt = $this->cached('BluetoothData');
         return ['version' => 1, 'enabled' => $this->ReadPropertyBoolean('TileEnabled'), 'online' => $online,
@@ -2089,6 +2184,7 @@ trait WLTVisualization
                 'icons' => $this->ReadPropertyBoolean('TileIcons'), 'animations' => $this->ReadPropertyBoolean('TileAnimations'),
                 'actionTimeout' => max(35000, $this->ReadPropertyInteger('Timeout') * 7000 + 2000),
                 'hero' => $this->ReadPropertyBoolean('TileHero'),
+                'forecast' => $this->ReadPropertyBoolean('ForecastEnabled'), 'forecastChart' => $this->ReadPropertyBoolean('ForecastChart'),
                 'controls' => $this->ReadPropertyBoolean('TileControls'), 'primary' => $this->ReadPropertyInteger('TilePrimary')]];
     }
 
@@ -2111,10 +2207,11 @@ trait WLTVisualization
         $data = $this->visualizationData();
         if ($response !== null) { $data['response'] = $response; }
         $encoded = WLTApi::encode($data);
-        if ($response !== null || $encoded !== $this->GetBuffer('VisualizationLast')) {
+        $signature = hash('sha256', $encoded);
+        if ($response !== null || $signature !== $this->GetBuffer('VisualizationLast')) {
             // Native Symcon-Werte unterstützen keine PHP-Arrays: JSON-Text übertragen.
             if ($this->UpdateVisualizationValue($encoded)) {
-                $this->SetBuffer('VisualizationLast', $encoded);
+                $this->SetBuffer('VisualizationLast', $signature);
             }
         }
     }
@@ -2135,16 +2232,24 @@ trait WLTVisualization
             $action = $request['action'] ?? '';
             $allowed = match ($action) {
                 'refresh' => ['requestId', 'action'],
-                'channel' => ['requestId', 'action', 'number', 'min', 'max'],
+                'forecastReset' => ['requestId', 'action', 'number'],
+                'channel' => ['requestId', 'action', 'number', 'max'],
                 'pitmaster' => ['requestId', 'action', 'id', 'mode', 'target', 'output'],
                 'bluetooth' => ['requestId', 'action', 'enabled'],
                 default => throw new InvalidArgumentException('Unbekannte Kachelaktion.')
             };
             if (array_diff(array_keys($request), $allowed)) { throw new InvalidArgumentException('Unbekannte Aktionsparameter.'); }
-            if ($action !== 'refresh' && (!$this->ReadPropertyBoolean('TileControls') || !$this->ReadPropertyBoolean('AllowWrite') || !$this->stateValue('Online', false))) {
+            if (!in_array($action, ['refresh', 'forecastReset'], true) && (!$this->ReadPropertyBoolean('TileControls') || !$this->ReadPropertyBoolean('AllowWrite') || !$this->stateValue('Online', false))) {
                 throw new RuntimeException('Bedienung ist gesperrt oder das Gerät ist nicht erreichbar.');
             }
             if ($action === 'refresh') { $ok = $this->Update(); }
+            elseif ($action === 'forecastReset') {
+                if (!$this->ReadPropertyBoolean('TileControls')) { throw new RuntimeException('Kachelbedienung ist gesperrt.'); }
+                $number = WLTApi::integer($request['number'] ?? null, 1, 255);
+                if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist ausgeblendet.'); }
+                $this->resetChannelForecast($number);
+                $ok = true;
+            }
             elseif ($action === 'channel') {
                 $number = WLTApi::integer($request['number'] ?? null, 1, 255);
                 if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist in der Kachel ausgeblendet.'); }
@@ -2152,7 +2257,7 @@ trait WLTVisualization
                 if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
                     throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
                 }
-                $ok = $this->SetChannel($number, WLTApi::encode(['min' => $request['min'] ?? null, 'max' => $request['max'] ?? null]));
+                $ok = $this->SetChannel($number, WLTApi::encode(['max' => $request['max'] ?? null]));
             } elseif ($action === 'pitmaster') {
                 if (!$this->ReadPropertyBoolean('TilePitmaster')) { throw new InvalidArgumentException('Pitmaster ist in der Kachel ausgeblendet.'); }
                 $id = WLTApi::integer($request['id'] ?? null, 0, 255);
@@ -2166,10 +2271,155 @@ trait WLTVisualization
                 $this->boolean($request['enabled'] ?? null);
                 $ok = $this->SetBluetoothEnabled($request['enabled']);
             }
-            $message = $ok ? ($action === 'refresh' ? 'Messwerte aktualisiert.' : 'Änderung am Gerät bestätigt.') : ($this->GetLastError() ?: 'Instanz ist beschäftigt. Bitte erneut versuchen.');
+            $message = $ok ? ($action === 'refresh' ? 'Messwerte aktualisiert.' : ($action === 'forecastReset' ? 'Temperaturverlauf neu gestartet.' : 'Änderung am Gerät bestätigt.')) : ($this->GetLastError() ?: 'Instanz ist beschäftigt. Bitte erneut versuchen.');
         } catch (Throwable $e) { $ok = false; $message = $e->getMessage(); }
         // Auch Fehler quittieren; keine Erfolgsmeldung vor dem tatsächlichen Rücklesen.
         $this->pushVisualization(['requestId' => $requestID, 'ok' => $ok, 'message' => $message]);
+    }
+}
+
+````
+
+## libs/Forecast.php
+
+````php
+<?php
+
+declare(strict_types=1);
+
+/** Begrenzter Messwertverlauf und konservative lineare Trendprognose. */
+final class WLTForecast
+{
+    public static function append(array $state, string $fingerprint, int $now, float $temperature, int $window, int $gap, float $unitScale): array
+    {
+        $points = $state['points'] ?? [];
+        $last = $points ? $points[count($points) - 1] : null;
+        $reset = ($state['fingerprint'] ?? '') !== $fingerprint || !$last || $now < $last[0] ||
+            $now - $last[0] > $gap || ($now >= $last[0] && $now - $last[0] <= 60 && abs($temperature - $last[1]) / $unitScale >= 6.0);
+        if ($reset) {
+            return ['fingerprint' => $fingerprint, 'startedAt' => $now, 'start' => $temperature, 'points' => [[$now, $temperature]]];
+        }
+        if ($now - $last[0] < 10) { return $state; }
+        $points[] = [$now, $temperature];
+        $state['points'] = array_slice(array_values(array_filter($points, static fn(array $p): bool => $p[0] >= $now - $window)), -361);
+        return $state;
+    }
+
+    public static function estimate(array $state, int $now, float $current, mixed $target, float $unitScale, int $gap): array
+    {
+        $points = $state['points'] ?? [];
+        $result = ['status' => 'learning', 'seconds' => null, 'eta' => null, 'rate' => null, 'progress' => null,
+            'start' => $state['start'] ?? null, 'startedAt' => $state['startedAt'] ?? null, 'points' => self::chartPoints($points)];
+        if ((!is_int($target) && !is_float($target)) || !is_finite((float) $target)) { return array_replace($result, ['status' => 'no_target']); }
+        if ($current >= $target) { return array_replace($result, ['status' => 'reached', 'seconds' => 0, 'eta' => $now, 'progress' => 1.0]); }
+        if (isset($state['start']) && $target > $state['start']) {
+            $result['progress'] = max(0.0, min(1.0, ($current - $state['start']) / ($target - $state['start'])));
+        }
+        if (count($points) < 6) { return $result; }
+        $last = $points[count($points) - 1];
+        if ($now < $last[0] || $now - $last[0] > $gap) { return array_replace($result, ['status' => 'stale']); }
+        $span = $last[0] - $points[0][0];
+        if ($span < 180) { return $result; }
+        $fit = self::fit($points);
+        $rate = $fit['rate']; // Grad pro Minute, in der Geräteeinheit.
+        $result['rate'] = $rate;
+        $recentSpan = min(180, max(90, $span / 2));
+        $recent = array_values(array_filter($points, static fn(array $p): bool => $p[0] >= $last[0] - $recentSpan));
+        if (count($recent) < 3) { $recent = array_slice($points, -3); }
+        $recentRate = self::fit($recent)['rate'];
+        if ($rate / $unitScale < -0.02 || $recentRate / $unitScale < -0.02) { return array_replace($result, ['status' => 'cooling']); }
+        if ($rate / $unitScale <= 0.02 || $recentRate / $unitScale <= 0.02) { return array_replace($result, ['status' => 'stalled']); }
+        $rise = ($last[1] - $points[0][1]) / $unitScale;
+        if ($rise < 0.3 || $fit['r2'] < 0.8 || $recentRate < $rate * 0.35 || $recentRate > $rate * 2.5) {
+            return array_replace($result, ['status' => 'unstable']);
+        }
+        $seconds = ($target - $current) / $rate * 60;
+        if (!is_finite($seconds) || $seconds > 43200) { return array_replace($result, ['status' => 'distant']); }
+        return array_replace($result, ['status' => 'estimated', 'seconds' => (int) ceil($seconds), 'eta' => $now + (int) ceil($seconds)]);
+    }
+
+    private static function fit(array $points): array
+    {
+        $n = count($points);
+        if ($n < 2) { return ['rate' => 0.0, 'r2' => 0.0]; }
+        $origin = $points[0][0];
+        $meanX = $meanY = 0.0;
+        foreach ($points as [$time, $value]) { $meanX += ($time - $origin) / 60; $meanY += $value; }
+        $meanX /= $n; $meanY /= $n;
+        $xx = $xy = $yy = 0.0;
+        foreach ($points as [$time, $value]) {
+            $x = ($time - $origin) / 60 - $meanX; $y = $value - $meanY;
+            $xx += $x * $x; $xy += $x * $y; $yy += $y * $y;
+        }
+        $rate = $xx > 0 ? $xy / $xx : 0.0;
+        $r2 = $xx > 0 && $yy > 0 ? $xy * $xy / ($xx * $yy) : 0.0;
+        return ['rate' => is_finite($rate) ? $rate : 0.0, 'r2' => is_finite($r2) ? max(0.0, min(1.0, $r2)) : 0.0];
+    }
+
+    private static function chartPoints(array $points): array
+    {
+        if (count($points) <= 48) { return $points; }
+        $result = []; $last = count($points) - 1;
+        for ($i = 0; $i < 48; $i++) { $result[] = $points[(int) floor($i * $last / 47)]; }
+        return $result;
+    }
+}
+
+trait WLTForecastSupport
+{
+    protected function forecastTime(): int { return time(); }
+
+    private function forecastGap(): int { return max(120, $this->ReadPropertyInteger('Interval') * 3); }
+
+    private function forecastState(int $number): array
+    {
+        $value = $this->GetBuffer('Forecast_' . $number);
+        $state = $value === '' ? [] : json_decode($value, true);
+        return is_array($state) ? $state : [];
+    }
+
+    private function recordForecast(array $data, array $settings): void
+    {
+        $known = json_decode($this->GetBuffer('ForecastChannels') ?: '[]', true) ?: [];
+        $active = [];
+        if ($this->ReadPropertyBoolean('ForecastEnabled')) {
+            $now = $this->forecastTime();
+            $unit = ($data['system']['unit'] ?? 'C') === 'F' ? 'F' : 'C';
+            foreach ($data['channel'] as $channel) {
+                $number = $channel['number'];
+                if ($number > 255 || !$this->channelHasValidTemperature($channel, $settings)) { continue; }
+                $active[] = $number;
+                $fingerprint = sha1(WLTApi::encode([$this->ReadPropertyString('Host'), $unit, $channel['name'], $channel['typ'] ?? null, $channel['fixed'] ?? null]));
+                $state = WLTForecast::append($this->forecastState($number), $fingerprint, $now, (float) $channel['temp'],
+                    $this->ReadPropertyInteger('ForecastWindow') * 60, $this->forecastGap(), $unit === 'F' ? 1.8 : 1.0);
+                $this->SetBuffer('Forecast_' . $number, WLTApi::encode($state));
+            }
+        }
+        foreach (array_diff($known, $active) as $number) { $this->SetBuffer('Forecast_' . $number, ''); }
+        $this->SetBuffer('ForecastChannels', WLTApi::encode($active));
+    }
+
+    private function channelForecast(array $channel, string $unit): array
+    {
+        if (!$this->ReadPropertyBoolean('ForecastEnabled')) { return ['status' => 'disabled', 'points' => []]; }
+        $result = WLTForecast::estimate($this->forecastState($channel['number']), $this->forecastTime(), (float) $channel['temp'],
+            $channel['max'] ?? null, $unit === 'F' ? 1.8 : 1.0, $this->forecastGap());
+        if (!$this->ReadPropertyBoolean('ForecastChart')) { $result['points'] = []; }
+        return $result;
+    }
+
+    private function resetChannelForecast(int $number): void
+    {
+        if (!IPS_SemaphoreEnter('WLT_' . $this->InstanceID, 1000)) { throw new RuntimeException('Instanz ist beschäftigt.'); }
+        try {
+            $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+            if (!$this->ReadPropertyBoolean('ForecastEnabled') || !$this->stateValue('Online', false) ||
+                !$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
+                throw new RuntimeException('Verlauf kann derzeit nicht gestartet werden.');
+            }
+            $this->SetBuffer('Forecast_' . $number, '');
+            // Erst der nächste echte Geräteabruf liefert den ersten neuen Messpunkt.
+        } finally { IPS_SemaphoreLeave('WLT_' . $this->InstanceID); }
     }
 }
 
@@ -2181,6 +2431,46 @@ trait WLTVisualization
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.5.0: Restzeitschätzung bis zur Obergrenze
+
+Die Fühlerkarten zeigen jetzt eine **ungefähre Restzeit**, den **voraussichtlichen Zielzeitpunkt** und den **Temperaturanstieg pro Minute**. Ziel ist ausschließlich die eingestellte Obergrenze. Die optionale große Hauptanzeige zeigt ebenfalls die Restzeit. Min-Wert und Min-Eingabe bleiben aus der Kachel entfernt.
+
+Die kleine Verlaufsgrafik enthält nur tatsächlich abgerufene Messpunkte. Eine punktierte Linie markiert die Obergrenze. Ein gestrichelter Abschnitt schreibt den aktuellen Trend fort, solange eine Schätzung möglich ist. Um den Messverlauf nicht zusammenzudrücken, zeigt die Grafik höchstens einen zusätzlichen Trendabschnitt von der Länge des sichtbaren Messfensters (mindestens fünf Minuten); weiter entfernte Zielzeiten stehen als Text. Eine lange Restzeit bedeutet deshalb nicht, dass die gestrichelte Linie im Diagrammausschnitt bereits die Obergrenze erreicht.
+
+### Verwendung
+
+1. Modul aktualisieren und Kachel bzw. IPSView neu laden. Bei direkter Dateikopie den Symcon-Dienst neu starten.
+2. Unter Premium-Visualisierung ist **Restzeit bis zur Obergrenze schätzen** standardmäßig aktiv. Das Diagramm lässt sich separat ein-/ausschalten. Standard für das Trendfenster: **10 Minuten**, einstellbar von 5 bis 60 Minuten.
+3. Nach mindestens **3 Minuten und 6 Messpunkten** wird nur bei ausreichend gleichmäßigem Anstieg eine Restzeit angezeigt. Bei langem Abrufintervall dauert das Sammeln entsprechend länger; der normale 10-Sekunden-Abruf ist geeignet.
+4. Für einen neuen Garvorgang am jeweiligen Fühler **Verlauf neu starten** drücken. Das ändert keine Geräteparameter und funktioniert auch bei global deaktivierten Geräteschreibzugriffen, sofern die Kachelbedienung erlaubt ist. Der nächste tatsächliche Geräteabruf beginnt den neuen Verlauf.
+5. Ändert sich die Obergrenze, wird die Restzeit aus dem bisherigen Temperaturverlauf neu berechnet. Ein neuer Garvorgang benötigt dagegen einen neuen Startpunkt.
+
+### Berechnung und Grenzen
+
+Die Schätzung verwendet eine lineare Ausgleichsgerade über das gewählte Zeitfenster. Zusätzlich wird der jüngste Trend geprüft. Restzeit = Abstand zur Obergrenze / positiver Temperaturanstieg. Die Anzeige bezeichnet sich ausdrücklich als **Trend-Schätzung**; sie modelliert weder Fleischart noch Nachgaren oder eine zukünftige Änderung der Heizleistung.
+
+- Bei Plateau, Abkühlung, zu wenig Temperaturanstieg oder stark schwankendem Verlauf erscheint ein Hinweis statt einer Restzeit. Auch eine über zwölf Stunden entfernte lineare Prognose wird nicht als belastbare Zeit angezeigt.
+- Voraussetzung für die Schätzung sind unter anderem mindestens 0,3 °C Temperaturanstieg im Fenster, ein Anstieg über 0,02 °C/min und eine ausreichend gleichmäßige Messreihe. Für Fahrenheit werden diese Kriterien äquivalent umgerechnet. Diese Prüfkriterien sind Plausibilitätsfilter, keine statistische Garantie.
+- Bei ungültigen/entfernten Fühlern wird der zugehörige Verlauf verworfen. Fühlername/-typ, Geräteadresse oder Einheit ändern den Verlaufskontext. Eine Unterbrechung von mehr als dem größeren Wert aus zwei Minuten und drei Abrufintervallen startet neu. Auch ein abrupter Sprung von mindestens 6 °C innerhalb einer Minute startet konservativ neu.
+- Ein identisch benannter Ersatzfühler oder ein neues Gargut lässt sich nicht immer automatisch erkennen. Dafür gibt es den manuellen Neustart des Verlaufs.
+- Große Fleischstücke können lange Temperaturplateaus entwickeln; diese und wechselnde Garraumtemperaturen können eine vorherige Prognose stark verändern. Die Anzeige wird mit neuen Messwerten nachgeführt. Sie ist keine Zusicherung einer Garzeit.
+
+### Balken und Lizenzverbrauch
+
+Sobald ein Startwert vorhanden und die Obergrenze höher als dieser Startwert ist, zeigen Balken und Ring den **Temperaturfortschritt seit Start**: `(aktuell − Start) / (Obergrenze − Start)`. Das ist kein Anteil der bereits abgelaufenen Garzeit. Ohne geeigneten Startwert bleibt die bisherige Temperaturanzeige relativ zur positiven Obergrenze verfügbar.
+
+Es werden **keine zusätzlichen Symcon-Variablen** und kein Archiv benötigt. Der Verlauf liegt je Fühler in einem internen Buffer: höchstens 361 Messpunkte, für die Kachel höchstens 48 echte Punkte. Nach einem Symcon-Neustart beginnt die Lernphase neu; dauerhaftes Archivieren wird nicht automatisch aktiviert. Eine deaktivierte Prognose verwirft ihre internen Reihen beim nächsten Abruf. Die vorhandene IPSView-TileHtml-Anbindung bleibt bestehen.
+
+## Version 1.4.3: In der Visu nur die Obergrenze
+
+Die Kachel zeigt und bearbeitet je Fühler nur noch die **Obergrenze**. Der Min-Wert und seine Eingabe sind aus Fühlerkarten, Hauptanzeige und Kacheldaten entfernt. Status und Warnfarbe beziehen sich ausschließlich auf die Obergrenze: verbleibende Temperaturdifferenz, erreicht oder überschritten. Eine Unterschreitung der am Gerät hinterlegten Untergrenze wird in der Kachel nicht als Überschreitung angezeigt.
+
+Änderungen über die Kachel senden ausschließlich `max` an den Mini V3. Bestehende Untergrenzen am Gerät, optionale Min-Statusvariablen, deren IDs und die Skriptfunktionen bleiben erhalten. Die bestehende Gerätevalidierung verhindert weiterhin widersprüchliche Grenzen; das Modul setzt den Min-Wert nicht automatisch herab.
+
+Balken und optionaler Ring zeigen für positive Obergrenzen die aktuelle Temperatur relativ zur Obergrenze mit einer festen Basis von 0 in der gewählten Geräteeinheit. Sie zeigen weder eine Restzeit noch einen zeitlichen Garfortschritt. Bei einer Obergrenze von 0 oder darunter wird diese Verhältnisgrafik ausgeblendet; die Obergrenze als Zahl bleibt sichtbar. Ab Version 1.5.0 ergänzt die oben beschriebene Restzeitschätzung diese Temperaturanzeige.
+
+Nach dem Update die Kachel bzw. IPSView-View neu laden, damit das neue Obergrenzenformular geladen wird. Bei direkter Dateikopie zusätzlich den Symcon-Dienst neu starten.
 
 ## Version 1.4.2: Gültige Fühler und IPSView
 
@@ -2211,7 +2501,7 @@ Die Moduldateien vollständig ersetzen und bei direkter Dateikopie den Symcon-Di
 
 ## Version 1.4.0: Grill-Kachel ohne zusätzliche Variablen
 
-Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Alarmbereichen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Bei aktivierter Hauptanzeige mit Kanal 0 wechseln Kanalüberschriften oder die Tastatur den Hauptfühler. Alarmgrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zu den tatsächlichen Alarmgrenzen, keinen Garfortschritt.
+Die eigene **Grillstation** zeigt große Temperaturwerte, Fühlerkarten mit Obergrenzen, Pitmaster-Betriebsart und Sollwert bzw. manuellen Stellwert, Geräteverbindung, Akku/WLAN und letzten Datenstand. Bei aktivierter Hauptanzeige mit Kanal 0 wechseln Kanalüberschriften oder die Tastatur den Hauptfühler. Obergrenzen, Pitmaster und Bluetooth lassen sich direkt bedienen. Änderungen werden erst nach dem Rücklesen am Mini V3 bestätigt. Es gibt keine erfundenen Verlaufsdaten: Ring und Balken zeigen ausschließlich die aktuelle Temperatur relativ zur Obergrenze, keinen Garfortschritt.
 
 **Neue Instanzen erzeugen standardmäßig 0 Statusvariablen.** Alle Daten werden intern gepuffert und über das offizielle HTML-SDK direkt an die Kachel übertragen. Keine HTML-Box, keine Container-, Platzhalter- oder versteckten Hilfsvariablen. Die Kachel funktioniert auch bei vollständig abgewählten Variablen. Bei bestehenden Instanzen wird der bisherige Variablenumfang übernommen; vorhandene IDs, Werte und gespeicherte Einzelentscheidungen bleiben erhalten.
 
@@ -2436,6 +2726,11 @@ Die Oberfläche ist unmittelbar deutsch beschriftet; eine `locale.json` ist dahe
 4. Im Bearbeitungsmodus der Kachelvisualisierung die Instanz als Kachel anzeigen, bei Bedarf die angebotene individuelle Darstellung wählen und eine passende Kachelgröße einstellen.
 5. Mit mindestens mittlerer Kachelgröße die Fühler und Pitmaster prüfen. Kleine Kacheln reduzieren den Inhalt absichtlich. Ab unterstütztem Vollbildtyp auch die maximierte Ansicht prüfen.
 6. Optional nur die für Archivierung oder Automationen benötigten Statusvariablen aktivieren. Für die Kachel selbst sind keine erforderlich.
+
+### Grundlagen der Prognose
+
+- [Symcon GetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/getbuffer/) und [SetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setbuffer/): interner, begrenzter Zustand ohne Lizenzvariablen; bei Dienstneustart nicht persistent.
+- [MEATER: Grenzen von Garzeitprognosen](https://support.meater.com/hc/en-us/articles/36914985836315-Cook-Time-Estimate-in-the-MEATER-App): Hintergrund zu Temperaturplateaus und wechselnden Bedingungen. Das Modul verwendet eine eigene einfache Trendberechnung, nicht den MEATER-Algorithmus.
 
 ````
 

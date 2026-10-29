@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.4.2
+# Veröffentlichung – WLANThermo 1.5.0
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -30,3 +30,7 @@ Offizielle Grundlage: [Einreichen und Review](https://www.symcon.de/de/service/d
 Hotfix 1.4.1 korrigiert die native Wertübergabe: Live-Nachrichten werden als JSON-Text statt als PHP-Array gesendet. Die Instanzerstellung ohne Grundkonfiguration ist durch einen neuen Regressionstest abgesichert.
 
 Version 1.4.2 zeigt nur gültige Fühler, macht die große Hauptanzeige optional und nutzt standardmäßig den normalen HTML-Typ für die dokumentierte IPSView-TileHtml-Einbindung. Die erweiterte HTML-Vollbildansicht ist gesondert einschaltbar.
+
+Version 1.4.3 entfernt die Untergrenze aus der Visualisierung und beschränkt Kacheländerungen auf max. Gespeicherte Geräte-Untergrenzen und optionale Min-Variablen bleiben unverändert erhalten.
+
+Version 1.5.0 ergänzt eine als Trend-Schätzung gekennzeichnete Restzeitprognose, echte Verlaufspunkte und interne, begrenzte Buffer ohne Zusatzvariablen. Keine Archivaktivierung oder externen Datenverbindungen. Prognosegüte und Clientdarstellung müssen vor Veröffentlichung real geprüft werden.
