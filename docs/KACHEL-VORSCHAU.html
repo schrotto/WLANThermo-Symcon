@@ -16,18 +16,22 @@
 
 @media(pointer:coarse){button,input,select{min-height:44px}.field input,.field select{font-size:16px}summary{min-height:44px;display:flex;align-items:center}}
 
-.forecast{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}.forecast-title,.hero-forecast{font-size:13px;font-weight:600;line-height:1.5;color:var(--text)}.hero-forecast{margin-top:10px}.forecast-detail{font-size:11px;line-height:1.6;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.forecast-chart{display:block;width:100%;height:auto;max-height:145px;margin-top:10px;overflow:visible}.forecast-actual{stroke:var(--accent);stroke-width:2;fill:none;stroke-linejoin:round}.forecast-target{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 4}.forecast-predicted{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 4}.forecast-legend{font-size:10px;line-height:1.5;color:var(--muted);margin-top:4px}.forecast-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px}.forecast-reset{min-height:36px;margin-top:9px;font-size:11px;background:none;padding:6px 9px}@media(pointer:coarse){.forecast-reset{min-height:44px}}
+.forecast{margin-top:12px;padding:0;border:0}.forecast-summary{display:flex;align-items:center;gap:8px;min-height:34px;padding:6px 0;list-style:none;color:var(--text);border-radius:6px}.forecast-summary::-webkit-details-marker{display:none}.forecast-title{font-size:12px;font-weight:600;line-height:1.4;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.forecast-eta{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap}.forecast-chevron{font-size:14px;color:var(--muted);transition:transform .2s ease}.forecast[open] .forecast-chevron{transform:rotate(180deg)}.forecast-content{padding:6px 0 2px}.forecast:not([open]) .forecast-content{display:none}.hero-forecast{font-size:13px;font-weight:600;line-height:1.5;color:var(--text);margin-top:10px}.forecast-detail{font-size:11px;line-height:1.6;color:var(--muted);overflow-wrap:anywhere}.forecast-chart{display:block;width:100%;height:auto;max-height:120px;margin-top:8px;overflow:visible}.forecast-actual{stroke:var(--accent);stroke-width:2;fill:none;stroke-linejoin:round}.forecast-target{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 4}.forecast-predicted{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 4}.forecast-legend{font-size:10px;line-height:1.5;color:var(--muted);margin-top:4px}.forecast-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px}.forecast-reset{min-height:34px;margin-top:8px;font-size:11px;background:none;padding:6px 9px}
+.rail{height:7px;border-radius:99px;margin-top:13px;isolation:isolate}.rail>span{position:relative;height:100%;overflow:hidden;border-radius:inherit;background:var(--accent);transition:width .85s cubic-bezier(.22,.61,.36,1)}.rail>span::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.05) 35%,rgba(255,255,255,.3) 50%,transparent 75%);transform:translateX(-100%);opacity:0}.rail.is-running>span::after{opacity:1;animation:wlt-progress-light 3.6s ease-in-out infinite}@keyframes wlt-progress-light{0%,15%{transform:translateX(-100%)}75%,100%{transform:translateX(100%)}}
+.no-animation .rail>span::after{animation:none!important;opacity:0}.no-animation .forecast-chevron{transition:none}@media(prefers-reduced-motion:reduce){.rail>span::after{animation:none!important;opacity:0}.rail>span,.forecast-chevron{transition:none!important}}@media(pointer:coarse){.forecast-summary,.forecast-reset{min-height:44px}}
+
+.hero-forecast{display:flex;flex-direction:column;gap:4px;margin-top:14px;overflow-wrap:anywhere}.hero-forecast-label{font-size:9px;letter-spacing:1.3px;color:var(--muted);font-weight:650}.hero-forecast strong{font-size:13px;font-weight:550;line-height:1.35}.hero-forecast.estimated strong{font-size:clamp(18px,3vw,26px);font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}.hero-forecast-eta{font-size:11px;color:var(--muted);font-weight:400}
 </style>
 </head>
 <body>
-<p style="padding:12px 24px;margin:0;font:12px system-ui;color:#a6b2ba">Designvorschau · berechnete synthetische Testdaten · ohne Geräteverbindung</p>
+<p style="padding:12px 24px;margin:0;font:12px system-ui;color:var(--muted)">Designvorschau · berechnete synthetische Testdaten · ohne Geräteverbindung</p>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
     <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1>Grillstation</h1></div></div>
     <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
-    <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><p id="hero-forecast" class="hero-forecast" hidden></p></div>
+    <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><div id="hero-forecast" class="hero-forecast" hidden><span class="hero-forecast-label">GESCHÄTZTE RESTZEIT</span><strong id="hero-forecast-value"></strong><span id="hero-forecast-eta" class="hero-forecast-eta" hidden></span></div></div>
     <div id="gauge" class="gauge" aria-label="Temperatur im Verhältnis zur Obergrenze"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">OBERGRENZE</span><strong id="gauge-range">—</strong></div></div>
   </section>
   <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
@@ -37,7 +41,7 @@
   <p id="notice" role="status" aria-live="polite" hidden></p>
   <p id="device-error" role="status" hidden></p>
 </main>
-<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793293193,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","temperature":110.5,"valid":true,"wireless":false,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":110.5,"startedAt":1793292592,"points":[[1793292592,110.5],[1793292622,110.5],[1793292652,110.5],[1793292682,110.5],[1793292712,110.5],[1793292742,110.5],[1793292772,110.5],[1793292802,110.5],[1793292832,110.5],[1793292862,110.5],[1793292892,110.5],[1793292922,110.5],[1793292952,110.5],[1793292982,110.5],[1793293012,110.5],[1793293042,110.5],[1793293072,110.5],[1793293102,110.5],[1793293132,110.5],[1793293162,110.5],[1793293192,110.5]]},"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","temperature":60.3,"valid":true,"wireless":true,"max":75,"forecast":{"status":"estimated","seconds":2940,"eta":1793296132,"rate":0.3000000000000001,"progress":0.16949152542372878,"start":57.3,"startedAt":1793292592,"points":[[1793292592,57.3],[1793292622,57.449999999999996],[1793292652,57.599999999999994],[1793292682,57.75],[1793292712,57.9],[1793292742,58.05],[1793292772,58.199999999999996],[1793292802,58.349999999999994],[1793292832,58.5],[1793292862,58.65],[1793292892,58.8],[1793292922,58.949999999999996],[1793292952,59.099999999999994],[1793292982,59.25],[1793293012,59.4],[1793293042,59.55],[1793293072,59.699999999999996],[1793293102,59.849999999999994],[1793293132,60],[1793293162,60.15],[1793293192,60.3]]},"alarm":0,"outOfRange":false},{"number":14,"name":"MeaterGT","temperature":118.4,"valid":true,"wireless":true,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":118.4,"startedAt":1793292592,"points":[[1793292592,118.4],[1793292622,118.4],[1793292652,118.4],[1793292682,118.4],[1793292712,118.4],[1793292742,118.4],[1793292772,118.4],[1793292802,118.4],[1793292832,118.4],[1793292862,118.4],[1793292892,118.4],[1793292922,118.4],[1793292952,118.4],[1793292982,118.4],[1793293012,118.4],[1793293042,118.4],[1793293072,118.4],[1793293102,118.4],[1793293132,118.4],[1793293162,118.4],[1793293192,118.4]]},"alarm":0,"outOfRange":false}],"pitmasters":[{"id":0,"channel":1,"value":0,"set":120,"typ":"off"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"hero":false,"forecast":true,"forecastChart":true,"controls":true,"primary":13}}</script>
+<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793294843,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","temperature":110.5,"valid":true,"wireless":false,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":110.5,"startedAt":1793294243,"points":[[1793294243,110.5],[1793294273,110.5],[1793294303,110.5],[1793294333,110.5],[1793294363,110.5],[1793294393,110.5],[1793294423,110.5],[1793294453,110.5],[1793294483,110.5],[1793294513,110.5],[1793294543,110.5],[1793294573,110.5],[1793294603,110.5],[1793294633,110.5],[1793294663,110.5],[1793294693,110.5],[1793294723,110.5],[1793294753,110.5],[1793294783,110.5],[1793294813,110.5],[1793294843,110.5]]},"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","temperature":60.3,"valid":true,"wireless":true,"max":75,"forecast":{"status":"estimated","seconds":2940,"eta":1793297783,"rate":0.3000000000000001,"progress":0.16949152542372878,"start":57.3,"startedAt":1793294243,"points":[[1793294243,57.3],[1793294273,57.449999999999996],[1793294303,57.599999999999994],[1793294333,57.75],[1793294363,57.9],[1793294393,58.05],[1793294423,58.199999999999996],[1793294453,58.349999999999994],[1793294483,58.5],[1793294513,58.65],[1793294543,58.8],[1793294573,58.949999999999996],[1793294603,59.099999999999994],[1793294633,59.25],[1793294663,59.4],[1793294693,59.55],[1793294723,59.699999999999996],[1793294753,59.849999999999994],[1793294783,60],[1793294813,60.15],[1793294843,60.3]]},"alarm":0,"outOfRange":false},{"number":14,"name":"MeaterGT","temperature":118.4,"valid":true,"wireless":true,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":118.4,"startedAt":1793294243,"points":[[1793294243,118.4],[1793294273,118.4],[1793294303,118.4],[1793294333,118.4],[1793294363,118.4],[1793294393,118.4],[1793294423,118.4],[1793294453,118.4],[1793294483,118.4],[1793294513,118.4],[1793294543,118.4],[1793294573,118.4],[1793294603,118.4],[1793294633,118.4],[1793294663,118.4],[1793294693,118.4],[1793294723,118.4],[1793294753,118.4],[1793294783,118.4],[1793294813,118.4],[1793294843,118.4]]},"alarm":0,"outOfRange":false}],"pitmasters":[{"id":0,"channel":1,"value":0,"set":120,"typ":"off"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"hero":true,"forecast":true,"forecastChart":true,"controls":true,"primary":13}}</script>
 <script>'use strict';
 (() => {
   const $ = id => document.getElementById(id);
@@ -48,6 +52,7 @@
   const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
   const fraction = ch => state.config?.forecast !== false && Number.isFinite(ch.forecast?.progress) ? ch.forecast.progress : ch.valid && Number.isFinite(ch.max) && ch.max > 0 ? Math.max(0, Math.min(1, ch.temperature / ch.max)) : 0;
   const aboveMaximum = ch => ch.valid && Number.isFinite(ch.max) && ch.temperature > ch.max;
+  const forecastIsRunning = ch => ch.valid && ch.forecast?.status === 'estimated' && ch.temperature < ch.max;
   const describe = ch => !ch.valid ? 'Kein aktueller Messwert' : !Number.isFinite(ch.max) ? 'Keine Obergrenze verfügbar' : ch.temperature > ch.max ? 'Obergrenze überschritten' : ch.temperature === ch.max ? 'Obergrenze erreicht' : 'Noch ' + fmt(ch.max - ch.temperature) + ' ' + state.unit + ' bis zur Obergrenze';
   const forecastText = forecast => {
     if (!forecast) return 'Temperaturverlauf wird gesammelt …';
@@ -60,8 +65,10 @@
     return ({reached:'Obergrenze erreicht', learning:'Temperaturverlauf wird gesammelt …', stalled:'Temperaturplateau – keine Restzeitschätzung', cooling:'Temperatur fällt – keine Restzeitschätzung', unstable:'Schwankender Verlauf – keine verlässliche Restzeit', distant:'Ziel zu weit entfernt – noch keine verlässliche Restzeit', stale:'Messverlauf nicht aktuell', no_target:'Keine Obergrenze verfügbar', disabled:''})[forecast.status] || 'Noch keine verlässliche Restzeit';
   };
   function forecastElements(number) {
-    const el = node('section', 'forecast'); el.setAttribute('aria-label', 'Restzeitschätzung und Temperaturverlauf');
-    const title = node('p', 'forecast-title'), detail = node('p', 'forecast-detail');
+    const el = node('details', 'forecast'); el.setAttribute('aria-label', 'Restzeitschätzung und Temperaturverlauf');
+    const summary = node('summary', 'forecast-summary'), title = node('span', 'forecast-title'), eta = node('span', 'forecast-eta'), chevron = node('span', 'forecast-chevron', '⌄');
+    chevron.setAttribute('aria-hidden', 'true'); summary.append(title, eta, chevron);
+    const content = node('div', 'forecast-content'), detail = node('p', 'forecast-detail');
     const svgNode = tag => document.createElementNS('http://www.w3.org/2000/svg', tag);
     const chart = svgNode('svg'); chart.setAttribute('viewBox', '0 0 320 104'); chart.setAttribute('role', 'img'); chart.classList.add('forecast-chart');
     const target = svgNode('line'), actual = svgNode('polyline'), predicted = svgNode('line');
@@ -71,24 +78,29 @@
     const times = node('div', 'forecast-times'), startTime = node('span'), endTime = node('span'); times.append(startTime, endTime);
     const reset = node('button', 'forecast-reset', 'Verlauf neu starten'); reset.type = 'button'; reset.setAttribute('aria-label', 'Temperaturverlauf für Kanal ' + number + ' neu starten');
     reset.addEventListener('click', () => send('forecastReset', {number}));
-    el.append(title, detail, chart, legend, times, reset);
-    return {el, title, detail, chart, target, actual, predicted, legend, times, startTime, endTime, reset};
+    content.append(detail, chart, legend, times, reset); el.append(summary, content);
+    return {el, summary, title, eta, content, detail, chart, target, actual, predicted, legend, times, startTime, endTime, reset};
   }
   function renderForecast(ui, ch, cfg) {
     const forecast = ch.forecast, enabled = cfg.forecast !== false;
     ui.el.hidden = !enabled;
     if (!enabled) return;
-    ui.title.textContent = forecastText(forecast);
+    const compact = {learning:'Restzeit wird ermittelt',stalled:'Temperaturplateau',cooling:'Temperatur fällt',unstable:'Schätzung unsicher',distant:'Restzeit noch offen',stale:'Kein aktueller Trend',no_target:'Kein Zielwert',reached:'Obergrenze erreicht'};
+    ui.title.textContent = forecast?.status === 'estimated' ? forecastText(forecast).replace('Noch ca. ', 'ca. ').replace('Noch weniger als ', '< ') : compact[forecast?.status] || 'Restzeit wird ermittelt';
+    ui.summary.setAttribute('aria-label', forecastText(forecast) + '. Verlauf und Details ein- oder ausklappen.');
     const estimated = forecast?.status === 'estimated' && Number.isFinite(forecast.eta);
-    const details = [];
+    ui.eta.textContent = estimated ? 'gegen ' + new Date(forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : 'Details';
+    const details = [forecastText(forecast)];
     if (estimated) details.push('Ziel voraussichtlich gegen ' + new Date(forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ' · Trend-Schätzung');
     if (Number.isFinite(forecast?.rate)) details.push((forecast.rate > 0 ? '+' : '') + new Intl.NumberFormat('de-DE', {maximumFractionDigits:2}).format(forecast.rate) + ' ' + state.unit + '/min');
-    if (!details.length) details.push('Mindestens 3 Minuten gültige Messwerte erforderlich.');
+    if (!forecast || forecast.status === 'learning') details.push('Mindestens 3 Minuten und 6 gültige Messpunkte erforderlich.');
     ui.detail.textContent = details.join(' · ');
     ui.reset.hidden = !cfg.controls; ui.reset.disabled = Boolean(pending) || !state.online;
     const points = (forecast?.points || []).filter(p => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
     const visible = cfg.forecastChart !== false && points.length >= 2 && Number.isFinite(ch.max);
     ui.chart.hidden = ui.legend.hidden = ui.times.hidden = !visible;
+    ui.chart.style.display = visible ? 'block' : 'none';
+    ui.chart.setAttribute('aria-hidden', String(!visible));
     if (!visible) return;
     const first = points[0], last = points[points.length - 1];
     const horizon = estimated ? Math.min(forecast.seconds, Math.max(300, last[0] - first[0])) : 0;
@@ -174,7 +186,11 @@
     $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
     $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && aboveMaximum(main)));
     $('hero-forecast').hidden = !main || cfg.forecast === false;
-    $('hero-forecast').textContent = main ? forecastText(main.forecast) : '';
+    const mainEstimated = main?.forecast?.status === 'estimated' && Number.isFinite(main.forecast.seconds);
+    $('hero-forecast').classList.toggle('estimated', mainEstimated);
+    $('hero-forecast-value').textContent = main ? forecastText(main.forecast) : '';
+    $('hero-forecast-eta').hidden = !mainEstimated || !Number.isFinite(main?.forecast?.eta);
+    $('hero-forecast-eta').textContent = mainEstimated && Number.isFinite(main.forecast.eta) ? 'Obergrenze voraussichtlich gegen ' + new Date(main.forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '';
     $('hero-range').textContent = main ? 'Obergrenze ' + fmt(main.max) + ' ' + state.unit : '';
     $('gauge-range').textContent = main ? fmt(main.max) + ' ' + state.unit : '—';
     $('gauge').hidden = !main || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
@@ -188,6 +204,7 @@
       ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : aboveMaximum(ch) ? ' warning' : '');
       ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
       ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
+      ui.rail.classList.toggle('is-running', forecastIsRunning(ch));
       ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
       renderForecast(ui.forecast, ch, cfg);
       ui.details.hidden = !cfg.controls || !Number.isFinite(ch.max);

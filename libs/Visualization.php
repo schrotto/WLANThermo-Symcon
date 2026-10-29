@@ -163,6 +163,7 @@ trait WLTVisualization
     private function visualizationAction(mixed $value): void
     {
         $requestID = '';
+        $adjusted = false;
         try {
             if (!is_string($value) || strlen($value) > 2048) { throw new InvalidArgumentException('Ungültige Kachelanfrage.'); }
             $request = WLTApi::object($value);
@@ -201,7 +202,7 @@ trait WLTVisualization
                 if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
                     throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
                 }
-                $ok = $this->SetChannel($number, WLTApi::encode(['max' => $request['max'] ?? null]));
+                [$ok, $adjusted] = $this->setVisualizationUpperLimit($number, $request['max'] ?? null);
             } elseif ($action === 'pitmaster') {
                 if (!$this->ReadPropertyBoolean('TilePitmaster')) { throw new InvalidArgumentException('Pitmaster ist in der Kachel ausgeblendet.'); }
                 $id = WLTApi::integer($request['id'] ?? null, 0, 255);
@@ -216,6 +217,7 @@ trait WLTVisualization
                 $ok = $this->SetBluetoothEnabled($request['enabled']);
             }
             $message = $ok ? ($action === 'refresh' ? 'Messwerte aktualisiert.' : ($action === 'forecastReset' ? 'Temperaturverlauf neu gestartet.' : 'Änderung am Gerät bestätigt.')) : ($this->GetLastError() ?: 'Instanz ist beschäftigt. Bitte erneut versuchen.');
+            if ($ok && $adjusted) { $message = 'Obergrenze bestätigt; Untergrenze automatisch angepasst.'; }
         } catch (Throwable $e) { $ok = false; $message = $e->getMessage(); }
         // Auch Fehler quittieren; keine Erfolgsmeldung vor dem tatsächlichen Rücklesen.
         $this->pushVisualization(['requestId' => $requestID, 'ok' => $ok, 'message' => $message]);

@@ -164,3 +164,28 @@ $upper->deviceData['channel'][0]['min'] = 120.0;
 $upper->deviceData['channel'][0]['temp'] = 100.0;
 $upper->Update();
 check(!end($upper->visualizationMessages)['channels'][0]['outOfRange'], 'Untergrenzenalarm wird in der Visu nicht als Obergrenzenüberschreitung angezeigt');
+
+// Version 1.5.1: Kollisionen der unsichtbaren Untergrenze beim Visu-Schreiben auflösen.
+$bounds = new TestDevice(false);
+$bounds->deviceData['channel'][0]['min'] = 150.0; // Gerätewert neuer als der Kachelcache.
+$bounds->deviceData['channel'][0]['max'] = 170.0;
+$reply = tileRequest($bounds, ['action' => 'channel', 'number' => 1, 'max' => 120]);
+check($reply['ok'] && $bounds->deviceData['channel'][0]['min'] === 119 && $bounds->deviceData['channel'][0]['max'] === 120, 'Frisch gelesene kollidierende Untergrenze wird automatisch auf neue Obergrenze minus ein Grad gesetzt');
+[$path, $payload] = end($bounds->writes);
+check($path === '/setchannels' && $payload === ['number' => 1, 'max' => 120, 'min' => 119], 'Beide Grenzen werden gemeinsam im selben Gerätezugriff geschrieben');
+check(str_contains($reply['message'], 'automatisch angepasst'), 'Kachel bestätigt die automatische Untergrenzenanpassung verständlich');
+check(tileRequest($bounds, ['action' => 'channel', 'number' => 1, 'max' => -30])['ok'] && $bounds->deviceData['channel'][0]['min'] === -30, 'Am unteren API-Limit wird die Untergrenze gleich der Obergrenze statt auf ungültige minus 31 Grad gesetzt');
+$bounds->deviceData['channel'][0]['min'] = 80.0;
+$bounds->deviceData['channel'][0]['max'] = 140.0;
+check(tileRequest($bounds, ['action' => 'channel', 'number' => 1, 'max' => 80])['ok'] && $bounds->deviceData['channel'][0]['min'] === 80.0, 'Bereits gleiche Grenzen lösen keine unnötige automatische Anpassung aus');
+$bounds->properties['AllowWrite'] = false;
+$countBefore = count($bounds->writes);
+check(!tileRequest($bounds, ['action' => 'channel', 'number' => 1, 'max' => 70])['ok'] && count($bounds->writes) === $countBefore, 'Automatische Untergrenzenanpassung umgeht keinen Schreibschutz');
+$bounds->properties['AllowWrite'] = true;
+check(!$bounds->SetChannel(1, '{"max":70}') && $bounds->deviceData['channel'][0]['min'] === 80.0, 'Allgemeine Skriptfunktion bleibt strikt und ändert die Untergrenze nicht stillschweigend');
+$bounds->Update();
+$countBefore = count($bounds->writes);
+check(!tileRequest($bounds, ['action' => 'channel', 'number' => 1, 'max' => 70.5])['ok'] && count($bounds->writes) === $countBefore, 'Ungültige Dezimalwerte werden vor einer automatischen Anpassung abgewiesen');
+$bounds->Update();
+$bounds->ignore = true;
+check(!tileRequest($bounds, ['action' => 'channel', 'number' => 1, 'max' => 70])['ok'], 'Nicht übernommene Grenzanpassung wird durch das Rücklesen erkannt und nicht als Erfolg bestätigt');

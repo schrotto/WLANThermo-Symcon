@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.5.0
+# Lieferumfang A–I – WLANThermo 1.5.2
 
 ## A. Modulbeschreibung
 
@@ -74,10 +74,14 @@ README.md enthält die vollständige Installation/Update-Anleitung für Module C
 
 ## I. Tests und Dokumentation
 
-209 PHP-Modulprüfungen und 34 JavaScript-Vertragsprüfungen erfolgreich, dazu PHP-/JavaScript-Syntax und JSON-/Strukturprüfung. Die unveränderte HTTP-Implementierung wurde in dieser Sitzung separat mit acht echten HTTP-Prüfungen getestet. VALIDIERUNG.md trennt diese Nachweise von offenen Prüfungen in Browser, Symcon und Hardware. README.md verlinkt die aktuelle offizielle Dokumentation für Modulklasse, Darstellung, Variablenverwaltung und HTML-SDK.
+218 PHP-Modulprüfungen und 38 JavaScript-Vertragsprüfungen erfolgreich, dazu PHP-/JavaScript-Syntax und JSON-/Strukturprüfung. Die unveränderte HTTP-Implementierung wurde in dieser Sitzung separat mit acht echten HTTP-Prüfungen getestet. VALIDIERUNG.md trennt diese Nachweise von offenen Prüfungen in Browser, Symcon und Hardware. README.md verlinkt die aktuelle offizielle Dokumentation für Modulklasse, Darstellung, Variablenverwaltung und HTML-SDK.
 
 IPSView wird über das native TileHtml mit der WLANThermo-Instanz-ID angebunden. Keine zusätzliche Variable erforderlich. Die erweiterte HTML-Vollbildoption bleibt dafür aus. Einzelheiten in README.md. Tatsächlicher IPSView-Clientbetrieb bleibt zu prüfen.
 
-Seit 1.4.3 enthält die Kachel ausschließlich die Obergrenze. Bestehende Min-Variablen und Geräte-Untergrenzen bleiben erhalten. Seit 1.5.0 ist eine konservative Restzeitschätzung mit Zielzeitpunkt, internem Verlauf und Grafik enthalten. Keine zusätzlichen Variablen erforderlich. Neustart und unbrauchbare Verläufe führen zu einer neuen Lernphase; echte Prognosegüte muss am Gerät geprüft werden.
+Seit 1.4.3 enthält die Kachel ausschließlich die Obergrenze. Bestehende Min-Variablen bleiben erhalten; seit 1.5.1 kann die Kachel kollidierende Geräte-Untergrenzen bei Max-Änderungen automatisch anpassen. Seit 1.5.0 ist eine konservative Restzeitschätzung mit Zielzeitpunkt, internem Verlauf und Grafik enthalten. Keine zusätzlichen Variablen erforderlich. Neustart und unbrauchbare Verläufe führen zu einer neuen Lernphase; echte Prognosegüte muss am Gerät geprüft werden.
 
 Die vollständige Umsetzung der Prognose liegt in libs/Forecast.php: lineare Ausgleichsgerade, Plausibilitätsfilter, begrenzte Messreihen und Modulintegration. Die Kachel zeigt Schätzungen mit ausdrücklicher Kennzeichnung und unterscheidet gemessene von fortgeschriebenen Werten. Einstellungen und Grenzen stehen in README.md.
+
+Version 1.5.1 zeigt die Restzeit als kompakte geschlossene Detailzeile. Grafik und Reset bleiben durch Aufklappen erreichbar. Der Fortschrittsbalken hat weiche Übergänge und einen abschaltbaren Lichtlauf. Kacheländerungen passen bei Bedarf eine zu hohe Untergrenze automatisch mit an; die allgemeine Skriptfunktion bleibt strikt.
+
+Version 1.5.2 zeigt die geschätzte Restdauer und den voraussichtlichen Zielzeitpunkt im optionalen Hauptbereich. Die Testdaten-Vorschau blendet diesen Bereich ein. Aktueller Prüfumfang: 218 PHP- und 40 JavaScript-Vertragsprüfungen.

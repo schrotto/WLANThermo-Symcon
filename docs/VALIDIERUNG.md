@@ -1,10 +1,22 @@
-# Prüfbericht 1.5.0 – 29. Oktober 2026
+# Prüfbericht 1.5.2 – 29. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
 
+## Änderungen und Nachweise 1.5.2
+
+218 PHP- und 40 JavaScript-Vertragsprüfungen erfolgreich. Zusätzlich geprüft: separate Zielzeit im Hauptbereich bei gültiger Prognose und Entfernung der alten Zielzeit/geschätzten Hervorhebung bei Plateau. Der isolierte Vorschaucode besteht ebenfalls denselben JavaScript-Vertrag. Keine neue Browserlayout-, IPSView- oder Geräteprüfung. Die Vorschau zeigt die optionale Hauptanzeige mit synthetischen Daten; der Modulstandard bleibt unverändert.
+
+## Änderungen und Nachweise 1.5.1
+
+218 PHP- und 38 JavaScript-Vertragsprüfungen erfolgreich. Neue Grenzfälle: aktueller Geräte-Min-Wert weicht vom Kachelcache ab; Min wird bei Kollision auf neue Max minus ein Grad gesetzt; beide Werte stehen in einem POST; Bestätigung nennt die Anpassung; am API-Limit -30 sind beide Werte gleich; bereits gleiche Grenzen werden nicht unnötig geändert; Schreibschutz, allgemeine Skriptschnittstelle, Dezimaleingaben und fehlgeschlagene Übernahme bleiben abgesichert.
+
+Die Geräteoperation wurde in einen gemeinsamen internen Pfad aufgeteilt. Nur der Kachelpfad aktiviert die automatische Min-Anpassung. Validierung und Auswahl der korrigierten Werte erfolgen nach frischem Lesen unter derselben Semaphore wie Schreiben und Rücklesen.
+
+JavaScript prüft die standardmäßig geschlossene native Detailzeile, Erhalt des geöffneten Zustands bei Live-Daten, kompakte Restzeit/Zielzeit, weiterhin verfügbare Grafik/Reset sowie Aktivierung und Stoppen des Animationszustands bei Prognose bzw. Plateau. CSS implementiert weiche Breitenänderungen und einen Lichtlauf mit Abschaltung über Moduloption und reduzierte Bewegung. Ein DOM-Vertragstest bestätigt keine gerenderte Animation oder tatsächliche Kachelhöhe. Die visuelle Prüfung auf den Zielgeräten bleibt offen.
+
 ## Änderungen und Nachweise 1.5.0
 
-209 PHP-Prüfungen und 34 JavaScript-Vertragsprüfungen erfolgreich. Zusätzlich geprüft: bekannte lineare Restzeit (72→75 °C in zehn Minuten, Ziel 82 °C: etwa 23 Minuten 20 Sekunden), gleiche Prognose in Fahrenheit, Lernphase, erreichte/fehlende Obergrenze, Plateau, Abkühlung, neu eintretendes Plateau, verrauschte Verläufe, veraltete Daten, Fühlerwechsel, lange Unterbrechungen, abrupte Sprünge, rückwärts laufende Uhr, schneller Mehrfachabruf, ferne Prognosen und Speicherbegrenzung.
+Die Prognoseprüfungen aus 1.5.0 sind weiterhin enthalten. Zusätzlich geprüft: bekannte lineare Restzeit (72→75 °C in zehn Minuten, Ziel 82 °C: etwa 23 Minuten 20 Sekunden), gleiche Prognose in Fahrenheit, Lernphase, erreichte/fehlende Obergrenze, Plateau, Abkühlung, neu eintretendes Plateau, verrauschte Verläufe, veraltete Daten, Fühlerwechsel, lange Unterbrechungen, abrupte Sprünge, rückwärts laufende Uhr, schneller Mehrfachabruf, ferne Prognosen und Speicherbegrenzung.
 
 Modulintegration wird mit kontrollierter Uhr und tatsächlichen simulierten Geräteabrufen geprüft: keine Hilfsvariablen, Zieländerung ohne Verlust der Temperaturreihe, Reset ohne Geräte-POST und ohne künstliche Messpunkte, gesperrte Bedienung, Diagramm aus, ungültiger/wieder verbundener Fühler, Prognose aus und falsches Trendfenster. Die Vorschau wird aus wirklich durch die Implementierung berechneten synthetischen Testreihen erzeugt; sie ist keine Geräteaufzeichnung.
 
@@ -36,8 +48,8 @@ Zusätzlich geprüft: sämtliche gesendeten Nachrichten sind Strings; Deaktivier
 
 ## Ausgeführte Prüfungen
 
-- **209 erfolgreiche PHP-Modulprüfungen**, einschließlich der bisherigen 124 Prüfungen. Neu: null Variablen auf neuen Instanzen, empfohlene Auswahl, Migration bestehender Instanzen, explizite Bereinigung, externe Ziele mit Referenzen/Typprüfung/Schreibschutz, Kachelaktionen und Rücklesebestätigung, serverseitiger Schreibschutz, ausgeblendete Kanäle, Offline-Livedaten und sichere JSON-Einbettung.
-- **34 erfolgreiche JavaScript-Vertragsprüfungen** mit Ausführung der echten tile.js in Node.js und einem kleinen DOM-Vertrag. Initialanzeige, Fühlerwahl per Tastatur, strukturierte SDK-Nachrichten, Doppelsendsperre, Erfolg/Fehler, manuelle Pitmaster-Regelung, Offlinezustand, Design-/Kompaktkonfiguration, entfernte Kanäle, sichere Texte, Timeout und Deaktivierung.
+- **218 erfolgreiche PHP-Modulprüfungen**, einschließlich der bisherigen 124 Prüfungen. Neu: null Variablen auf neuen Instanzen, empfohlene Auswahl, Migration bestehender Instanzen, explizite Bereinigung, externe Ziele mit Referenzen/Typprüfung/Schreibschutz, Kachelaktionen und Rücklesebestätigung, serverseitiger Schreibschutz, ausgeblendete Kanäle, Offline-Livedaten und sichere JSON-Einbettung.
+- **38 erfolgreiche JavaScript-Vertragsprüfungen** mit Ausführung der echten tile.js in Node.js und einem kleinen DOM-Vertrag. Initialanzeige, Fühlerwahl per Tastatur, strukturierte SDK-Nachrichten, Doppelsendsperre, Erfolg/Fehler, manuelle Pitmaster-Regelung, Offlinezustand, Design-/Kompaktkonfiguration, entfernte Kanäle, sichere Texte, Timeout und Deaktivierung.
 - PHP-Syntax aller zehn PHP-Dateien erfolgreich, einschließlich beider Traits und des neuen Tests. PHP 8.3.6, ausschließlich nach /tmp entpackte Testlaufzeit; keine Systeminstallation.
 - JavaScript-Syntax der Kachel und der isolierten Gesprächsvorschau mit Node.js geprüft.
 - JSON-/Strukturprüfung: neun JSON-Dateien einschließlich tatsächlich erzeugter Formulare und Kacheldaten gültig. Modul-/Bibliotheks-GUIDs, Klassennamen, Präfix, Typ, Formularnamen, registrierte Eigenschaften und Referenz auf die explizit bestätigte Löschfunktion geprüft. In der normalen Variablenregistrierung gibt es keinen Löschaufruf.
@@ -85,3 +97,5 @@ Relevante aktuelle offizielle Symcon-Seiten und die technischen Entscheidungen s
 Für 1.4.2 am Zielsystem zusätzlich prüfen: TileHtml mit WLANThermo-Instanz-ID in IPSView laden; angeschlossene und abgezogene kabelgebundene/Bluetooth-Fühler vergleichen; Hauptanzeige aus/ein und festen Garraumkanal testen; danach Live-Bedienung auf den verwendeten IPSView-Plattformen prüfen.
 
 Für 1.5.0 am Zielsystem zusätzlich prüfen: mindestens drei Minuten echten Anstieg beobachten; Prognose gegen den tatsächlichen Zielzeitpunkt vergleichen; Plateau/Abkühlung, Zieländerung, neuer Garvorgang und Verlauf-Reset testen. Dienstneustart muss die Lernphase neu beginnen. Die benötigte Genauigkeit ist anhand realer Garvorgänge zu bewerten.
+
+Für 1.5.1 zusätzlich am Zielsystem prüfen: kompakte Restzeitzeile und Ausklappen bei schmaler Kachel; Animation an/aus und reduzierte Bewegung; Obergrenze unter bisherigen Min setzen und Gerätewerte/Rückmeldung kontrollieren; globale Schreibschutzfunktion prüfen.

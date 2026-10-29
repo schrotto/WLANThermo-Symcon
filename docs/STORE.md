@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.5.0
+# Veröffentlichung – WLANThermo 1.5.2
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -34,3 +34,7 @@ Version 1.4.2 zeigt nur gültige Fühler, macht die große Hauptanzeige optional
 Version 1.4.3 entfernt die Untergrenze aus der Visualisierung und beschränkt Kacheländerungen auf max. Gespeicherte Geräte-Untergrenzen und optionale Min-Variablen bleiben unverändert erhalten.
 
 Version 1.5.0 ergänzt eine als Trend-Schätzung gekennzeichnete Restzeitprognose, echte Verlaufspunkte und interne, begrenzte Buffer ohne Zusatzvariablen. Keine Archivaktivierung oder externen Datenverbindungen. Prognosegüte und Clientdarstellung müssen vor Veröffentlichung real geprüft werden.
+
+Version 1.5.1 reduziert die Restzeitanzeige auf eine aufklappbare Zeile, ergänzt eine abschaltbare Balkenanimation und passt bei Kacheländerungen kollidierende Untergrenzen im selben Gerätezugriff an. Beide Werte werden vor Bestätigung zurückgelesen; Skriptschnittstellen und Schreibschutz bleiben erhalten.
+
+Version 1.5.2 zeigt die geschätzte Restdauer und den voraussichtlichen Zielzeitpunkt im optionalen Hauptbereich. Die Testdaten-Vorschau blendet diesen Bereich ein. Aktueller Prüfumfang: 218 PHP- und 40 JavaScript-Vertragsprüfungen.

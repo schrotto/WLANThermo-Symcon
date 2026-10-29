@@ -193,36 +193,63 @@ class WLANThermo extends IPSModuleStrict
     public function SetChannel(int $Number, string $Changes): bool
     {
         return $this->locked(function () use ($Number, $Changes): void {
-            $data = $this->readData();
-            $settings = $this->readSettings();
-            $channel = WLTApi::item($data['channel'], 'number', $Number);
-            $changes = $this->changes($Changes, ['name', 'typ', 'min', 'max', 'alarm', 'color']);
-            foreach ($changes as $key => $v) {
-                switch ($key) {
-                    case 'name': WLTApi::text($v, 10); break;
-                    case 'min': case 'max': $this->wholeDegrees($v, -30, 999); break;
-                    case 'alarm': WLTApi::integer($v, 0, 3); break;
-                    case 'color':
-                        if (!is_string($v) || !preg_match('/^#[a-fA-F0-9]{6}$/', $v)) {
-                            throw new InvalidArgumentException('Farbe muss #RRGGBB entsprechen.');
-                        }
-                        break;
-                    case 'typ':
-                        WLTApi::integer($v, 0, 255);
-                        $sensor = WLTApi::item($settings['sensors'] ?? [], 'type', $v);
-                        if (!empty($channel['fixed']) || !empty($sensor['fixed'])) {
-                            throw new InvalidArgumentException('Dieser Fühlertyp wird vom WLANthermo fest zugewiesen.');
-                        }
-                }
-            }
-            $merged = array_replace($channel, $changes);
-            if ((float) $merged['min'] > (float) $merged['max']) {
-                throw new InvalidArgumentException('Minimum darf nicht über Maximum liegen.');
-            }
-            $this->post('/setchannels', ['number' => $Number] + $changes);
-            WLTApi::verify(WLTApi::item($this->readData()['channel'], 'number', $Number), $changes);
-            $this->refresh(false);
+            $this->changeChannel($Number, $Changes, false);
         });
+    }
+
+    /** Nur die Visu darf eine kollidierende Untergrenze automatisch mit anpassen. */
+    private function setVisualizationUpperLimit(int $number, mixed $maximum): array
+    {
+        $adjusted = false;
+        $ok = $this->locked(function () use ($number, $maximum, &$adjusted): void {
+            $adjusted = $this->changeChannel($number, WLTApi::encode(['max' => $maximum]), true);
+        });
+        return [$ok, $adjusted];
+    }
+
+    private function changeChannel(int $Number, string $Changes, bool $adjustMinimum): bool
+    {
+        $data = $this->readData();
+        $settings = $this->readSettings();
+        $channel = WLTApi::item($data['channel'], 'number', $Number);
+        $changes = $this->changes($Changes, ['name', 'typ', 'min', 'max', 'alarm', 'color']);
+        foreach ($changes as $key => $v) {
+            switch ($key) {
+                case 'name': WLTApi::text($v, 10); break;
+                case 'min': case 'max': $this->wholeDegrees($v, -30, 999); break;
+                case 'alarm': WLTApi::integer($v, 0, 3); break;
+                case 'color':
+                    if (!is_string($v) || !preg_match('/^#[a-fA-F0-9]{6}$/', $v)) {
+                        throw new InvalidArgumentException('Farbe muss #RRGGBB entsprechen.');
+                    }
+                    break;
+                case 'typ':
+                    WLTApi::integer($v, 0, 255);
+                    $sensor = WLTApi::item($settings['sensors'] ?? [], 'type', $v);
+                    if (!empty($channel['fixed']) || !empty($sensor['fixed'])) {
+                        throw new InvalidArgumentException('Dieser Fühlertyp wird vom WLANthermo fest zugewiesen.');
+                    }
+            }
+        }
+        $adjusted = false;
+        if ($adjustMinimum && array_key_exists('max', $changes) && !array_key_exists('min', $changes)) {
+            if (!isset($channel['min']) || !is_numeric($channel['min'])) {
+                throw new RuntimeException('Gerät liefert keine gültige Untergrenze.');
+            }
+            if ((float) $channel['min'] > (float) $changes['max']) {
+                // Gleiche Einheit wie am Gerät; am unteren API-Limit ist Gleichheit zulässig.
+                $changes['min'] = max(-30, $changes['max'] - 1);
+                $adjusted = true;
+            }
+        }
+        $merged = array_replace($channel, $changes);
+        if ((float) $merged['min'] > (float) $merged['max']) {
+            throw new InvalidArgumentException('Minimum darf nicht über Maximum liegen.');
+        }
+        $this->post('/setchannels', ['number' => $Number] + $changes);
+        WLTApi::verify(WLTApi::item($this->readData()['channel'], 'number', $Number), $changes);
+        $this->refresh(false);
+        return $adjusted;
     }
 
     public function SetPitmaster(int $ID, string $Changes): bool

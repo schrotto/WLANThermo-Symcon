@@ -2,9 +2,27 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.5.2: Restzeit im Hauptbereich
+
+Die optionale große Hauptanzeige zeigt die geschätzte Restdauer deutlich hervorgehoben unter der Temperatur. Darunter steht der voraussichtliche Zeitpunkt zum Erreichen der Obergrenze. Bei Plateau, Abkühlung oder unzureichenden Messwerten erscheint der passende Hinweis anstelle einer veralteten Schätzung. Die Hauptanzeige bleibt über **Große Haupttemperatur oben anzeigen** einschaltbar; die Prognose lässt sich weiterhin separat deaktivieren. Die Vorschau zeigt die Hauptanzeige eingeschaltet mit synthetischen Testdaten.
+
+## Version 1.5.1: Kompakte Restzeit und automatische Grenzanpassung
+
+Die Restzeitschätzung belegt in jeder Fühlerkarte nur noch **eine schmale Zeile**, z. B. „ca. 23 Min. · gegen 18:35“. Ein Klick auf diese Zeile öffnet Verlauf, Trenddetails, Erläuterungen und den Verlauf-Neustart. Die Details sind standardmäßig geschlossen und bleiben bei Live-Aktualisierungen geöffnet, wenn du sie geöffnet hast. Die normale Temperaturanzeige bleibt im Vordergrund.
+
+Der Fortschrittsbalken gleitet bei neuen Messwerten weich zum aktualisierten Wert. Während einer gültigen Aufheizprognose läuft ein dezenter Lichtakzent über den gefüllten Teil. Bei Plateau, Abkühlung oder Zielerreichung endet der Lichtlauf. Das sind rein visuelle Effekte: Der Balkenwert bleibt der gemessene Temperaturfortschritt, keine künstliche Zeitfortschreibung. Die Einstellung **Animationen** und `prefers-reduced-motion` schalten die Bewegung ab.
+
+### Obergrenze ändern, ohne die Untergrenze anzeigen zu müssen
+
+Beim Schreiben einer Obergrenze über die Kachel wird der aktuelle Kanal unter der bestehenden Instanzsperre frisch vom Gerät gelesen. Liegt seine Untergrenze über der neuen Obergrenze, passt das Modul sie im selben Schreibaufruf auf **Obergrenze minus 1 Grad** an. Beispiel: bisher Min 150, neue Obergrenze 120 → Min 119, Max 120. Am unteren erlaubten API-Wert -30 werden beide Grenzen -30, da -31 nicht zulässig ist. Die Gradschritte verwenden die aktuelle Geräteeinheit.
+
+Bereits passende Untergrenzen bleiben unverändert. Die Kachel sendet die beiden Werte gemeinsam und bestätigt sie erst nach dem Rücklesen; eine automatische Anpassung wird in der Rückmeldung genannt. Der globale Schreibschutz bleibt wirksam. Die allgemeine Skriptfunktion `WLT_SetChannel` bleibt strikt: Sie passt Untergrenzen nicht ohne ausdrückliche Angabe an. Zusätzliche Variablen werden nicht benötigt.
+
+Nach dem Update die Kachel/IPSView neu laden; bei direkter Dateikopie zusätzlich den Symcon-Dienst neu starten. Die mitgelieferte Kachelvorschau verwendet den tatsächlichen Kachelcode mit synthetischen Testdaten. Layout und Animation auf deinem konkreten IPSView-Client müssen noch geprüft werden.
+
 ## Version 1.5.0: Restzeitschätzung bis zur Obergrenze
 
-Die Fühlerkarten zeigen jetzt eine **ungefähre Restzeit**, den **voraussichtlichen Zielzeitpunkt** und den **Temperaturanstieg pro Minute**. Ziel ist ausschließlich die eingestellte Obergrenze. Die optionale große Hauptanzeige zeigt ebenfalls die Restzeit. Min-Wert und Min-Eingabe bleiben aus der Kachel entfernt.
+Die Fühlerkarten bieten eine **ungefähre Restzeit**, den **voraussichtlichen Zielzeitpunkt** und den **Temperaturanstieg pro Minute**; seit 1.5.1 stehen die ausführlichen Trendangaben in den aufklappbaren Details. Ziel ist ausschließlich die eingestellte Obergrenze. Die optionale große Hauptanzeige zeigt ebenfalls die Restzeit. Min-Wert und Min-Eingabe bleiben aus der Kachel entfernt.
 
 Die kleine Verlaufsgrafik enthält nur tatsächlich abgerufene Messpunkte. Eine punktierte Linie markiert die Obergrenze. Ein gestrichelter Abschnitt schreibt den aktuellen Trend fort, solange eine Schätzung möglich ist. Um den Messverlauf nicht zusammenzudrücken, zeigt die Grafik höchstens einen zusätzlichen Trendabschnitt von der Länge des sichtbaren Messfensters (mindestens fünf Minuten); weiter entfernte Zielzeiten stehen als Text. Eine lange Restzeit bedeutet deshalb nicht, dass die gestrichelte Linie im Diagrammausschnitt bereits die Obergrenze erreicht.
 
@@ -13,7 +31,7 @@ Die kleine Verlaufsgrafik enthält nur tatsächlich abgerufene Messpunkte. Eine 
 1. Modul aktualisieren und Kachel bzw. IPSView neu laden. Bei direkter Dateikopie den Symcon-Dienst neu starten.
 2. Unter Premium-Visualisierung ist **Restzeit bis zur Obergrenze schätzen** standardmäßig aktiv. Das Diagramm lässt sich separat ein-/ausschalten. Standard für das Trendfenster: **10 Minuten**, einstellbar von 5 bis 60 Minuten.
 3. Nach mindestens **3 Minuten und 6 Messpunkten** wird nur bei ausreichend gleichmäßigem Anstieg eine Restzeit angezeigt. Bei langem Abrufintervall dauert das Sammeln entsprechend länger; der normale 10-Sekunden-Abruf ist geeignet.
-4. Für einen neuen Garvorgang am jeweiligen Fühler **Verlauf neu starten** drücken. Das ändert keine Geräteparameter und funktioniert auch bei global deaktivierten Geräteschreibzugriffen, sofern die Kachelbedienung erlaubt ist. Der nächste tatsächliche Geräteabruf beginnt den neuen Verlauf.
+4. Für einen neuen Garvorgang die Restzeitzeile aufklappen und am jeweiligen Fühler **Verlauf neu starten** drücken. Das ändert keine Geräteparameter und funktioniert auch bei global deaktivierten Geräteschreibzugriffen, sofern die Kachelbedienung erlaubt ist. Der nächste tatsächliche Geräteabruf beginnt den neuen Verlauf.
 5. Ändert sich die Obergrenze, wird die Restzeit aus dem bisherigen Temperaturverlauf neu berechnet. Ein neuer Garvorgang benötigt dagegen einen neuen Startpunkt.
 
 ### Berechnung und Grenzen
@@ -36,7 +54,7 @@ Es werden **keine zusätzlichen Symcon-Variablen** und kein Archiv benötigt. De
 
 Die Kachel zeigt und bearbeitet je Fühler nur noch die **Obergrenze**. Der Min-Wert und seine Eingabe sind aus Fühlerkarten, Hauptanzeige und Kacheldaten entfernt. Status und Warnfarbe beziehen sich ausschließlich auf die Obergrenze: verbleibende Temperaturdifferenz, erreicht oder überschritten. Eine Unterschreitung der am Gerät hinterlegten Untergrenze wird in der Kachel nicht als Überschreitung angezeigt.
 
-Änderungen über die Kachel senden ausschließlich `max` an den Mini V3. Bestehende Untergrenzen am Gerät, optionale Min-Statusvariablen, deren IDs und die Skriptfunktionen bleiben erhalten. Die bestehende Gerätevalidierung verhindert weiterhin widersprüchliche Grenzen; das Modul setzt den Min-Wert nicht automatisch herab.
+Änderungen über die Kachel senden ausschließlich `max` an den Mini V3. Bestehende Untergrenzen am Gerät, optionale Min-Statusvariablen, deren IDs und die Skriptfunktionen bleiben erhalten. Die bestehende Gerätevalidierung verhindert weiterhin widersprüchliche Grenzen; seit 1.5.1 kann die Kachel eine kollidierende Untergrenze wie oben beschrieben automatisch anpassen.
 
 Balken und optionaler Ring zeigen für positive Obergrenzen die aktuelle Temperatur relativ zur Obergrenze mit einer festen Basis von 0 in der gewählten Geräteeinheit. Sie zeigen weder eine Restzeit noch einen zeitlichen Garfortschritt. Bei einer Obergrenze von 0 oder darunter wird diese Verhältnisgrafik ausgeblendet; die Obergrenze als Zahl bleibt sichtbar. Ab Version 1.5.0 ergänzt die oben beschriebene Restzeitschätzung diese Temperaturanzeige.
 

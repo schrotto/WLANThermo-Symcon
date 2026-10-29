@@ -1,5 +1,21 @@
 # Änderungen
 
+## 1.5.2 – 29.10.2026
+
+- Geschätzte Restdauer im optionalen Hauptbereich hervorgehoben, mit separatem voraussichtlichem Zielzeitpunkt.
+- Plateau und andere unzuverlässige Verläufe ersetzen die Schätzung und entfernen den alten Zielzeitpunkt.
+- Hauptanzeige in der Testdaten-Vorschau eingeschaltet; unveränderte optionale Konfiguration im Modul.
+- 218 PHP- und 40 JavaScript-Vertragsprüfungen erfolgreich.
+
+## 1.5.1 – 29.10.2026
+
+- Restzeit auf eine kompakte aufklappbare Zeile reduziert; Verlauf, Trend und Reset erst bei Bedarf sichtbar.
+- Ruhiger animierter Fortschrittsbalken mit weichen Wertübergängen und dezentem Lichtlauf bei gültiger Aufheizprognose.
+- Abschaltbare Bewegung und reduzierte Animation berücksichtigt.
+- Kachel passt eine kollidierende Untergrenze beim Max-Schreiben atomar auf Max minus ein Grad an, am API-Limit auf denselben Wert.
+- Frische Gerätedaten und Rücklesen beider Grenzen; allgemeine Skriptschnittstelle bleibt strikt.
+- 218 PHP-Modulprüfungen und 38 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.5.0 – 29.10.2026
 
 - Restzeitschätzung bis zur Obergrenze mit geglättetem Temperaturtrend und voraussichtlichem Zielzeitpunkt.

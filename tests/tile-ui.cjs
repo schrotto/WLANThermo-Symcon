@@ -3,7 +3,7 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
 class Element {
-  constructor(tag) { this.tagName = tag; this.children = []; this.attrs = {}; this.events = {}; this.dataset = {}; this.style = {setProperty:(key,value) => {this.style[key] = value;}}; this.className = ''; this.value = ''; this.hidden = false; this.disabled = false; this._text = ''; }
+  constructor(tag) { this.tagName = tag; this.children = []; this.attrs = {}; this.events = {}; this.dataset = {}; this.style = {setProperty:(key,value) => {this.style[key] = value;}}; this.className = ''; this.value = ''; this.hidden = false; this.open = false; this.disabled = false; this._text = ''; }
   append(...children) { for (const child of children) { child.parent = this; this.children.push(child); } }
   replaceChildren(...children) { this.children = []; this._text = ''; this.append(...children); }
   remove() { if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }
@@ -85,16 +85,26 @@ data.channels[0].temperature = 75; data.channels[0].max = 82;
 data.channels[0].forecast = {status:'estimated',seconds:1400,eta:forecastNow+1400,rate:0.3,progress:0.3,points:[[forecastNow-600,72],[forecastNow,75]]};
 window.handleMessage(data);
 const forecastUI = elements.channels.children[0].children[5];
-check(forecastUI.children[0].textContent === 'Noch ca. 23 Min.' && elements['hero-forecast'].textContent === 'Noch ca. 23 Min.', 'Restzeit erscheint in Fühlerkarte und optionaler Hauptanzeige');
-check(forecastUI.children[1].textContent.includes('Ziel voraussichtlich gegen') && forecastUI.children[1].textContent.includes('0,3'), 'Kachel zeigt Zielzeitpunkt und geglätteten Anstieg');
-check(!forecastUI.children[2].hidden && forecastUI.children[2].children[1].attrs.points.includes(',') && !forecastUI.children[2].children[1].attrs.points.includes('NaN') && forecastUI.children[2].children[2].attrs.visibility === 'visible', 'Verlauf, Obergrenze und gestrichelte Prognose erhalten gültige Diagrammkoordinaten');
+const forecastSummary = forecastUI.children[0], forecastContent = forecastUI.children[1];
+const forecastTitle = forecastSummary.children[0], forecastEta = forecastSummary.children[1];
+const forecastDetail = forecastContent.children[0], forecastChart = forecastContent.children[1];
+check(forecastTitle.textContent === 'ca. 23 Min.' && elements['hero-forecast-value'].textContent === 'Noch ca. 23 Min.', 'Restzeit erscheint in Fühlerkarte und optionaler Hauptanzeige');
+check(!elements['hero-forecast-eta'].hidden && elements['hero-forecast-eta'].textContent.startsWith('Obergrenze voraussichtlich gegen '), 'Hauptbereich zeigt den geschätzten Zielzeitpunkt zusätzlich zur Restdauer');
+check(forecastDetail.textContent.includes('Ziel voraussichtlich gegen') && forecastDetail.textContent.includes('0,3') && forecastEta.textContent.startsWith('gegen '), 'Kachel zeigt Zielzeitpunkt und geglätteten Anstieg');
+check(!forecastChart.hidden && forecastChart.children[1].attrs.points.includes(',') && !forecastChart.children[1].attrs.points.includes('NaN') && forecastChart.children[2].attrs.visibility === 'visible', 'Verlauf, Obergrenze und gestrichelte Prognose erhalten gültige Diagrammkoordinaten');
 check(elements.channels.children[0].children[3].children[0].style.width === '30%', 'Balken zeigt Temperaturfortschritt seit Start statt verstrichener Garzeit');
+check(forecastUI.tagName === 'details' && forecastUI.open === false && forecastSummary.tagName === 'summary', 'Restzeit ist standardmäßig eine geschlossene kompakte Detailzeile');
+forecastUI.open = true; window.handleMessage(data);
+check(forecastUI.open === true && forecastContent.children.includes(forecastChart), 'Geöffnete Verlaufsdetails bleiben bei Live-Daten geöffnet');
+check(elements.channels.children[0].children[3].className.includes('is-running'), 'Laufende Aufheizprognose aktiviert die Fortschrittsanimation');
 data.config.forecastChart = false; window.handleMessage(data);
-check(forecastUI.children[2].hidden && !forecastUI.hidden && forecastUI.children[0].textContent.includes('23 Min.'), 'Diagramm lässt sich ohne Abschalten der Restzeit ausblenden');
+check(forecastChart.hidden && !forecastUI.hidden && forecastTitle.textContent.includes('23 Min.'), 'Diagramm lässt sich ohne Abschalten der Restzeit ausblenden');
 data.config.forecastChart = true; data.channels[0].forecast.status = 'stalled'; window.handleMessage(data);
-check(forecastUI.children[0].textContent.toLowerCase().includes('plateau') && forecastUI.children[2].children[2].attrs.visibility === 'hidden', 'Plateau entfernt die alte Restzeit und den Prognoseabschnitt');
+check(forecastTitle.textContent.toLowerCase().includes('plateau') && forecastChart.children[2].attrs.visibility === 'hidden', 'Plateau entfernt die alte Restzeit und den Prognoseabschnitt');
+check(elements['hero-forecast-eta'].hidden && elements['hero-forecast-value'].textContent.includes('Temperaturplateau') && !elements['hero-forecast'].className.includes('estimated'), 'Plateau ersetzt die Hauptrestzeit und entfernt den alten Zielzeitpunkt');
+check(!elements.channels.children[0].children[3].className.includes('is-running'), 'Temperaturplateau stoppt die Fortschrittsanimation');
 data.canWrite = false; window.handleMessage(data);
-const resetButton = forecastUI.children.at(-1); resetButton.dispatch('click');
+const resetButton = forecastContent.children.at(-1); resetButton.dispatch('click');
 check(requested.at(-1).action === 'forecastReset' && requested.at(-1).number === 1 && !('max' in requested.at(-1)), 'Verlauf-Reset sendet eine interne Aktion ohne Geräteeinstellungen');
 data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Temperaturverlauf neu gestartet.'}; window.handleMessage(data);
 data.config.forecast = false; window.handleMessage(data);

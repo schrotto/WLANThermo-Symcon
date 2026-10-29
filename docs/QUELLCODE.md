@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.5.0
+# Vollständiger Quellcode – WLANThermo 1.5.2
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,11 +13,10 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.5.0",
-    "build": 10,
+    "version": "1.5.2",
+    "build": 12,
     "date": 1793232000
 }
-
 ````
 
 ## WLANThermo/module.json
@@ -38,7 +37,6 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "implemented": [],
     "prefix": "WLT"
 }
-
 ````
 
 ## WLANThermo/module.php
@@ -239,36 +237,63 @@ class WLANThermo extends IPSModuleStrict
     public function SetChannel(int $Number, string $Changes): bool
     {
         return $this->locked(function () use ($Number, $Changes): void {
-            $data = $this->readData();
-            $settings = $this->readSettings();
-            $channel = WLTApi::item($data['channel'], 'number', $Number);
-            $changes = $this->changes($Changes, ['name', 'typ', 'min', 'max', 'alarm', 'color']);
-            foreach ($changes as $key => $v) {
-                switch ($key) {
-                    case 'name': WLTApi::text($v, 10); break;
-                    case 'min': case 'max': $this->wholeDegrees($v, -30, 999); break;
-                    case 'alarm': WLTApi::integer($v, 0, 3); break;
-                    case 'color':
-                        if (!is_string($v) || !preg_match('/^#[a-fA-F0-9]{6}$/', $v)) {
-                            throw new InvalidArgumentException('Farbe muss #RRGGBB entsprechen.');
-                        }
-                        break;
-                    case 'typ':
-                        WLTApi::integer($v, 0, 255);
-                        $sensor = WLTApi::item($settings['sensors'] ?? [], 'type', $v);
-                        if (!empty($channel['fixed']) || !empty($sensor['fixed'])) {
-                            throw new InvalidArgumentException('Dieser Fühlertyp wird vom WLANthermo fest zugewiesen.');
-                        }
-                }
-            }
-            $merged = array_replace($channel, $changes);
-            if ((float) $merged['min'] > (float) $merged['max']) {
-                throw new InvalidArgumentException('Minimum darf nicht über Maximum liegen.');
-            }
-            $this->post('/setchannels', ['number' => $Number] + $changes);
-            WLTApi::verify(WLTApi::item($this->readData()['channel'], 'number', $Number), $changes);
-            $this->refresh(false);
+            $this->changeChannel($Number, $Changes, false);
         });
+    }
+
+    /** Nur die Visu darf eine kollidierende Untergrenze automatisch mit anpassen. */
+    private function setVisualizationUpperLimit(int $number, mixed $maximum): array
+    {
+        $adjusted = false;
+        $ok = $this->locked(function () use ($number, $maximum, &$adjusted): void {
+            $adjusted = $this->changeChannel($number, WLTApi::encode(['max' => $maximum]), true);
+        });
+        return [$ok, $adjusted];
+    }
+
+    private function changeChannel(int $Number, string $Changes, bool $adjustMinimum): bool
+    {
+        $data = $this->readData();
+        $settings = $this->readSettings();
+        $channel = WLTApi::item($data['channel'], 'number', $Number);
+        $changes = $this->changes($Changes, ['name', 'typ', 'min', 'max', 'alarm', 'color']);
+        foreach ($changes as $key => $v) {
+            switch ($key) {
+                case 'name': WLTApi::text($v, 10); break;
+                case 'min': case 'max': $this->wholeDegrees($v, -30, 999); break;
+                case 'alarm': WLTApi::integer($v, 0, 3); break;
+                case 'color':
+                    if (!is_string($v) || !preg_match('/^#[a-fA-F0-9]{6}$/', $v)) {
+                        throw new InvalidArgumentException('Farbe muss #RRGGBB entsprechen.');
+                    }
+                    break;
+                case 'typ':
+                    WLTApi::integer($v, 0, 255);
+                    $sensor = WLTApi::item($settings['sensors'] ?? [], 'type', $v);
+                    if (!empty($channel['fixed']) || !empty($sensor['fixed'])) {
+                        throw new InvalidArgumentException('Dieser Fühlertyp wird vom WLANthermo fest zugewiesen.');
+                    }
+            }
+        }
+        $adjusted = false;
+        if ($adjustMinimum && array_key_exists('max', $changes) && !array_key_exists('min', $changes)) {
+            if (!isset($channel['min']) || !is_numeric($channel['min'])) {
+                throw new RuntimeException('Gerät liefert keine gültige Untergrenze.');
+            }
+            if ((float) $channel['min'] > (float) $changes['max']) {
+                // Gleiche Einheit wie am Gerät; am unteren API-Limit ist Gleichheit zulässig.
+                $changes['min'] = max(-30, $changes['max'] - 1);
+                $adjusted = true;
+            }
+        }
+        $merged = array_replace($channel, $changes);
+        if ((float) $merged['min'] > (float) $merged['max']) {
+            throw new InvalidArgumentException('Minimum darf nicht über Maximum liegen.');
+        }
+        $this->post('/setchannels', ['number' => $Number] + $changes);
+        WLTApi::verify(WLTApi::item($this->readData()['channel'], 'number', $Number), $changes);
+        $this->refresh(false);
+        return $adjusted;
     }
 
     public function SetPitmaster(int $ID, string $Changes): bool
@@ -964,7 +989,6 @@ class WLANThermo extends IPSModuleStrict
         }
     }
 }
-
 ````
 
 ## WLANThermo/form.json
@@ -974,7 +998,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.5.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.5.2"
         },
         {
             "type": "ExpansionPanel",
@@ -1553,7 +1577,6 @@ class WLANThermo extends IPSModuleStrict
         }
     ]
 }
-
 ````
 
 ## WLANThermo/module.html
@@ -1574,7 +1597,7 @@ class WLANThermo extends IPSModuleStrict
     <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
-    <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><p id="hero-forecast" class="hero-forecast" hidden></p></div>
+    <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><div id="hero-forecast" class="hero-forecast" hidden><span class="hero-forecast-label">GESCHÄTZTE RESTZEIT</span><strong id="hero-forecast-value"></strong><span id="hero-forecast-eta" class="hero-forecast-eta" hidden></span></div></div>
     <div id="gauge" class="gauge" aria-label="Temperatur im Verhältnis zur Obergrenze"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">OBERGRENZE</span><strong id="gauge-range">—</strong></div></div>
   </section>
   <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
@@ -1588,7 +1611,6 @@ class WLANThermo extends IPSModuleStrict
 <script>/*WLT_JS*/</script>
 </body>
 </html>
-
 ````
 
 ## WLANThermo/tile.css
@@ -1606,8 +1628,11 @@ class WLANThermo extends IPSModuleStrict
 
 @media(pointer:coarse){button,input,select{min-height:44px}.field input,.field select{font-size:16px}summary{min-height:44px;display:flex;align-items:center}}
 
-.forecast{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}.forecast-title,.hero-forecast{font-size:13px;font-weight:600;line-height:1.5;color:var(--text)}.hero-forecast{margin-top:10px}.forecast-detail{font-size:11px;line-height:1.6;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.forecast-chart{display:block;width:100%;height:auto;max-height:145px;margin-top:10px;overflow:visible}.forecast-actual{stroke:var(--accent);stroke-width:2;fill:none;stroke-linejoin:round}.forecast-target{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 4}.forecast-predicted{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 4}.forecast-legend{font-size:10px;line-height:1.5;color:var(--muted);margin-top:4px}.forecast-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px}.forecast-reset{min-height:36px;margin-top:9px;font-size:11px;background:none;padding:6px 9px}@media(pointer:coarse){.forecast-reset{min-height:44px}}
+.forecast{margin-top:12px;padding:0;border:0}.forecast-summary{display:flex;align-items:center;gap:8px;min-height:34px;padding:6px 0;list-style:none;color:var(--text);border-radius:6px}.forecast-summary::-webkit-details-marker{display:none}.forecast-title{font-size:12px;font-weight:600;line-height:1.4;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.forecast-eta{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap}.forecast-chevron{font-size:14px;color:var(--muted);transition:transform .2s ease}.forecast[open] .forecast-chevron{transform:rotate(180deg)}.forecast-content{padding:6px 0 2px}.forecast:not([open]) .forecast-content{display:none}.hero-forecast{font-size:13px;font-weight:600;line-height:1.5;color:var(--text);margin-top:10px}.forecast-detail{font-size:11px;line-height:1.6;color:var(--muted);overflow-wrap:anywhere}.forecast-chart{display:block;width:100%;height:auto;max-height:120px;margin-top:8px;overflow:visible}.forecast-actual{stroke:var(--accent);stroke-width:2;fill:none;stroke-linejoin:round}.forecast-target{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 4}.forecast-predicted{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 4}.forecast-legend{font-size:10px;line-height:1.5;color:var(--muted);margin-top:4px}.forecast-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px}.forecast-reset{min-height:34px;margin-top:8px;font-size:11px;background:none;padding:6px 9px}
+.rail{height:7px;border-radius:99px;margin-top:13px;isolation:isolate}.rail>span{position:relative;height:100%;overflow:hidden;border-radius:inherit;background:var(--accent);transition:width .85s cubic-bezier(.22,.61,.36,1)}.rail>span::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.05) 35%,rgba(255,255,255,.3) 50%,transparent 75%);transform:translateX(-100%);opacity:0}.rail.is-running>span::after{opacity:1;animation:wlt-progress-light 3.6s ease-in-out infinite}@keyframes wlt-progress-light{0%,15%{transform:translateX(-100%)}75%,100%{transform:translateX(100%)}}
+.no-animation .rail>span::after{animation:none!important;opacity:0}.no-animation .forecast-chevron{transition:none}@media(prefers-reduced-motion:reduce){.rail>span::after{animation:none!important;opacity:0}.rail>span,.forecast-chevron{transition:none!important}}@media(pointer:coarse){.forecast-summary,.forecast-reset{min-height:44px}}
 
+.hero-forecast{display:flex;flex-direction:column;gap:4px;margin-top:14px;overflow-wrap:anywhere}.hero-forecast-label{font-size:9px;letter-spacing:1.3px;color:var(--muted);font-weight:650}.hero-forecast strong{font-size:13px;font-weight:550;line-height:1.35}.hero-forecast.estimated strong{font-size:clamp(18px,3vw,26px);font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}.hero-forecast-eta{font-size:11px;color:var(--muted);font-weight:400}
 ````
 
 ## WLANThermo/tile.js
@@ -1623,6 +1648,7 @@ class WLANThermo extends IPSModuleStrict
   const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
   const fraction = ch => state.config?.forecast !== false && Number.isFinite(ch.forecast?.progress) ? ch.forecast.progress : ch.valid && Number.isFinite(ch.max) && ch.max > 0 ? Math.max(0, Math.min(1, ch.temperature / ch.max)) : 0;
   const aboveMaximum = ch => ch.valid && Number.isFinite(ch.max) && ch.temperature > ch.max;
+  const forecastIsRunning = ch => ch.valid && ch.forecast?.status === 'estimated' && ch.temperature < ch.max;
   const describe = ch => !ch.valid ? 'Kein aktueller Messwert' : !Number.isFinite(ch.max) ? 'Keine Obergrenze verfügbar' : ch.temperature > ch.max ? 'Obergrenze überschritten' : ch.temperature === ch.max ? 'Obergrenze erreicht' : 'Noch ' + fmt(ch.max - ch.temperature) + ' ' + state.unit + ' bis zur Obergrenze';
   const forecastText = forecast => {
     if (!forecast) return 'Temperaturverlauf wird gesammelt …';
@@ -1635,8 +1661,10 @@ class WLANThermo extends IPSModuleStrict
     return ({reached:'Obergrenze erreicht', learning:'Temperaturverlauf wird gesammelt …', stalled:'Temperaturplateau – keine Restzeitschätzung', cooling:'Temperatur fällt – keine Restzeitschätzung', unstable:'Schwankender Verlauf – keine verlässliche Restzeit', distant:'Ziel zu weit entfernt – noch keine verlässliche Restzeit', stale:'Messverlauf nicht aktuell', no_target:'Keine Obergrenze verfügbar', disabled:''})[forecast.status] || 'Noch keine verlässliche Restzeit';
   };
   function forecastElements(number) {
-    const el = node('section', 'forecast'); el.setAttribute('aria-label', 'Restzeitschätzung und Temperaturverlauf');
-    const title = node('p', 'forecast-title'), detail = node('p', 'forecast-detail');
+    const el = node('details', 'forecast'); el.setAttribute('aria-label', 'Restzeitschätzung und Temperaturverlauf');
+    const summary = node('summary', 'forecast-summary'), title = node('span', 'forecast-title'), eta = node('span', 'forecast-eta'), chevron = node('span', 'forecast-chevron', '⌄');
+    chevron.setAttribute('aria-hidden', 'true'); summary.append(title, eta, chevron);
+    const content = node('div', 'forecast-content'), detail = node('p', 'forecast-detail');
     const svgNode = tag => document.createElementNS('http://www.w3.org/2000/svg', tag);
     const chart = svgNode('svg'); chart.setAttribute('viewBox', '0 0 320 104'); chart.setAttribute('role', 'img'); chart.classList.add('forecast-chart');
     const target = svgNode('line'), actual = svgNode('polyline'), predicted = svgNode('line');
@@ -1646,24 +1674,29 @@ class WLANThermo extends IPSModuleStrict
     const times = node('div', 'forecast-times'), startTime = node('span'), endTime = node('span'); times.append(startTime, endTime);
     const reset = node('button', 'forecast-reset', 'Verlauf neu starten'); reset.type = 'button'; reset.setAttribute('aria-label', 'Temperaturverlauf für Kanal ' + number + ' neu starten');
     reset.addEventListener('click', () => send('forecastReset', {number}));
-    el.append(title, detail, chart, legend, times, reset);
-    return {el, title, detail, chart, target, actual, predicted, legend, times, startTime, endTime, reset};
+    content.append(detail, chart, legend, times, reset); el.append(summary, content);
+    return {el, summary, title, eta, content, detail, chart, target, actual, predicted, legend, times, startTime, endTime, reset};
   }
   function renderForecast(ui, ch, cfg) {
     const forecast = ch.forecast, enabled = cfg.forecast !== false;
     ui.el.hidden = !enabled;
     if (!enabled) return;
-    ui.title.textContent = forecastText(forecast);
+    const compact = {learning:'Restzeit wird ermittelt',stalled:'Temperaturplateau',cooling:'Temperatur fällt',unstable:'Schätzung unsicher',distant:'Restzeit noch offen',stale:'Kein aktueller Trend',no_target:'Kein Zielwert',reached:'Obergrenze erreicht'};
+    ui.title.textContent = forecast?.status === 'estimated' ? forecastText(forecast).replace('Noch ca. ', 'ca. ').replace('Noch weniger als ', '< ') : compact[forecast?.status] || 'Restzeit wird ermittelt';
+    ui.summary.setAttribute('aria-label', forecastText(forecast) + '. Verlauf und Details ein- oder ausklappen.');
     const estimated = forecast?.status === 'estimated' && Number.isFinite(forecast.eta);
-    const details = [];
+    ui.eta.textContent = estimated ? 'gegen ' + new Date(forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : 'Details';
+    const details = [forecastText(forecast)];
     if (estimated) details.push('Ziel voraussichtlich gegen ' + new Date(forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ' · Trend-Schätzung');
     if (Number.isFinite(forecast?.rate)) details.push((forecast.rate > 0 ? '+' : '') + new Intl.NumberFormat('de-DE', {maximumFractionDigits:2}).format(forecast.rate) + ' ' + state.unit + '/min');
-    if (!details.length) details.push('Mindestens 3 Minuten gültige Messwerte erforderlich.');
+    if (!forecast || forecast.status === 'learning') details.push('Mindestens 3 Minuten und 6 gültige Messpunkte erforderlich.');
     ui.detail.textContent = details.join(' · ');
     ui.reset.hidden = !cfg.controls; ui.reset.disabled = Boolean(pending) || !state.online;
     const points = (forecast?.points || []).filter(p => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
     const visible = cfg.forecastChart !== false && points.length >= 2 && Number.isFinite(ch.max);
     ui.chart.hidden = ui.legend.hidden = ui.times.hidden = !visible;
+    ui.chart.style.display = visible ? 'block' : 'none';
+    ui.chart.setAttribute('aria-hidden', String(!visible));
     if (!visible) return;
     const first = points[0], last = points[points.length - 1];
     const horizon = estimated ? Math.min(forecast.seconds, Math.max(300, last[0] - first[0])) : 0;
@@ -1749,7 +1782,11 @@ class WLANThermo extends IPSModuleStrict
     $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
     $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && aboveMaximum(main)));
     $('hero-forecast').hidden = !main || cfg.forecast === false;
-    $('hero-forecast').textContent = main ? forecastText(main.forecast) : '';
+    const mainEstimated = main?.forecast?.status === 'estimated' && Number.isFinite(main.forecast.seconds);
+    $('hero-forecast').classList.toggle('estimated', mainEstimated);
+    $('hero-forecast-value').textContent = main ? forecastText(main.forecast) : '';
+    $('hero-forecast-eta').hidden = !mainEstimated || !Number.isFinite(main?.forecast?.eta);
+    $('hero-forecast-eta').textContent = mainEstimated && Number.isFinite(main.forecast.eta) ? 'Obergrenze voraussichtlich gegen ' + new Date(main.forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '';
     $('hero-range').textContent = main ? 'Obergrenze ' + fmt(main.max) + ' ' + state.unit : '';
     $('gauge-range').textContent = main ? fmt(main.max) + ' ' + state.unit : '—';
     $('gauge').hidden = !main || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
@@ -1763,6 +1800,7 @@ class WLANThermo extends IPSModuleStrict
       ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : aboveMaximum(ch) ? ' warning' : '');
       ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
       ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
+      ui.rail.classList.toggle('is-running', forecastIsRunning(ch));
       ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
       renderForecast(ui.forecast, ch, cfg);
       ui.details.hidden = !cfg.controls || !Number.isFinite(ch.max);
@@ -1803,7 +1841,6 @@ class WLANThermo extends IPSModuleStrict
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }
 })();
-
 ````
 
 ## libs/Api.php
@@ -1949,7 +1986,6 @@ final class WLTApi
         }
     }
 }
-
 ````
 
 ## libs/VariableManagement.php
@@ -2048,7 +2084,6 @@ trait WLTVariableManagement
         }
     }
 }
-
 ````
 
 ## libs/Visualization.php
@@ -2219,6 +2254,7 @@ trait WLTVisualization
     private function visualizationAction(mixed $value): void
     {
         $requestID = '';
+        $adjusted = false;
         try {
             if (!is_string($value) || strlen($value) > 2048) { throw new InvalidArgumentException('Ungültige Kachelanfrage.'); }
             $request = WLTApi::object($value);
@@ -2257,7 +2293,7 @@ trait WLTVisualization
                 if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
                     throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
                 }
-                $ok = $this->SetChannel($number, WLTApi::encode(['max' => $request['max'] ?? null]));
+                [$ok, $adjusted] = $this->setVisualizationUpperLimit($number, $request['max'] ?? null);
             } elseif ($action === 'pitmaster') {
                 if (!$this->ReadPropertyBoolean('TilePitmaster')) { throw new InvalidArgumentException('Pitmaster ist in der Kachel ausgeblendet.'); }
                 $id = WLTApi::integer($request['id'] ?? null, 0, 255);
@@ -2272,12 +2308,12 @@ trait WLTVisualization
                 $ok = $this->SetBluetoothEnabled($request['enabled']);
             }
             $message = $ok ? ($action === 'refresh' ? 'Messwerte aktualisiert.' : ($action === 'forecastReset' ? 'Temperaturverlauf neu gestartet.' : 'Änderung am Gerät bestätigt.')) : ($this->GetLastError() ?: 'Instanz ist beschäftigt. Bitte erneut versuchen.');
+            if ($ok && $adjusted) { $message = 'Obergrenze bestätigt; Untergrenze automatisch angepasst.'; }
         } catch (Throwable $e) { $ok = false; $message = $e->getMessage(); }
         // Auch Fehler quittieren; keine Erfolgsmeldung vor dem tatsächlichen Rücklesen.
         $this->pushVisualization(['requestId' => $requestID, 'ok' => $ok, 'message' => $message]);
     }
 }
-
 ````
 
 ## libs/Forecast.php
@@ -2422,7 +2458,6 @@ trait WLTForecastSupport
         } finally { IPS_SemaphoreLeave('WLT_' . $this->InstanceID); }
     }
 }
-
 ````
 
 ## README.md
@@ -2432,9 +2467,27 @@ trait WLTForecastSupport
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.5.2: Restzeit im Hauptbereich
+
+Die optionale große Hauptanzeige zeigt die geschätzte Restdauer deutlich hervorgehoben unter der Temperatur. Darunter steht der voraussichtliche Zeitpunkt zum Erreichen der Obergrenze. Bei Plateau, Abkühlung oder unzureichenden Messwerten erscheint der passende Hinweis anstelle einer veralteten Schätzung. Die Hauptanzeige bleibt über **Große Haupttemperatur oben anzeigen** einschaltbar; die Prognose lässt sich weiterhin separat deaktivieren. Die Vorschau zeigt die Hauptanzeige eingeschaltet mit synthetischen Testdaten.
+
+## Version 1.5.1: Kompakte Restzeit und automatische Grenzanpassung
+
+Die Restzeitschätzung belegt in jeder Fühlerkarte nur noch **eine schmale Zeile**, z. B. „ca. 23 Min. · gegen 18:35“. Ein Klick auf diese Zeile öffnet Verlauf, Trenddetails, Erläuterungen und den Verlauf-Neustart. Die Details sind standardmäßig geschlossen und bleiben bei Live-Aktualisierungen geöffnet, wenn du sie geöffnet hast. Die normale Temperaturanzeige bleibt im Vordergrund.
+
+Der Fortschrittsbalken gleitet bei neuen Messwerten weich zum aktualisierten Wert. Während einer gültigen Aufheizprognose läuft ein dezenter Lichtakzent über den gefüllten Teil. Bei Plateau, Abkühlung oder Zielerreichung endet der Lichtlauf. Das sind rein visuelle Effekte: Der Balkenwert bleibt der gemessene Temperaturfortschritt, keine künstliche Zeitfortschreibung. Die Einstellung **Animationen** und `prefers-reduced-motion` schalten die Bewegung ab.
+
+### Obergrenze ändern, ohne die Untergrenze anzeigen zu müssen
+
+Beim Schreiben einer Obergrenze über die Kachel wird der aktuelle Kanal unter der bestehenden Instanzsperre frisch vom Gerät gelesen. Liegt seine Untergrenze über der neuen Obergrenze, passt das Modul sie im selben Schreibaufruf auf **Obergrenze minus 1 Grad** an. Beispiel: bisher Min 150, neue Obergrenze 120 → Min 119, Max 120. Am unteren erlaubten API-Wert -30 werden beide Grenzen -30, da -31 nicht zulässig ist. Die Gradschritte verwenden die aktuelle Geräteeinheit.
+
+Bereits passende Untergrenzen bleiben unverändert. Die Kachel sendet die beiden Werte gemeinsam und bestätigt sie erst nach dem Rücklesen; eine automatische Anpassung wird in der Rückmeldung genannt. Der globale Schreibschutz bleibt wirksam. Die allgemeine Skriptfunktion `WLT_SetChannel` bleibt strikt: Sie passt Untergrenzen nicht ohne ausdrückliche Angabe an. Zusätzliche Variablen werden nicht benötigt.
+
+Nach dem Update die Kachel/IPSView neu laden; bei direkter Dateikopie zusätzlich den Symcon-Dienst neu starten. Die mitgelieferte Kachelvorschau verwendet den tatsächlichen Kachelcode mit synthetischen Testdaten. Layout und Animation auf deinem konkreten IPSView-Client müssen noch geprüft werden.
+
 ## Version 1.5.0: Restzeitschätzung bis zur Obergrenze
 
-Die Fühlerkarten zeigen jetzt eine **ungefähre Restzeit**, den **voraussichtlichen Zielzeitpunkt** und den **Temperaturanstieg pro Minute**. Ziel ist ausschließlich die eingestellte Obergrenze. Die optionale große Hauptanzeige zeigt ebenfalls die Restzeit. Min-Wert und Min-Eingabe bleiben aus der Kachel entfernt.
+Die Fühlerkarten bieten eine **ungefähre Restzeit**, den **voraussichtlichen Zielzeitpunkt** und den **Temperaturanstieg pro Minute**; seit 1.5.1 stehen die ausführlichen Trendangaben in den aufklappbaren Details. Ziel ist ausschließlich die eingestellte Obergrenze. Die optionale große Hauptanzeige zeigt ebenfalls die Restzeit. Min-Wert und Min-Eingabe bleiben aus der Kachel entfernt.
 
 Die kleine Verlaufsgrafik enthält nur tatsächlich abgerufene Messpunkte. Eine punktierte Linie markiert die Obergrenze. Ein gestrichelter Abschnitt schreibt den aktuellen Trend fort, solange eine Schätzung möglich ist. Um den Messverlauf nicht zusammenzudrücken, zeigt die Grafik höchstens einen zusätzlichen Trendabschnitt von der Länge des sichtbaren Messfensters (mindestens fünf Minuten); weiter entfernte Zielzeiten stehen als Text. Eine lange Restzeit bedeutet deshalb nicht, dass die gestrichelte Linie im Diagrammausschnitt bereits die Obergrenze erreicht.
 
@@ -2443,7 +2496,7 @@ Die kleine Verlaufsgrafik enthält nur tatsächlich abgerufene Messpunkte. Eine 
 1. Modul aktualisieren und Kachel bzw. IPSView neu laden. Bei direkter Dateikopie den Symcon-Dienst neu starten.
 2. Unter Premium-Visualisierung ist **Restzeit bis zur Obergrenze schätzen** standardmäßig aktiv. Das Diagramm lässt sich separat ein-/ausschalten. Standard für das Trendfenster: **10 Minuten**, einstellbar von 5 bis 60 Minuten.
 3. Nach mindestens **3 Minuten und 6 Messpunkten** wird nur bei ausreichend gleichmäßigem Anstieg eine Restzeit angezeigt. Bei langem Abrufintervall dauert das Sammeln entsprechend länger; der normale 10-Sekunden-Abruf ist geeignet.
-4. Für einen neuen Garvorgang am jeweiligen Fühler **Verlauf neu starten** drücken. Das ändert keine Geräteparameter und funktioniert auch bei global deaktivierten Geräteschreibzugriffen, sofern die Kachelbedienung erlaubt ist. Der nächste tatsächliche Geräteabruf beginnt den neuen Verlauf.
+4. Für einen neuen Garvorgang die Restzeitzeile aufklappen und am jeweiligen Fühler **Verlauf neu starten** drücken. Das ändert keine Geräteparameter und funktioniert auch bei global deaktivierten Geräteschreibzugriffen, sofern die Kachelbedienung erlaubt ist. Der nächste tatsächliche Geräteabruf beginnt den neuen Verlauf.
 5. Ändert sich die Obergrenze, wird die Restzeit aus dem bisherigen Temperaturverlauf neu berechnet. Ein neuer Garvorgang benötigt dagegen einen neuen Startpunkt.
 
 ### Berechnung und Grenzen
@@ -2466,7 +2519,7 @@ Es werden **keine zusätzlichen Symcon-Variablen** und kein Archiv benötigt. De
 
 Die Kachel zeigt und bearbeitet je Fühler nur noch die **Obergrenze**. Der Min-Wert und seine Eingabe sind aus Fühlerkarten, Hauptanzeige und Kacheldaten entfernt. Status und Warnfarbe beziehen sich ausschließlich auf die Obergrenze: verbleibende Temperaturdifferenz, erreicht oder überschritten. Eine Unterschreitung der am Gerät hinterlegten Untergrenze wird in der Kachel nicht als Überschreitung angezeigt.
 
-Änderungen über die Kachel senden ausschließlich `max` an den Mini V3. Bestehende Untergrenzen am Gerät, optionale Min-Statusvariablen, deren IDs und die Skriptfunktionen bleiben erhalten. Die bestehende Gerätevalidierung verhindert weiterhin widersprüchliche Grenzen; das Modul setzt den Min-Wert nicht automatisch herab.
+Änderungen über die Kachel senden ausschließlich `max` an den Mini V3. Bestehende Untergrenzen am Gerät, optionale Min-Statusvariablen, deren IDs und die Skriptfunktionen bleiben erhalten. Die bestehende Gerätevalidierung verhindert weiterhin widersprüchliche Grenzen; seit 1.5.1 kann die Kachel eine kollidierende Untergrenze wie oben beschrieben automatisch anpassen.
 
 Balken und optionaler Ring zeigen für positive Obergrenzen die aktuelle Temperatur relativ zur Obergrenze mit einer festen Basis von 0 in der gewählten Geräteeinheit. Sie zeigen weder eine Restzeit noch einen zeitlichen Garfortschritt. Bei einer Obergrenze von 0 oder darunter wird diese Verhältnisgrafik ausgeblendet; die Obergrenze als Zahl bleibt sichtbar. Ab Version 1.5.0 ergänzt die oben beschriebene Restzeitschätzung diese Temperaturanzeige.
 
@@ -2731,12 +2784,11 @@ Die Oberfläche ist unmittelbar deutsch beschriftet; eine `locale.json` ist dahe
 
 - [Symcon GetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/getbuffer/) und [SetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setbuffer/): interner, begrenzter Zustand ohne Lizenzvariablen; bei Dienstneustart nicht persistent.
 - [MEATER: Grenzen von Garzeitprognosen](https://support.meater.com/hc/en-us/articles/36914985836315-Cook-Time-Estimate-in-the-MEATER-App): Hintergrund zu Temperaturplateaus und wechselnden Bedingungen. Das Modul verwendet eine eigene einfache Trendberechnung, nicht den MEATER-Algorithmus.
-
 ````
 
 ## LICENSE
 
-````text
+````
 MIT License
 
 Copyright (c) 2026 schrotto and WLANThermo module contributors
@@ -2758,7 +2810,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 ````
 
 ## .github/workflows/ci.yml
@@ -2790,6 +2841,4 @@ jobs:
           node tests/tile-ui.cjs
       - name: HTTP transport
         run: python3 tests/http_transport.py php
-
 ````
-

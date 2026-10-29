@@ -8,6 +8,7 @@
   const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
   const fraction = ch => state.config?.forecast !== false && Number.isFinite(ch.forecast?.progress) ? ch.forecast.progress : ch.valid && Number.isFinite(ch.max) && ch.max > 0 ? Math.max(0, Math.min(1, ch.temperature / ch.max)) : 0;
   const aboveMaximum = ch => ch.valid && Number.isFinite(ch.max) && ch.temperature > ch.max;
+  const forecastIsRunning = ch => ch.valid && ch.forecast?.status === 'estimated' && ch.temperature < ch.max;
   const describe = ch => !ch.valid ? 'Kein aktueller Messwert' : !Number.isFinite(ch.max) ? 'Keine Obergrenze verfügbar' : ch.temperature > ch.max ? 'Obergrenze überschritten' : ch.temperature === ch.max ? 'Obergrenze erreicht' : 'Noch ' + fmt(ch.max - ch.temperature) + ' ' + state.unit + ' bis zur Obergrenze';
   const forecastText = forecast => {
     if (!forecast) return 'Temperaturverlauf wird gesammelt …';
@@ -20,8 +21,10 @@
     return ({reached:'Obergrenze erreicht', learning:'Temperaturverlauf wird gesammelt …', stalled:'Temperaturplateau – keine Restzeitschätzung', cooling:'Temperatur fällt – keine Restzeitschätzung', unstable:'Schwankender Verlauf – keine verlässliche Restzeit', distant:'Ziel zu weit entfernt – noch keine verlässliche Restzeit', stale:'Messverlauf nicht aktuell', no_target:'Keine Obergrenze verfügbar', disabled:''})[forecast.status] || 'Noch keine verlässliche Restzeit';
   };
   function forecastElements(number) {
-    const el = node('section', 'forecast'); el.setAttribute('aria-label', 'Restzeitschätzung und Temperaturverlauf');
-    const title = node('p', 'forecast-title'), detail = node('p', 'forecast-detail');
+    const el = node('details', 'forecast'); el.setAttribute('aria-label', 'Restzeitschätzung und Temperaturverlauf');
+    const summary = node('summary', 'forecast-summary'), title = node('span', 'forecast-title'), eta = node('span', 'forecast-eta'), chevron = node('span', 'forecast-chevron', '⌄');
+    chevron.setAttribute('aria-hidden', 'true'); summary.append(title, eta, chevron);
+    const content = node('div', 'forecast-content'), detail = node('p', 'forecast-detail');
     const svgNode = tag => document.createElementNS('http://www.w3.org/2000/svg', tag);
     const chart = svgNode('svg'); chart.setAttribute('viewBox', '0 0 320 104'); chart.setAttribute('role', 'img'); chart.classList.add('forecast-chart');
     const target = svgNode('line'), actual = svgNode('polyline'), predicted = svgNode('line');
@@ -31,24 +34,29 @@
     const times = node('div', 'forecast-times'), startTime = node('span'), endTime = node('span'); times.append(startTime, endTime);
     const reset = node('button', 'forecast-reset', 'Verlauf neu starten'); reset.type = 'button'; reset.setAttribute('aria-label', 'Temperaturverlauf für Kanal ' + number + ' neu starten');
     reset.addEventListener('click', () => send('forecastReset', {number}));
-    el.append(title, detail, chart, legend, times, reset);
-    return {el, title, detail, chart, target, actual, predicted, legend, times, startTime, endTime, reset};
+    content.append(detail, chart, legend, times, reset); el.append(summary, content);
+    return {el, summary, title, eta, content, detail, chart, target, actual, predicted, legend, times, startTime, endTime, reset};
   }
   function renderForecast(ui, ch, cfg) {
     const forecast = ch.forecast, enabled = cfg.forecast !== false;
     ui.el.hidden = !enabled;
     if (!enabled) return;
-    ui.title.textContent = forecastText(forecast);
+    const compact = {learning:'Restzeit wird ermittelt',stalled:'Temperaturplateau',cooling:'Temperatur fällt',unstable:'Schätzung unsicher',distant:'Restzeit noch offen',stale:'Kein aktueller Trend',no_target:'Kein Zielwert',reached:'Obergrenze erreicht'};
+    ui.title.textContent = forecast?.status === 'estimated' ? forecastText(forecast).replace('Noch ca. ', 'ca. ').replace('Noch weniger als ', '< ') : compact[forecast?.status] || 'Restzeit wird ermittelt';
+    ui.summary.setAttribute('aria-label', forecastText(forecast) + '. Verlauf und Details ein- oder ausklappen.');
     const estimated = forecast?.status === 'estimated' && Number.isFinite(forecast.eta);
-    const details = [];
+    ui.eta.textContent = estimated ? 'gegen ' + new Date(forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : 'Details';
+    const details = [forecastText(forecast)];
     if (estimated) details.push('Ziel voraussichtlich gegen ' + new Date(forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ' · Trend-Schätzung');
     if (Number.isFinite(forecast?.rate)) details.push((forecast.rate > 0 ? '+' : '') + new Intl.NumberFormat('de-DE', {maximumFractionDigits:2}).format(forecast.rate) + ' ' + state.unit + '/min');
-    if (!details.length) details.push('Mindestens 3 Minuten gültige Messwerte erforderlich.');
+    if (!forecast || forecast.status === 'learning') details.push('Mindestens 3 Minuten und 6 gültige Messpunkte erforderlich.');
     ui.detail.textContent = details.join(' · ');
     ui.reset.hidden = !cfg.controls; ui.reset.disabled = Boolean(pending) || !state.online;
     const points = (forecast?.points || []).filter(p => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
     const visible = cfg.forecastChart !== false && points.length >= 2 && Number.isFinite(ch.max);
     ui.chart.hidden = ui.legend.hidden = ui.times.hidden = !visible;
+    ui.chart.style.display = visible ? 'block' : 'none';
+    ui.chart.setAttribute('aria-hidden', String(!visible));
     if (!visible) return;
     const first = points[0], last = points[points.length - 1];
     const horizon = estimated ? Math.min(forecast.seconds, Math.max(300, last[0] - first[0])) : 0;
@@ -134,7 +142,11 @@
     $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
     $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && aboveMaximum(main)));
     $('hero-forecast').hidden = !main || cfg.forecast === false;
-    $('hero-forecast').textContent = main ? forecastText(main.forecast) : '';
+    const mainEstimated = main?.forecast?.status === 'estimated' && Number.isFinite(main.forecast.seconds);
+    $('hero-forecast').classList.toggle('estimated', mainEstimated);
+    $('hero-forecast-value').textContent = main ? forecastText(main.forecast) : '';
+    $('hero-forecast-eta').hidden = !mainEstimated || !Number.isFinite(main?.forecast?.eta);
+    $('hero-forecast-eta').textContent = mainEstimated && Number.isFinite(main.forecast.eta) ? 'Obergrenze voraussichtlich gegen ' + new Date(main.forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '';
     $('hero-range').textContent = main ? 'Obergrenze ' + fmt(main.max) + ' ' + state.unit : '';
     $('gauge-range').textContent = main ? fmt(main.max) + ' ' + state.unit : '—';
     $('gauge').hidden = !main || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
@@ -148,6 +160,7 @@
       ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : aboveMaximum(ch) ? ' warning' : '');
       ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
       ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
+      ui.rail.classList.toggle('is-running', forecastIsRunning(ch));
       ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
       renderForecast(ui.forecast, ch, cfg);
       ui.details.hidden = !cfg.controls || !Number.isFinite(ch.max);
