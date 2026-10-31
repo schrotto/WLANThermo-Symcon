@@ -21,10 +21,11 @@
 .no-animation .rail>span::after{animation:none!important;opacity:0}.no-animation .forecast-chevron{transition:none}@media(prefers-reduced-motion:reduce){.rail>span::after{animation:none!important;opacity:0}.rail>span,.forecast-chevron{transition:none!important}}@media(pointer:coarse){.forecast-summary,.forecast-reset{min-height:44px}}
 
 .hero-forecast{display:flex;flex-direction:column;gap:4px;margin-top:14px;overflow-wrap:anywhere}.hero-forecast-label{font-size:9px;letter-spacing:1.3px;color:var(--muted);font-weight:650}.hero-forecast strong{font-size:13px;font-weight:550;line-height:1.35}.hero-forecast.estimated strong{font-size:clamp(18px,3vw,26px);font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}.hero-forecast-eta{font-size:11px;color:var(--muted);font-weight:400}
+.probe-value.paired-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.measurement{min-width:0}.measurement-label{display:block;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.5;color:var(--muted);margin-bottom:5px;overflow-wrap:anywhere}.measurement-reading{font-size:clamp(24px,3vw,32px);line-height:1.25;font-variant-numeric:tabular-nums;letter-spacing:-1px;white-space:nowrap}.paired-values .measurement+.measurement{border-left:1px solid var(--border);padding-left:12px}.measurement-reading small{font-size:12px;margin-left:4px}.probe-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}@media(max-width:300px){.probe-value.paired-values{grid-template-columns:1fr;gap:10px}.paired-values .measurement+.measurement{border:0;padding-left:0}}
 </style>
 </head>
 <body>
-<p style="padding:12px 24px;margin:0;font:12px system-ui;color:var(--muted)">Designvorschau · berechnete synthetische Testdaten · ohne Geräteverbindung</p>
+<p style="padding:12px 24px;margin:0;font:12px system-ui;color:var(--muted)">Designvorschau · synthetische Testdaten · ohne Geräteverbindung</p>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
     <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1>Grillstation</h1></div></div>
@@ -41,7 +42,7 @@
   <p id="notice" role="status" aria-live="polite" hidden></p>
   <p id="device-error" role="status" hidden></p>
 </main>
-<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793294843,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","temperature":110.5,"valid":true,"wireless":false,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":110.5,"startedAt":1793294243,"points":[[1793294243,110.5],[1793294273,110.5],[1793294303,110.5],[1793294333,110.5],[1793294363,110.5],[1793294393,110.5],[1793294423,110.5],[1793294453,110.5],[1793294483,110.5],[1793294513,110.5],[1793294543,110.5],[1793294573,110.5],[1793294603,110.5],[1793294633,110.5],[1793294663,110.5],[1793294693,110.5],[1793294723,110.5],[1793294753,110.5],[1793294783,110.5],[1793294813,110.5],[1793294843,110.5]]},"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","temperature":60.3,"valid":true,"wireless":true,"max":75,"forecast":{"status":"estimated","seconds":2940,"eta":1793297783,"rate":0.3000000000000001,"progress":0.16949152542372878,"start":57.3,"startedAt":1793294243,"points":[[1793294243,57.3],[1793294273,57.449999999999996],[1793294303,57.599999999999994],[1793294333,57.75],[1793294363,57.9],[1793294393,58.05],[1793294423,58.199999999999996],[1793294453,58.349999999999994],[1793294483,58.5],[1793294513,58.65],[1793294543,58.8],[1793294573,58.949999999999996],[1793294603,59.099999999999994],[1793294633,59.25],[1793294663,59.4],[1793294693,59.55],[1793294723,59.699999999999996],[1793294753,59.849999999999994],[1793294783,60],[1793294813,60.15],[1793294843,60.3]]},"alarm":0,"outOfRange":false},{"number":14,"name":"MeaterGT","temperature":118.4,"valid":true,"wireless":true,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":118.4,"startedAt":1793294243,"points":[[1793294243,118.4],[1793294273,118.4],[1793294303,118.4],[1793294333,118.4],[1793294363,118.4],[1793294393,118.4],[1793294423,118.4],[1793294453,118.4],[1793294483,118.4],[1793294513,118.4],[1793294543,118.4],[1793294573,118.4],[1793294603,118.4],[1793294633,118.4],[1793294663,118.4],[1793294693,118.4],[1793294723,118.4],[1793294753,118.4],[1793294783,118.4],[1793294813,118.4],[1793294843,118.4]]},"alarm":0,"outOfRange":false}],"pitmasters":[{"id":0,"channel":1,"value":0,"set":120,"typ":"off"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"hero":true,"forecast":true,"forecastChart":true,"controls":true,"primary":13}}</script>
+<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793432527,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","temperature":110.5,"valid":true,"wireless":false,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":110.5,"startedAt":1793431927,"points":[[1793431927,110.5],[1793431957,110.5],[1793431987,110.5],[1793432017,110.5],[1793432047,110.5],[1793432077,110.5],[1793432107,110.5],[1793432137,110.5],[1793432167,110.5],[1793432197,110.5],[1793432227,110.5],[1793432257,110.5],[1793432287,110.5],[1793432317,110.5],[1793432347,110.5],[1793432377,110.5],[1793432407,110.5],[1793432437,110.5],[1793432467,110.5],[1793432497,110.5],[1793432527,110.5]]},"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","temperature":60.3,"valid":true,"wireless":true,"max":75,"forecast":{"status":"estimated","seconds":2940,"eta":1793435467,"rate":0.3000000000000001,"progress":0.16949152542372878,"start":57.3,"startedAt":1793431927,"points":[[1793431927,57.3],[1793431957,57.449999999999996],[1793431987,57.599999999999994],[1793432017,57.75],[1793432047,57.9],[1793432077,58.05],[1793432107,58.199999999999996],[1793432137,58.349999999999994],[1793432167,58.5],[1793432197,58.65],[1793432227,58.8],[1793432257,58.949999999999996],[1793432287,59.099999999999994],[1793432317,59.25],[1793432347,59.4],[1793432377,59.55],[1793432407,59.699999999999996],[1793432437,59.849999999999994],[1793432467,60],[1793432497,60.15],[1793432527,60.3]]},"alarm":0,"outOfRange":false,"sensorRole":"core","probeName":"Meater","pairKey":"meater_13"},{"number":14,"name":"MeaterGT","temperature":118.4,"valid":true,"wireless":true,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":118.4,"startedAt":1793431927,"points":[[1793431927,118.4],[1793431957,118.4],[1793431987,118.4],[1793432017,118.4],[1793432047,118.4],[1793432077,118.4],[1793432107,118.4],[1793432137,118.4],[1793432167,118.4],[1793432197,118.4],[1793432227,118.4],[1793432257,118.4],[1793432287,118.4],[1793432317,118.4],[1793432347,118.4],[1793432377,118.4],[1793432407,118.4],[1793432437,118.4],[1793432467,118.4],[1793432497,118.4],[1793432527,118.4]]},"alarm":0,"outOfRange":false,"sensorRole":"ambient","probeName":"Meater","pairKey":"meater_13"}],"pitmasters":[{"id":0,"channel":1,"value":0,"set":120,"typ":"off"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"hero":false,"forecast":true,"forecastChart":true,"controls":true,"primary":13}}</script>
 <script>'use strict';
 (() => {
   const $ = id => document.getElementById(id);
@@ -181,33 +182,50 @@
     $('empty-state').hidden = !active || channels.length > 0;
     $('empty-state').textContent = state.online ? 'Keine gültigen Fühlerwerte verfügbar. Nicht angeschlossene Fühler werden automatisch ausgeblendet.' : 'Keine aktuellen Fühlerwerte – Gerät nicht erreichbar oder noch kein erfolgreicher Abruf.';
     $('hero-channel').textContent = main ? 'KANAL ' + main.number + (main.wireless ? ' · BLUETOOTH' : ' · FÜHLER') : 'TEMPERATUR';
-    $('hero-name').textContent = main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
+    $('hero-name').textContent = main?.sensorRole ? main.probeName + ' · ' + (main.sensorRole === 'core' ? 'Kerntemperatur' : 'Garraumtemperatur') : main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
     $('hero-temperature').textContent = fmt(main?.valid ? main.temperature : null); $('hero-unit').textContent = state.unit || '°C';
-    $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
-    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && aboveMaximum(main)));
-    $('hero-forecast').hidden = !main || cfg.forecast === false;
+    const mainAmbient = main?.sensorRole === 'ambient';
+    $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : mainAmbient ? 'Garraumtemperatur · Messwert' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
+    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && !mainAmbient && aboveMaximum(main)));
+    $('hero-forecast').hidden = !main || mainAmbient || cfg.forecast === false;
     const mainEstimated = main?.forecast?.status === 'estimated' && Number.isFinite(main.forecast.seconds);
     $('hero-forecast').classList.toggle('estimated', mainEstimated);
     $('hero-forecast-value').textContent = main ? forecastText(main.forecast) : '';
     $('hero-forecast-eta').hidden = !mainEstimated || !Number.isFinite(main?.forecast?.eta);
     $('hero-forecast-eta').textContent = mainEstimated && Number.isFinite(main.forecast.eta) ? 'Obergrenze voraussichtlich gegen ' + new Date(main.forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '';
     $('hero-range').textContent = main ? 'Obergrenze ' + fmt(main.max) + ' ' + state.unit : '';
+    $('hero-range').hidden = mainAmbient;
     $('gauge-range').textContent = main ? fmt(main.max) + ' ' + state.unit : '—';
-    $('gauge').hidden = !main || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
+    $('gauge').hidden = !main || mainAmbient || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
     $('gauge').setAttribute('aria-label', main && cfg.forecast !== false && Number.isFinite(main.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(main.forecast.progress * 100) + ' Prozent' : main ? 'Temperatur im Verhältnis zur Obergrenze: ' + describe(main) : 'Keine Obergrenze verfügbar');
-    $('probe-count').textContent = channels.length + (channels.length === 1 ? ' gültiger Fühler' : ' gültige Fühler');
-    for (const [number, ui] of probes) if (!channels.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
-    channels.forEach(ch => {
+    const cores = new Map(channels.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const ambientSensors = new Map(channels.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const cards = channels.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
+    $('probe-count').textContent = cards.length + ' Fühler · ' + channels.length + (channels.length === 1 ? ' Messwert' : ' Messwerte');
+    for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
+    cards.forEach(ch => {
+      const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
+      const ambientOnly = ch.sensorRole === 'ambient';
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
-      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : aboveMaximum(ch) ? ' warning' : '');
-      ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
-      ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
+      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
+      ui.kicker.textContent = ambient ? 'KANÄLE ' + ch.number + ' / ' + ambient.number + ' · BLUETOOTH' : 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.probeName || ch.name;
+      ui.el.setAttribute('aria-label', (ch.probeName || ch.name) + ', Kanal ' + ch.number + (ambient ? ' und ' + ambient.number : ''));
+      ui.value.classList.toggle('paired-values', Boolean(ambient));
+      if (ch.sensorRole) {
+        const measurement = (sensor, caption) => {
+          const block = node('div', 'measurement'), title = node('span', 'measurement-label', caption), reading = node('div', 'measurement-reading');
+          reading.append(document.createTextNode(fmt(sensor.temperature)), node('small', '', state.unit)); block.append(title, reading); return block;
+        };
+        ui.value.replaceChildren(measurement(ch, ambientOnly ? 'Garraumtemperatur' : 'Kerntemperatur'));
+        if (ambient) ui.value.append(measurement(ambient, 'Garraumtemperatur'));
+      } else ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
       ui.rail.classList.toggle('is-running', forecastIsRunning(ch));
       ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
       renderForecast(ui.forecast, ch, cfg);
-      ui.details.hidden = !cfg.controls || !Number.isFinite(ch.max);
+      if (ambientOnly) { ui.label.textContent = 'Garraumtemperatur · Messwert'; ui.rail.hidden = true; ui.high.textContent = ''; ui.forecast.el.hidden = true; }
+      ui.details.hidden = ambientOnly || !cfg.controls || !Number.isFinite(ch.max);
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;

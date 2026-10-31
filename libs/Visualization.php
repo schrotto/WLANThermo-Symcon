@@ -19,6 +19,7 @@ trait WLTVisualization
         $this->RegisterPropertyBoolean('TilePitmaster', true);
         $this->RegisterPropertyInteger('TilePrimary', 0);
         $this->RegisterPropertyString('TileChannels', '[]');
+        $this->RegisterPropertyString('TileMeaterPairs', '[]');
         $this->RegisterPropertyBoolean('ForecastEnabled', true);
         $this->RegisterPropertyBoolean('ForecastChart', true);
         $this->RegisterPropertyInteger('ForecastWindow', 10);
@@ -33,6 +34,68 @@ trait WLTVisualization
         WLTApi::integer($this->ReadPropertyInteger('TilePrimary'), 0, 255);
         WLTApi::integer($this->ReadPropertyInteger('ForecastWindow'), 5, 60);
         $this->tileChannelSelection();
+        $this->meaterPairSelection();
+    }
+
+    private function meaterPairSelection(): array
+    {
+        $rows = json_decode($this->ReadPropertyString('TileMeaterPairs'), true, 64, JSON_THROW_ON_ERROR);
+        if (!is_array($rows) || !array_is_list($rows)) { throw new InvalidArgumentException('MEATER-Zuordnung muss eine Liste sein.'); }
+        $used = [];
+        foreach ($rows as $row) {
+            if (!is_array($row) || !is_string($row['Name'] ?? null) || trim($row['Name']) === '') { throw new InvalidArgumentException('MEATER benötigt einen Anzeigenamen.'); }
+            foreach (['Core', 'Ambient'] as $key) {
+                $number = WLTApi::integer($row[$key] ?? null, 1, 255);
+                if (isset($used[$number])) { throw new InvalidArgumentException('Ein Kanal darf nur einem MEATER zugeordnet sein.'); }
+                $used[$number] = true;
+            }
+        }
+        return $rows;
+    }
+
+    /** Die HTTP-Kanalliste enthält keine MAC-Adresse/Messstellen-ID. Keine Paarung nach Nachbarschaft. */
+    private function meaterMetadata(array $data, array $settings): array
+    {
+        $channels = [];
+        foreach ($data['channel'] ?? [] as $channel) {
+            if ($this->channelIsWireless($channel, $settings)) { $channels[$channel['number']] = $channel; }
+        }
+        $meta = []; $candidates = [];
+        foreach ($channels as $number => $channel) {
+            if (preg_match('/^(.*meater.*?)\s*[-_ ]*\s*(Kerntemperatur|Garraumtemperatur|KT|GT)$/iu', trim($channel['name']), $match)) {
+                $base = trim($match[1], " -_");
+                $role = in_array(strtolower($match[2]), ['kt', 'kerntemperatur'], true) ? 'core' : 'ambient';
+                $key = strtolower($base);
+                $candidates[$key]['name'] = $base;
+                $candidates[$key][$role][] = $number;
+                // Auch ein allein verfügbarer Garraumsensor bleibt eine reine Anzeige.
+                $meta[$number] = ['sensorRole' => $role, 'probeName' => $base];
+            }
+        }
+        foreach ($candidates as $candidate) {
+            if (count($candidate['core'] ?? []) === 1 && count($candidate['ambient'] ?? []) === 1) {
+                foreach (['core', 'ambient'] as $role) {
+                    $number = $candidate[$role][0];
+                    $meta[$number]['pairKey'] = 'meater_' . $candidate['core'][0];
+                }
+            }
+        }
+        $rows = $this->meaterPairSelection();
+        $explicit = [];
+        foreach ($rows as $row) { $explicit[$row['Core']] = $explicit[$row['Ambient']] = true; }
+        // Explizite Zuordnung löst auch die bisherige automatische Paarung ihres Partners auf.
+        $blocked = [];
+        foreach ($explicit as $number => $_) { if (isset($meta[$number]['pairKey'])) { $blocked[$meta[$number]['pairKey']] = true; } }
+        foreach ($meta as &$item) { if (isset($blocked[$item['pairKey'] ?? ''])) { unset($item['pairKey']); } }
+        unset($item);
+        foreach ($rows as $row) {
+            foreach (['core' => 'Core', 'ambient' => 'Ambient'] as $role => $field) {
+                if (isset($channels[$row[$field]])) {
+                    $meta[$row[$field]] = ['sensorRole' => $role, 'probeName' => trim($row['Name']), 'pairKey' => 'meater_' . $row['Core']];
+                }
+            }
+        }
+        return $meta;
     }
 
     private function tileChannelSelection(): array
@@ -99,6 +162,8 @@ trait WLTVisualization
         $online = $this->ReadPropertyBoolean('Active') && (bool) $this->stateValue('Online', false);
         try { $choices = $this->tileChannelSelection(); } catch (Throwable $e) { $choices = []; }
         $channels = [];
+        try { $meater = $this->meaterMetadata($data, $settings); }
+        catch (Throwable $e) { $meater = []; $online = false; }
         foreach ($data['channel'] ?? [] as $ch) {
             if (!($choices[$ch['number']] ?? true)) { continue; }
             $wireless = $this->channelIsWireless($ch, $settings);
@@ -107,7 +172,7 @@ trait WLTVisualization
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'temperature' => $valid ? (float) $ch['temp'] : null,
                 'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null,
                 'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
-                'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']];
+                'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']] + ($meater[$ch['number']] ?? []);
         }
         $bt = $this->cached('BluetoothData');
         return ['version' => 1, 'enabled' => $this->ReadPropertyBoolean('TileEnabled'), 'online' => $online,
@@ -201,6 +266,9 @@ trait WLTVisualization
                 $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
                 if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
                     throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
+                }
+                if (($this->meaterMetadata($this->cached('Data'), $this->cached('Settings'))[$number]['sensorRole'] ?? '') === 'ambient') {
+                    throw new InvalidArgumentException('Die MEATER-Garraumtemperatur ist in der Kachel eine reine Messwertanzeige.');
                 }
                 [$ok, $adjusted] = $this->setVisualizationUpperLimit($number, $request['max'] ?? null);
             } elseif ($action === 'pitmaster') {

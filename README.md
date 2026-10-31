@@ -2,6 +2,16 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.6.0: Ein MEATER, eine gemeinsame Kachel
+
+Ein klassischer MEATER mit zwei Messstellen erscheint als eine gemeinsame Kachel: **Kerntemperatur** und **Garraumtemperatur** stehen nebeneinander. Obergrenze, Fortschritt und Restzeit beziehen sich auf den Kern. Die Garraumtemperatur ist eine reine Messwertanzeige ohne Obergrenzenfeld, Zielwarnung oder Restzeitprognose. Das gilt auch, wenn der Garraum als optionaler Hauptkanal gewählt wird. Normale kabelgebundene Garraumfühler behalten ihre bisherige Bedienung.
+
+Die HTTP-Kanalliste des geprüften Firmwarestands enthält keine Bluetooth-Adresse oder lokale Messstellen-ID. Eine Paarung allein anhand benachbarter Kanalnummern wäre daher unzuverlässig. Das Modul erkennt eindeutige Namenspaare wie `MeaterKT`/`MeaterGT` oder `MEATER 1 Kerntemperatur`/`MEATER 1 Garraumtemperatur`. Beide Kanäle müssen Bluetooth-Kanäle sein und denselben eindeutigen Namensteil vor der Messstellenbezeichnung tragen. Bei mehreren gleich benannten oder anders benannten Geräten bitte in **MEATER-Zuordnung** pro Thermometer einen Anzeigenamen, den Kernkanal und den Garraumkanal eintragen. Diese ausdrückliche Zuordnung hat Vorrang. Hiermit lassen sich auch selbst benannte Messstellen zuordnen. Zusätzliche Messstellen neuerer MEATER-Modelle werden nicht automatisch erraten.
+
+Nur freigegebene, aktuell gültige Messwerte erscheinen. Fehlt der Kern, bleibt ein gültiger Garraummesswert als reine Anzeige sichtbar; fehlt der Garraum, bleibt nur der Kern mit seiner Bedienung. Es werden keine alten Werte oder Platzhalter für ausgeschlossene Messstellen eingeblendet. Ohne eindeutige Zuordnung bleiben die Kanäle getrennt.
+
+Die Bezeichnungen ändern ausschließlich die Visualisierung. Gerätekanäle, Variablen, IDs und Archivdaten werden nicht umbenannt oder zusammengelegt. Die allgemeine Skriptfunktion bleibt unverändert. Kachel-Schreibversuche auf erkannte/zugeordnete Garraummessstellen werden auch serverseitig abgewiesen. Nach dem Update Kachel/IPSView neu laden; bei direkter Dateikopie zusätzlich Symcon neu starten.
+
 ## Version 1.5.2: Restzeit im Hauptbereich
 
 Die optionale große Hauptanzeige zeigt die geschätzte Restdauer deutlich hervorgehoben unter der Temperatur. Darunter steht der voraussichtliche Zeitpunkt zum Erreichen der Obergrenze. Bei Plateau, Abkühlung oder unzureichenden Messwerten erscheint der passende Hinweis anstelle einer veralteten Schätzung. Die Hauptanzeige bleibt über **Große Haupttemperatur oben anzeigen** einschaltbar; die Prognose lässt sich weiterhin separat deaktivieren. Die Vorschau zeigt die Hauptanzeige eingeschaltet mit synthetischen Testdaten.
@@ -182,7 +192,7 @@ Den **Inhalt** des äußeren Ordners in ein Git-Repository hochladen; `library.j
 2. Eine konkurrierende Verbindung zur MEATER-App beziehungsweise zum MEATER-Block trennen. Laut WLANthermo kann die Sonde jeweils nur eine aktive Bluetooth-Verbindung bedienen.
 3. In der Symcon-Instanz **Bluetooth-Liste aktualisieren** drücken. Die Taste liest die vom Mini V3 gefundene Geräteliste erneut; sie startet keinen eigenen Bluetooth-Scan im Symcon-Server.
 4. Das passende Gerät anhand der MAC-Adresse auswählen und die gewünschten **Sensorkanäle** anhaken. Jeder Haken wird sofort gespeichert. Beim klassischen MEATER meldet die API zwei Kanäle. Neuere Modelle können weitere Messstellen liefern; es wird die tatsächlich gemeldete Anzahl verwendet.
-5. Danach erscheinen die vom Mini V3 zugewiesenen Temperaturkanäle automatisch in Symcon. Ihre Namen stammen vom WLANthermo. Es werden keine Messstellenbezeichnungen aus einer vermuteten MEATER-Modellversion abgeleitet.
+5. Danach erscheinen die vom Mini V3 zugewiesenen Temperaturkanäle automatisch in Symcon. Ihre ursprünglichen Namen stammen vom WLANthermo. Seit 1.6.0 kann die Visualisierung eindeutig benannte oder ausdrücklich zugeordnete MEATER-Messstellen als Kern/Garraum zusammenfassen; zusätzliche Messstellen werden nicht aus einer vermuteten Modellversion abgeleitet.
 
 Falls kein Gerät erscheint, zuerst im WLANthermo-Webinterface unter Bluetooth prüfen. Das Symcon-Modul kann nur Geräte nutzen, die der Mini V3 selbst unterstützt und erkennt. Für MEATER 2/Pro/Duo/XL hängt die Unterstützung von WLANthermo- und Bluetooth-Firmware ab; die Release Notes und die verlinkten Hinweise des WLANthermo-Teams beachten. Firmware-Updates werden nicht automatisch durchgeführt.
 
@@ -319,3 +329,5 @@ Die Oberfläche ist unmittelbar deutsch beschriftet; eine `locale.json` ist dahe
 
 - [Symcon GetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/getbuffer/) und [SetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setbuffer/): interner, begrenzter Zustand ohne Lizenzvariablen; bei Dienstneustart nicht persistent.
 - [MEATER: Grenzen von Garzeitprognosen](https://support.meater.com/hc/en-us/articles/36914985836315-Cook-Time-Estimate-in-the-MEATER-App): Hintergrund zu Temperaturplateaus und wechselnden Bedingungen. Das Modul verwendet eine eigene einfache Trendberechnung, nicht den MEATER-Algorithmus.
+
+Quellen zur MEATER-Zuordnung: [offizielle HTTP-Kanalliste](https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/blob/06d456ca232bc26784d3349f79f222de41436921/src/API.cpp), [dynamische Kanalverwaltung](https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/blob/06d456ca232bc26784d3349f79f222de41436921/src/temperature/TemperatureGrp.cpp).

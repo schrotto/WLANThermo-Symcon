@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.5.2
+# Vollständiger Quellcode – WLANThermo 1.6.0
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,9 +13,9 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.5.2",
-    "build": 12,
-    "date": 1793232000
+    "version": "1.6.0",
+    "build": 13,
+    "date": 1793404800
 }
 ````
 
@@ -256,6 +256,9 @@ class WLANThermo extends IPSModuleStrict
         $data = $this->readData();
         $settings = $this->readSettings();
         $channel = WLTApi::item($data['channel'], 'number', $Number);
+        if ($adjustMinimum && ($this->meaterMetadata($data, $settings)[$Number]['sensorRole'] ?? '') === 'ambient') {
+            throw new InvalidArgumentException('Die MEATER-Garraumtemperatur ist in der Kachel eine reine Messwertanzeige.');
+        }
         $changes = $this->changes($Changes, ['name', 'typ', 'min', 'max', 'alarm', 'color']);
         foreach ($changes as $key => $v) {
             switch ($key) {
@@ -998,7 +1001,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.5.2"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.0"
         },
         {
             "type": "ExpansionPanel",
@@ -1344,6 +1347,51 @@ class WLANThermo extends IPSModuleStrict
                     "caption": "In der Kachel erscheinen nur aktuell gültige Fühlerwerte. Nicht angeschlossene Fühler und getrennte Bluetooth-Fühler werden ausgeblendet. Die große Hauptanzeige ist optional und standardmäßig aus. Ein fest gewählter Hauptfühler wird bei ungültigem Wert ausgeblendet und nicht durch einen anderen ersetzt."
                 },
                 {
+                    "type": "Label",
+                    "caption": "MEATER: eindeutige Namen wie MeaterKT/MeaterGT oder MEATER 1 KT/MEATER 1 GT werden gemeinsam dargestellt. Bei anderen oder doppelten Namen die Kanäle hier ausdrücklich zuordnen. Bestehende Kanal- und Variablennamen bleiben erhalten."
+                },
+                {
+                    "type": "List",
+                    "name": "TileMeaterPairs",
+                    "caption": "MEATER-Zuordnung (optional, hat Vorrang vor Namenserkennung)",
+                    "rowCount": 3,
+                    "add": true,
+                    "delete": true,
+                    "columns": [
+                        {
+                            "name": "Name",
+                            "caption": "Thermometer",
+                            "width": "auto",
+                            "add": "MEATER",
+                            "edit": {
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "name": "Core",
+                            "caption": "Kanal Kern",
+                            "width": "130px",
+                            "add": 13,
+                            "edit": {
+                                "type": "NumberSpinner",
+                                "minimum": 1,
+                                "maximum": 255
+                            }
+                        },
+                        {
+                            "name": "Ambient",
+                            "caption": "Kanal Garraum",
+                            "width": "140px",
+                            "add": 14,
+                            "edit": {
+                                "type": "NumberSpinner",
+                                "minimum": 1,
+                                "maximum": 255
+                            }
+                        }
+                    ]
+                },
+                {
                     "type": "List",
                     "name": "TileChannels",
                     "caption": "Fühler in der Kachel",
@@ -1633,6 +1681,7 @@ class WLANThermo extends IPSModuleStrict
 .no-animation .rail>span::after{animation:none!important;opacity:0}.no-animation .forecast-chevron{transition:none}@media(prefers-reduced-motion:reduce){.rail>span::after{animation:none!important;opacity:0}.rail>span,.forecast-chevron{transition:none!important}}@media(pointer:coarse){.forecast-summary,.forecast-reset{min-height:44px}}
 
 .hero-forecast{display:flex;flex-direction:column;gap:4px;margin-top:14px;overflow-wrap:anywhere}.hero-forecast-label{font-size:9px;letter-spacing:1.3px;color:var(--muted);font-weight:650}.hero-forecast strong{font-size:13px;font-weight:550;line-height:1.35}.hero-forecast.estimated strong{font-size:clamp(18px,3vw,26px);font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}.hero-forecast-eta{font-size:11px;color:var(--muted);font-weight:400}
+.probe-value.paired-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.measurement{min-width:0}.measurement-label{display:block;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.5;color:var(--muted);margin-bottom:5px;overflow-wrap:anywhere}.measurement-reading{font-size:clamp(24px,3vw,32px);line-height:1.25;font-variant-numeric:tabular-nums;letter-spacing:-1px;white-space:nowrap}.paired-values .measurement+.measurement{border-left:1px solid var(--border);padding-left:12px}.measurement-reading small{font-size:12px;margin-left:4px}.probe-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}@media(max-width:300px){.probe-value.paired-values{grid-template-columns:1fr;gap:10px}.paired-values .measurement+.measurement{border:0;padding-left:0}}
 ````
 
 ## WLANThermo/tile.js
@@ -1777,33 +1826,50 @@ class WLANThermo extends IPSModuleStrict
     $('empty-state').hidden = !active || channels.length > 0;
     $('empty-state').textContent = state.online ? 'Keine gültigen Fühlerwerte verfügbar. Nicht angeschlossene Fühler werden automatisch ausgeblendet.' : 'Keine aktuellen Fühlerwerte – Gerät nicht erreichbar oder noch kein erfolgreicher Abruf.';
     $('hero-channel').textContent = main ? 'KANAL ' + main.number + (main.wireless ? ' · BLUETOOTH' : ' · FÜHLER') : 'TEMPERATUR';
-    $('hero-name').textContent = main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
+    $('hero-name').textContent = main?.sensorRole ? main.probeName + ' · ' + (main.sensorRole === 'core' ? 'Kerntemperatur' : 'Garraumtemperatur') : main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
     $('hero-temperature').textContent = fmt(main?.valid ? main.temperature : null); $('hero-unit').textContent = state.unit || '°C';
-    $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
-    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && aboveMaximum(main)));
-    $('hero-forecast').hidden = !main || cfg.forecast === false;
+    const mainAmbient = main?.sensorRole === 'ambient';
+    $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : mainAmbient ? 'Garraumtemperatur · Messwert' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
+    $('hero-state').classList.toggle('warning', !main?.valid || Boolean(main && !mainAmbient && aboveMaximum(main)));
+    $('hero-forecast').hidden = !main || mainAmbient || cfg.forecast === false;
     const mainEstimated = main?.forecast?.status === 'estimated' && Number.isFinite(main.forecast.seconds);
     $('hero-forecast').classList.toggle('estimated', mainEstimated);
     $('hero-forecast-value').textContent = main ? forecastText(main.forecast) : '';
     $('hero-forecast-eta').hidden = !mainEstimated || !Number.isFinite(main?.forecast?.eta);
     $('hero-forecast-eta').textContent = mainEstimated && Number.isFinite(main.forecast.eta) ? 'Obergrenze voraussichtlich gegen ' + new Date(main.forecast.eta * 1000).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '';
     $('hero-range').textContent = main ? 'Obergrenze ' + fmt(main.max) + ' ' + state.unit : '';
+    $('hero-range').hidden = mainAmbient;
     $('gauge-range').textContent = main ? fmt(main.max) + ' ' + state.unit : '—';
-    $('gauge').hidden = !main || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
+    $('gauge').hidden = !main || mainAmbient || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
     $('gauge').setAttribute('aria-label', main && cfg.forecast !== false && Number.isFinite(main.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(main.forecast.progress * 100) + ' Prozent' : main ? 'Temperatur im Verhältnis zur Obergrenze: ' + describe(main) : 'Keine Obergrenze verfügbar');
-    $('probe-count').textContent = channels.length + (channels.length === 1 ? ' gültiger Fühler' : ' gültige Fühler');
-    for (const [number, ui] of probes) if (!channels.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
-    channels.forEach(ch => {
+    const cores = new Map(channels.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const ambientSensors = new Map(channels.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const cards = channels.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
+    $('probe-count').textContent = cards.length + ' Fühler · ' + channels.length + (channels.length === 1 ? ' Messwert' : ' Messwerte');
+    for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
+    cards.forEach(ch => {
+      const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
+      const ambientOnly = ch.sensorRole === 'ambient';
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
-      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && main?.number === ch.number ? ' selected' : '') + (!ch.valid ? ' invalid' : aboveMaximum(ch) ? ' warning' : '');
-      ui.kicker.textContent = 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.name;
-      ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
+      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
+      ui.kicker.textContent = ambient ? 'KANÄLE ' + ch.number + ' / ' + ambient.number + ' · BLUETOOTH' : 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.probeName || ch.name;
+      ui.el.setAttribute('aria-label', (ch.probeName || ch.name) + ', Kanal ' + ch.number + (ambient ? ' und ' + ambient.number : ''));
+      ui.value.classList.toggle('paired-values', Boolean(ambient));
+      if (ch.sensorRole) {
+        const measurement = (sensor, caption) => {
+          const block = node('div', 'measurement'), title = node('span', 'measurement-label', caption), reading = node('div', 'measurement-reading');
+          reading.append(document.createTextNode(fmt(sensor.temperature)), node('small', '', state.unit)); block.append(title, reading); return block;
+        };
+        ui.value.replaceChildren(measurement(ch, ambientOnly ? 'Garraumtemperatur' : 'Kerntemperatur'));
+        if (ambient) ui.value.append(measurement(ambient, 'Garraumtemperatur'));
+      } else ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
       ui.rail.classList.toggle('is-running', forecastIsRunning(ch));
       ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
       renderForecast(ui.forecast, ch, cfg);
-      ui.details.hidden = !cfg.controls || !Number.isFinite(ch.max);
+      if (ambientOnly) { ui.label.textContent = 'Garraumtemperatur · Messwert'; ui.rail.hidden = true; ui.high.textContent = ''; ui.forecast.el.hidden = true; }
+      ui.details.hidden = ambientOnly || !cfg.controls || !Number.isFinite(ch.max);
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
@@ -2110,6 +2176,7 @@ trait WLTVisualization
         $this->RegisterPropertyBoolean('TilePitmaster', true);
         $this->RegisterPropertyInteger('TilePrimary', 0);
         $this->RegisterPropertyString('TileChannels', '[]');
+        $this->RegisterPropertyString('TileMeaterPairs', '[]');
         $this->RegisterPropertyBoolean('ForecastEnabled', true);
         $this->RegisterPropertyBoolean('ForecastChart', true);
         $this->RegisterPropertyInteger('ForecastWindow', 10);
@@ -2124,6 +2191,68 @@ trait WLTVisualization
         WLTApi::integer($this->ReadPropertyInteger('TilePrimary'), 0, 255);
         WLTApi::integer($this->ReadPropertyInteger('ForecastWindow'), 5, 60);
         $this->tileChannelSelection();
+        $this->meaterPairSelection();
+    }
+
+    private function meaterPairSelection(): array
+    {
+        $rows = json_decode($this->ReadPropertyString('TileMeaterPairs'), true, 64, JSON_THROW_ON_ERROR);
+        if (!is_array($rows) || !array_is_list($rows)) { throw new InvalidArgumentException('MEATER-Zuordnung muss eine Liste sein.'); }
+        $used = [];
+        foreach ($rows as $row) {
+            if (!is_array($row) || !is_string($row['Name'] ?? null) || trim($row['Name']) === '') { throw new InvalidArgumentException('MEATER benötigt einen Anzeigenamen.'); }
+            foreach (['Core', 'Ambient'] as $key) {
+                $number = WLTApi::integer($row[$key] ?? null, 1, 255);
+                if (isset($used[$number])) { throw new InvalidArgumentException('Ein Kanal darf nur einem MEATER zugeordnet sein.'); }
+                $used[$number] = true;
+            }
+        }
+        return $rows;
+    }
+
+    /** Die HTTP-Kanalliste enthält keine MAC-Adresse/Messstellen-ID. Keine Paarung nach Nachbarschaft. */
+    private function meaterMetadata(array $data, array $settings): array
+    {
+        $channels = [];
+        foreach ($data['channel'] ?? [] as $channel) {
+            if ($this->channelIsWireless($channel, $settings)) { $channels[$channel['number']] = $channel; }
+        }
+        $meta = []; $candidates = [];
+        foreach ($channels as $number => $channel) {
+            if (preg_match('/^(.*meater.*?)\s*[-_ ]*\s*(Kerntemperatur|Garraumtemperatur|KT|GT)$/iu', trim($channel['name']), $match)) {
+                $base = trim($match[1], " -_");
+                $role = in_array(strtolower($match[2]), ['kt', 'kerntemperatur'], true) ? 'core' : 'ambient';
+                $key = strtolower($base);
+                $candidates[$key]['name'] = $base;
+                $candidates[$key][$role][] = $number;
+                // Auch ein allein verfügbarer Garraumsensor bleibt eine reine Anzeige.
+                $meta[$number] = ['sensorRole' => $role, 'probeName' => $base];
+            }
+        }
+        foreach ($candidates as $candidate) {
+            if (count($candidate['core'] ?? []) === 1 && count($candidate['ambient'] ?? []) === 1) {
+                foreach (['core', 'ambient'] as $role) {
+                    $number = $candidate[$role][0];
+                    $meta[$number]['pairKey'] = 'meater_' . $candidate['core'][0];
+                }
+            }
+        }
+        $rows = $this->meaterPairSelection();
+        $explicit = [];
+        foreach ($rows as $row) { $explicit[$row['Core']] = $explicit[$row['Ambient']] = true; }
+        // Explizite Zuordnung löst auch die bisherige automatische Paarung ihres Partners auf.
+        $blocked = [];
+        foreach ($explicit as $number => $_) { if (isset($meta[$number]['pairKey'])) { $blocked[$meta[$number]['pairKey']] = true; } }
+        foreach ($meta as &$item) { if (isset($blocked[$item['pairKey'] ?? ''])) { unset($item['pairKey']); } }
+        unset($item);
+        foreach ($rows as $row) {
+            foreach (['core' => 'Core', 'ambient' => 'Ambient'] as $role => $field) {
+                if (isset($channels[$row[$field]])) {
+                    $meta[$row[$field]] = ['sensorRole' => $role, 'probeName' => trim($row['Name']), 'pairKey' => 'meater_' . $row['Core']];
+                }
+            }
+        }
+        return $meta;
     }
 
     private function tileChannelSelection(): array
@@ -2190,6 +2319,8 @@ trait WLTVisualization
         $online = $this->ReadPropertyBoolean('Active') && (bool) $this->stateValue('Online', false);
         try { $choices = $this->tileChannelSelection(); } catch (Throwable $e) { $choices = []; }
         $channels = [];
+        try { $meater = $this->meaterMetadata($data, $settings); }
+        catch (Throwable $e) { $meater = []; $online = false; }
         foreach ($data['channel'] ?? [] as $ch) {
             if (!($choices[$ch['number']] ?? true)) { continue; }
             $wireless = $this->channelIsWireless($ch, $settings);
@@ -2198,7 +2329,7 @@ trait WLTVisualization
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'temperature' => $valid ? (float) $ch['temp'] : null,
                 'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null,
                 'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
-                'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']];
+                'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']] + ($meater[$ch['number']] ?? []);
         }
         $bt = $this->cached('BluetoothData');
         return ['version' => 1, 'enabled' => $this->ReadPropertyBoolean('TileEnabled'), 'online' => $online,
@@ -2292,6 +2423,9 @@ trait WLTVisualization
                 $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
                 if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
                     throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
+                }
+                if (($this->meaterMetadata($this->cached('Data'), $this->cached('Settings'))[$number]['sensorRole'] ?? '') === 'ambient') {
+                    throw new InvalidArgumentException('Die MEATER-Garraumtemperatur ist in der Kachel eine reine Messwertanzeige.');
                 }
                 [$ok, $adjusted] = $this->setVisualizationUpperLimit($number, $request['max'] ?? null);
             } elseif ($action === 'pitmaster') {
@@ -2466,6 +2600,16 @@ trait WLTForecastSupport
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.6.0: Ein MEATER, eine gemeinsame Kachel
+
+Ein klassischer MEATER mit zwei Messstellen erscheint als eine gemeinsame Kachel: **Kerntemperatur** und **Garraumtemperatur** stehen nebeneinander. Obergrenze, Fortschritt und Restzeit beziehen sich auf den Kern. Die Garraumtemperatur ist eine reine Messwertanzeige ohne Obergrenzenfeld, Zielwarnung oder Restzeitprognose. Das gilt auch, wenn der Garraum als optionaler Hauptkanal gewählt wird. Normale kabelgebundene Garraumfühler behalten ihre bisherige Bedienung.
+
+Die HTTP-Kanalliste des geprüften Firmwarestands enthält keine Bluetooth-Adresse oder lokale Messstellen-ID. Eine Paarung allein anhand benachbarter Kanalnummern wäre daher unzuverlässig. Das Modul erkennt eindeutige Namenspaare wie `MeaterKT`/`MeaterGT` oder `MEATER 1 Kerntemperatur`/`MEATER 1 Garraumtemperatur`. Beide Kanäle müssen Bluetooth-Kanäle sein und denselben eindeutigen Namensteil vor der Messstellenbezeichnung tragen. Bei mehreren gleich benannten oder anders benannten Geräten bitte in **MEATER-Zuordnung** pro Thermometer einen Anzeigenamen, den Kernkanal und den Garraumkanal eintragen. Diese ausdrückliche Zuordnung hat Vorrang. Hiermit lassen sich auch selbst benannte Messstellen zuordnen. Zusätzliche Messstellen neuerer MEATER-Modelle werden nicht automatisch erraten.
+
+Nur freigegebene, aktuell gültige Messwerte erscheinen. Fehlt der Kern, bleibt ein gültiger Garraummesswert als reine Anzeige sichtbar; fehlt der Garraum, bleibt nur der Kern mit seiner Bedienung. Es werden keine alten Werte oder Platzhalter für ausgeschlossene Messstellen eingeblendet. Ohne eindeutige Zuordnung bleiben die Kanäle getrennt.
+
+Die Bezeichnungen ändern ausschließlich die Visualisierung. Gerätekanäle, Variablen, IDs und Archivdaten werden nicht umbenannt oder zusammengelegt. Die allgemeine Skriptfunktion bleibt unverändert. Kachel-Schreibversuche auf erkannte/zugeordnete Garraummessstellen werden auch serverseitig abgewiesen. Nach dem Update Kachel/IPSView neu laden; bei direkter Dateikopie zusätzlich Symcon neu starten.
 
 ## Version 1.5.2: Restzeit im Hauptbereich
 
@@ -2647,7 +2791,7 @@ Den **Inhalt** des äußeren Ordners in ein Git-Repository hochladen; `library.j
 2. Eine konkurrierende Verbindung zur MEATER-App beziehungsweise zum MEATER-Block trennen. Laut WLANthermo kann die Sonde jeweils nur eine aktive Bluetooth-Verbindung bedienen.
 3. In der Symcon-Instanz **Bluetooth-Liste aktualisieren** drücken. Die Taste liest die vom Mini V3 gefundene Geräteliste erneut; sie startet keinen eigenen Bluetooth-Scan im Symcon-Server.
 4. Das passende Gerät anhand der MAC-Adresse auswählen und die gewünschten **Sensorkanäle** anhaken. Jeder Haken wird sofort gespeichert. Beim klassischen MEATER meldet die API zwei Kanäle. Neuere Modelle können weitere Messstellen liefern; es wird die tatsächlich gemeldete Anzahl verwendet.
-5. Danach erscheinen die vom Mini V3 zugewiesenen Temperaturkanäle automatisch in Symcon. Ihre Namen stammen vom WLANthermo. Es werden keine Messstellenbezeichnungen aus einer vermuteten MEATER-Modellversion abgeleitet.
+5. Danach erscheinen die vom Mini V3 zugewiesenen Temperaturkanäle automatisch in Symcon. Ihre ursprünglichen Namen stammen vom WLANthermo. Seit 1.6.0 kann die Visualisierung eindeutig benannte oder ausdrücklich zugeordnete MEATER-Messstellen als Kern/Garraum zusammenfassen; zusätzliche Messstellen werden nicht aus einer vermuteten Modellversion abgeleitet.
 
 Falls kein Gerät erscheint, zuerst im WLANthermo-Webinterface unter Bluetooth prüfen. Das Symcon-Modul kann nur Geräte nutzen, die der Mini V3 selbst unterstützt und erkennt. Für MEATER 2/Pro/Duo/XL hängt die Unterstützung von WLANthermo- und Bluetooth-Firmware ab; die Release Notes und die verlinkten Hinweise des WLANthermo-Teams beachten. Firmware-Updates werden nicht automatisch durchgeführt.
 
@@ -2784,6 +2928,8 @@ Die Oberfläche ist unmittelbar deutsch beschriftet; eine `locale.json` ist dahe
 
 - [Symcon GetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/getbuffer/) und [SetBuffer](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setbuffer/): interner, begrenzter Zustand ohne Lizenzvariablen; bei Dienstneustart nicht persistent.
 - [MEATER: Grenzen von Garzeitprognosen](https://support.meater.com/hc/en-us/articles/36914985836315-Cook-Time-Estimate-in-the-MEATER-App): Hintergrund zu Temperaturplateaus und wechselnden Bedingungen. Das Modul verwendet eine eigene einfache Trendberechnung, nicht den MEATER-Algorithmus.
+
+Quellen zur MEATER-Zuordnung: [offizielle HTTP-Kanalliste](https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/blob/06d456ca232bc26784d3349f79f222de41436921/src/API.cpp), [dynamische Kanalverwaltung](https://github.com/WLANThermo-nano/WLANThermo_ESP32_Software/blob/06d456ca232bc26784d3349f79f222de41436921/src/temperature/TemperatureGrp.cpp).
 ````
 
 ## LICENSE

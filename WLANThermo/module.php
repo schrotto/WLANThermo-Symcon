@@ -212,6 +212,9 @@ class WLANThermo extends IPSModuleStrict
         $data = $this->readData();
         $settings = $this->readSettings();
         $channel = WLTApi::item($data['channel'], 'number', $Number);
+        if ($adjustMinimum && ($this->meaterMetadata($data, $settings)[$Number]['sensorRole'] ?? '') === 'ambient') {
+            throw new InvalidArgumentException('Die MEATER-Garraumtemperatur ist in der Kachel eine reine Messwertanzeige.');
+        }
         $changes = $this->changes($Changes, ['name', 'typ', 'min', 'max', 'alarm', 'color']);
         foreach ($changes as $key => $v) {
             switch ($key) {

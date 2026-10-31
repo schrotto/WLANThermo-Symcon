@@ -189,3 +189,41 @@ check(!tileRequest($bounds, ['action' => 'channel', 'number' => 1, 'max' => 70.5
 $bounds->Update();
 $bounds->ignore = true;
 check(!tileRequest($bounds, ['action' => 'channel', 'number' => 1, 'max' => 70])['ok'], 'Nicht übernommene Grenzanpassung wird durch das Rücklesen erkannt und nicht als Erfolg bestätigt');
+
+// MEATER-Gruppierung folgt eindeutigen Namen oder ausdrücklicher Konfiguration, nie Kanalnachbarschaft.
+$pair = new TestDevice(false);
+$pairView = end($pair->visualizationMessages)['channels'];
+check($pairView[1]['sensorRole'] === 'core' && $pairView[2]['sensorRole'] === 'ambient' && $pairView[1]['pairKey'] === $pairView[2]['pairKey'], 'MeaterKT/MeaterGT erhalten gemeinsame Paar-ID und eindeutige Messstellenrollen');
+$pair->properties['AllowWrite'] = true;
+$beforeWrites = count($pair->writes);
+check(!tileRequest($pair, ['action'=>'channel','number'=>14,'max'=>130])['ok'] && count($pair->writes) === $beforeWrites, 'Manipulierte Kachelanfrage kann MEATER-Garraumgrenze nicht schreiben');
+check($pair->deviceData['channel'][1]['name'] === 'MeaterKT' && $pair->deviceData['channel'][2]['name'] === 'MeaterGT', 'Visu-Beschriftung benennt Gerätekanäle nicht ungefragt um');
+$pair->deviceData['channel'][1]['name'] = 'MEATER 1 KT'; $pair->deviceData['channel'][2]['name'] = 'MEATER 2 GT'; $pair->Update();
+$v = end($pair->visualizationMessages)['channels'];
+check(!isset($v[1]['pairKey'], $v[2]['pairKey']), 'Unterschiedliche MEATER-Namen werden nicht automatisch gepaart');
+$pair->deviceData['channel'][1]['name'] = 'Kanal13'; $pair->deviceData['channel'][2]['name'] = 'Kanal14'; $pair->Update();
+$v = end($pair->visualizationMessages)['channels'];
+check(!isset($v[1]['sensorRole']) && !isset($v[2]['sensorRole']), 'Anonyme Bluetooth-Kanäle werden nicht anhand von Nummern oder Nachbarschaft erraten');
+$pair->properties['TileMeaterPairs'] = '[{"Name":"Braten","Core":13,"Ambient":14}]'; $pair->ApplyChanges();
+$v = end($pair->visualizationMessages)['channels'];
+check($v[1]['probeName'] === 'Braten' && $v[1]['pairKey'] === $v[2]['pairKey'] && $v[2]['sensorRole'] === 'ambient', 'Explizite Zuordnung gruppiert auch frei benannte Bluetooth-Kanäle');
+$pair->properties['TileChannels'] = '[{"Number":14,"Enabled":false}]';
+
+$pair->ApplyChanges();
+$v = end($pair->visualizationMessages)['channels'];
+check(count($v) === 2 && $v[1]['sensorRole'] === 'core', 'Ausgeblendeter MEATER-Garraum bleibt auch in der gemeinsamen Kachel unsichtbar');
+$pair->properties['TileChannels'] = '[]';
+$pair->deviceData['channel'][1]['temp'] = 999.0; $pair->Update();
+$v = end($pair->visualizationMessages)['channels'];
+check(count($v) === 2 && $v[1]['sensorRole'] === 'ambient', 'Ungültiger Kern lässt gültigen Garraumsensor mit richtiger Rolle erhalten');
+$pair->properties['TileMeaterPairs'] = '[{"Name":"A","Core":13,"Ambient":14},{"Name":"B","Core":14,"Ambient":15}]'; $pair->ApplyChanges();
+check($pair->status === 201, 'Doppelte Zuordnung eines MEATER-Kanals wird als Konfigurationsfehler abgewiesen');
+$pair->properties['TileMeaterPairs'] = '[{"Name":"A","Core":13,"Ambient":13}]'; $pair->ApplyChanges();
+check($pair->status === 201, 'Ein Kanal kann nicht zugleich Kern und Garraum sein');
+$pair->properties['TileMeaterPairs'] = '[{"Name":"","Core":13,"Ambient":14}]'; $pair->ApplyChanges();
+check($pair->status === 201, 'Leerer MEATER-Anzeigename wird abgefangen');
+$duplicates = new TestDevice(false);
+$extra = $duplicates->deviceData['channel'][1]; $extra['number'] = 21;
+$duplicates->deviceData['channel'][] = $extra; $duplicates->Update();
+$v = end($duplicates->visualizationMessages)['channels'];
+check(!isset($v[1]['pairKey']) && !isset($v[2]['pairKey']) && !isset($v[3]['pairKey']), 'Doppelte Kerntemperaturnamen verhindern eine mehrdeutige automatische Paarung');

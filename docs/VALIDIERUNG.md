@@ -1,6 +1,16 @@
-# Prüfbericht 1.5.2 – 29. Oktober 2026
+# Prüfbericht 1.6.0 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.6.0
+
+230 PHP- und 48 JavaScript-Vertragsprüfungen erfolgreich. Neu geprüft: Rollen/Paar-ID aus eindeutigen Namen; keine Paarung unterschiedlicher oder doppelter Namen; keine Vermutung für anonyme Bluetooth-Kanäle; ausdrückliche Zuordnung; Ablehnung doppelter, identischer und leer benannter Zuordnungen; Ausschluss ungültiger/ausgeblendeter Messstellen; serverseitige Garraum-Schreibsperre; unveränderte Originalnamen.
+
+JavaScript prüft gemeinsame Anzeige beider Werte, genau ein Kern-Obergrenzenformular, korrekte Kernkanalnummer im Schreibauftrag, Garraum ohne Kern als reine Anzeige, Garraum-Hauptanzeige ohne Zielwarnung/Prognose, verschwundenen Garraumsensor, zwei MEATER bei vertauschter Reihenfolge und getrennte Anzeige ohne Paar-ID. Keine neue Browserlayout-/IPSView-/Geräteprüfung. Die neue Konfigurationsliste wird von der Formular-/Eigenschaftsstrukturprüfung erfasst.
+
+Die offizielle Firmware wurde am dokumentierten Commit 06d456ca232bc26784d3349f79f222de41436921 geprüft: API::channelAry liefert keine Adresse/lokale Messstellen-ID; TemperatureGrp::add/remove verändert die Kanalliste dynamisch. Deshalb gibt es keine automatische Zuordnung nach Kanalnummern. Eindeutige Namenspaare oder ausdrückliche Konfiguration bilden die Zuordnungsgrundlage.
+
+Am Zielsystem prüfen: zwei echte MEATER mit eindeutigen Namen oder expliziter Zuordnung, einzelne Messstellen aus-/einschalten, Bluetooth-Verbindungsabbruch, schmale IPSView-Kachel, Hauptanzeige für Kern bzw. Garraum sowie Kern-Obergrenze schreiben. Die berechnete Garzeit bleibt eine Trend-Schätzung.
 
 ## Änderungen und Nachweise 1.5.2
 

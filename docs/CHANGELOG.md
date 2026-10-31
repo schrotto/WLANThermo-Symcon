@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.6.0 – 31.10.2026
+
+- MEATER-Kern und Garraum gemeinsam in einer Kachel mit eindeutigen Messstellenbezeichnungen.
+- Automatische Erkennung eindeutiger MEATER-Namenspaare; optionale ausdrückliche Kanalzuordnung für andere/doppelte Namen. Keine Paarung durch bloße Kanalnachbarschaft.
+- Garraum als reine Messwertanzeige, auch im Hauptbereich; Kachel-Schreiben serverseitig gesperrt.
+- Kern behält Obergrenze, Restzeit und Fortschritt; ungültige/ausgeschlossene Messstellen bleiben verborgen.
+- Geräte-/Variablennamen und IDs bleiben erhalten.
+- 230 PHP- und 48 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.5.2 – 29.10.2026
 
 - Geschätzte Restdauer im optionalen Hauptbereich hervorgehoben, mit separatem voraussichtlichem Zielzeitpunkt.

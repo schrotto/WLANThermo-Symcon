@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.5.2"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.0"
         },
         {
             "type": "ExpansionPanel",
@@ -346,6 +346,51 @@
                 {
                     "type": "Label",
                     "caption": "In der Kachel erscheinen nur aktuell gültige Fühlerwerte. Nicht angeschlossene Fühler und getrennte Bluetooth-Fühler werden ausgeblendet. Die große Hauptanzeige ist optional und standardmäßig aus. Ein fest gewählter Hauptfühler wird bei ungültigem Wert ausgeblendet und nicht durch einen anderen ersetzt."
+                },
+                {
+                    "type": "Label",
+                    "caption": "MEATER: eindeutige Namen wie MeaterKT/MeaterGT oder MEATER 1 KT/MEATER 1 GT werden gemeinsam dargestellt. Bei anderen oder doppelten Namen die Kanäle hier ausdrücklich zuordnen. Bestehende Kanal- und Variablennamen bleiben erhalten."
+                },
+                {
+                    "type": "List",
+                    "name": "TileMeaterPairs",
+                    "caption": "MEATER-Zuordnung (optional, hat Vorrang vor Namenserkennung)",
+                    "rowCount": 3,
+                    "add": true,
+                    "delete": true,
+                    "columns": [
+                        {
+                            "name": "Name",
+                            "caption": "Thermometer",
+                            "width": "auto",
+                            "add": "MEATER",
+                            "edit": {
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "name": "Core",
+                            "caption": "Kanal Kern",
+                            "width": "130px",
+                            "add": 13,
+                            "edit": {
+                                "type": "NumberSpinner",
+                                "minimum": 1,
+                                "maximum": 255
+                            }
+                        },
+                        {
+                            "name": "Ambient",
+                            "caption": "Kanal Garraum",
+                            "width": "140px",
+                            "add": 14,
+                            "edit": {
+                                "type": "NumberSpinner",
+                                "minimum": 1,
+                                "maximum": 255
+                            }
+                        }
+                    ]
                 },
                 {
                     "type": "List",

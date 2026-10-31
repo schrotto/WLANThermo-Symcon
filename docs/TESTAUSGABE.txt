@@ -185,38 +185,50 @@ OK 184: Automatische Untergrenzenanpassung umgeht keinen Schreibschutz
 OK 185: Allgemeine Skriptfunktion bleibt strikt und ändert die Untergrenze nicht stillschweigend
 OK 186: Ungültige Dezimalwerte werden vor einer automatischen Anpassung abgewiesen
 OK 187: Nicht übernommene Grenzanpassung wird durch das Rücklesen erkannt und nicht als Erfolg bestätigt
-OK 188: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
-OK 189: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
-OK 190: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
-OK 191: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
-OK 192: Fehlende Obergrenze erzeugt keine Restzeit
-OK 193: Vor drei Minuten wird keine Restzeit ausgegeben
-OK 194: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
-OK 195: Abkühlung erzeugt keine negative Restzeit
-OK 196: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
-OK 197: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
-OK 198: Veraltete Messhistorie wird nicht zur Prognose verwendet
-OK 199: Fühlerwechsel setzt Verlauf und Startpunkt zurück
-OK 200: Längere Unterbrechung startet den Verlauf neu
-OK 201: Großer abrupter Temperatursprung startet einen neuen Verlauf
-OK 202: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
-OK 203: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
-OK 204: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
-OK 205: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
-OK 206: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
-OK 207: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
-OK 208: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
-OK 209: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
-OK 210: Reset erzeugt keine künstliche Messung aus alten Cachewerten
-OK 211: Erst der nächste echte Abruf startet die neue Messreihe
-OK 212: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
-OK 213: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
-OK 214: Ungültiger Fühler verwirft seinen Messverlauf
-OK 215: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
-OK 216: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
-OK 217: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
-OK 218: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
-218 assertions passed.
+OK 188: MeaterKT/MeaterGT erhalten gemeinsame Paar-ID und eindeutige Messstellenrollen
+OK 189: Manipulierte Kachelanfrage kann MEATER-Garraumgrenze nicht schreiben
+OK 190: Visu-Beschriftung benennt Gerätekanäle nicht ungefragt um
+OK 191: Unterschiedliche MEATER-Namen werden nicht automatisch gepaart
+OK 192: Anonyme Bluetooth-Kanäle werden nicht anhand von Nummern oder Nachbarschaft erraten
+OK 193: Explizite Zuordnung gruppiert auch frei benannte Bluetooth-Kanäle
+OK 194: Ausgeblendeter MEATER-Garraum bleibt auch in der gemeinsamen Kachel unsichtbar
+OK 195: Ungültiger Kern lässt gültigen Garraumsensor mit richtiger Rolle erhalten
+OK 196: Doppelte Zuordnung eines MEATER-Kanals wird als Konfigurationsfehler abgewiesen
+OK 197: Ein Kanal kann nicht zugleich Kern und Garraum sein
+OK 198: Leerer MEATER-Anzeigename wird abgefangen
+OK 199: Doppelte Kerntemperaturnamen verhindern eine mehrdeutige automatische Paarung
+OK 200: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
+OK 201: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
+OK 202: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
+OK 203: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
+OK 204: Fehlende Obergrenze erzeugt keine Restzeit
+OK 205: Vor drei Minuten wird keine Restzeit ausgegeben
+OK 206: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
+OK 207: Abkühlung erzeugt keine negative Restzeit
+OK 208: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
+OK 209: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
+OK 210: Veraltete Messhistorie wird nicht zur Prognose verwendet
+OK 211: Fühlerwechsel setzt Verlauf und Startpunkt zurück
+OK 212: Längere Unterbrechung startet den Verlauf neu
+OK 213: Großer abrupter Temperatursprung startet einen neuen Verlauf
+OK 214: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
+OK 215: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
+OK 216: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
+OK 217: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
+OK 218: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
+OK 219: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
+OK 220: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
+OK 221: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
+OK 222: Reset erzeugt keine künstliche Messung aus alten Cachewerten
+OK 223: Erst der nächste echte Abruf startet die neue Messreihe
+OK 224: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
+OK 225: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
+OK 226: Ungültiger Fühler verwirft seinen Messverlauf
+OK 227: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
+OK 228: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
+OK 229: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
+OK 230: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
+230 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert
@@ -257,7 +269,13 @@ UI OK 36: Plateau ersetzt die Hauptrestzeit und entfernt den alten Zielzeitpunkt
 UI OK 37: Temperaturplateau stoppt die Fortschrittsanimation
 UI OK 38: Verlauf-Reset sendet eine interne Aktion ohne Geräteeinstellungen
 UI OK 39: Prognose lässt sich vollständig ausblenden
-UI OK 40: Deaktivierung sperrt die bereits geöffnete Kachel
-40 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
-
-Isolierte Gesprächsvorschau: derselbe JavaScript-Vertrag erfolgreich (40 Prüfungen). Kein Browserlayout-/Gerätenachweis.
+UI OK 40: Ein MEATER zeigt beide korrekt beschrifteten Temperaturen in genau einer Kachel
+UI OK 41: Gemeinsame MEATER-Kachel besitzt nur ein Obergrenzenformular für den Kern
+UI OK 42: Obergrenze einer MEATER-Kachel schreibt ausschließlich auf den Kernkanal
+UI OK 43: Fehlender Kern lässt nur die gültige Garraumtemperatur ohne Ziel, Prognose oder Eingabe stehen
+UI OK 44: Garraum als Hauptkanal zeigt nur den Messwert ohne Zielwarnung oder Prognose
+UI OK 45: Ausgeblendeter oder ungültiger Garraum wird nicht als alter Wert angezeigt
+UI OK 46: Zwei MEATER bleiben auch bei vertauschter Reihenfolge getrennt zugeordnet
+UI OK 47: Ohne eindeutige Paarzuordnung werden keine benachbarten Kanäle zusammengefasst
+UI OK 48: Deaktivierung sperrt die bereits geöffnete Kachel
+48 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

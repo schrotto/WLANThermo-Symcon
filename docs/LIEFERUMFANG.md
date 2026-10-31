@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.5.2
+# Lieferumfang A–I – WLANThermo 1.6.0
 
 ## A. Modulbeschreibung
 
@@ -85,3 +85,5 @@ Die vollständige Umsetzung der Prognose liegt in libs/Forecast.php: lineare Aus
 Version 1.5.1 zeigt die Restzeit als kompakte geschlossene Detailzeile. Grafik und Reset bleiben durch Aufklappen erreichbar. Der Fortschrittsbalken hat weiche Übergänge und einen abschaltbaren Lichtlauf. Kacheländerungen passen bei Bedarf eine zu hohe Untergrenze automatisch mit an; die allgemeine Skriptfunktion bleibt strikt.
 
 Version 1.5.2 zeigt die geschätzte Restdauer und den voraussichtlichen Zielzeitpunkt im optionalen Hauptbereich. Die Testdaten-Vorschau blendet diesen Bereich ein. Aktueller Prüfumfang: 218 PHP- und 40 JavaScript-Vertragsprüfungen.
+
+Version 1.6.0: gemeinsame MEATER-Kachel für Kerntemperatur/Garraumtemperatur. Nur der Kern bietet Ziel, Restzeit und Obergrenzenbedienung. Eindeutige Namen oder explizite MEATER-Zuordnung verbinden die Messstellen. Geräte- und Variablennamen bleiben erhalten. 230 PHP- und 48 JavaScript-Vertragsprüfungen erfolgreich; reale IPSView-/Geräteprüfung offen.
