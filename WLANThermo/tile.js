@@ -163,8 +163,7 @@
         const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); pupil.setAttribute('cx','12'); pupil.setAttribute('cy','12'); pupil.setAttribute('r','2.5');
         const strike = document.createElementNS('http://www.w3.org/2000/svg', 'path'); strike.setAttribute('d','M3 3l18 18'); icon.append(eye,pupil,strike);
         button.append(icon,name);
-        button.addEventListener('pointerdown', event => event.stopPropagation());
-        button.addEventListener('click', event => { event.stopPropagation(); const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
+        button.addEventListener('click', () => { const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
         ui = {button,name,strike}; wiredButtons.set(ch.number,ui); $('wired-toolbar').append(button);
       }
       ui.name.textContent = ch.name;
@@ -328,7 +327,7 @@
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
-  $('wired-selector-toggle').addEventListener('click', event => { event.stopPropagation(); if (wiredMenuMode) { wiredMenuOpen = !wiredMenuOpen; render(); } });
+  $('wired-selector-toggle').addEventListener('click', () => { if (wiredMenuMode) { wiredMenuOpen = !wiredMenuOpen; render(); } });
   $('wired-selector').addEventListener('keydown', event => { if (event.key === 'Escape' && wiredMenuMode && wiredMenuOpen) { wiredMenuOpen = false; render(); $('wired-selector-toggle').focus(); } });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));

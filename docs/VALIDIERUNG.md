@@ -1,6 +1,14 @@
-# Prüfbericht 1.11.3 – 31. Oktober 2026
+# Prüfbericht 1.11.4 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.4
+
+302 PHP- und 117 JavaScript-Vertragsprüfungen erfolgreich. Benutzerpräzisierung: Symcon im Browser, Bedienung erst nach Änderung der Rasterbreite/-höhe. Kein Maximieren. Auf die betroffene Seite besteht hier kein Browserzugriff; die konkrete Anfangsgeometrie/Hittest-Abdeckung ist daher nicht reproduziert.
+
+CSS setzt die rechte Kopfspalte auf die volle Breite ihrer Grid-Spalte, streckt den Selektor und lässt Buttontexte innerhalb der Fläche schrumpfen. Dies entfernt die bisherige Inhalts-/Prozentbreitenabhängigkeit. Der in 1.11.3 eingeführte stopPropagation-Eingriff ist wieder entfernt. Neue Verträge prüfen direkte Klickverarbeitung ohne Ereignisunterdrückung, unmittelbar versendeten Sichtbarkeitsauftrag und Wiederfreigabe nach der Antwort ohne Resize-Handler. Sie simulieren keine native Browsergeometrie.
+
+Realer Zieltest erforderlich: Visu vollständig laden, vor jeder Größenänderung beide Buttons bedienen, danach Raster ändern und Verhalten vergleichen. Normale Breiten und lange Fühlernamen kontrollieren. Keine synthetischen Resize-Ereignisse oder Reload-Schleifen implementiert. Eine definitive Behebung des Client-Hit-Tests kann aus diesen lokalen Verträgen nicht abgeleitet werden.
 
 ## Änderungen und Nachweise 1.11.3
 

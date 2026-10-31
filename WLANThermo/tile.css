@@ -40,3 +40,6 @@
 
 /* Reale Buttons ohne Details-Container und ohne überlagerte Klickflächen. */
 .topbar{position:relative;z-index:2}.header-temperature{position:relative;z-index:0}.header-status{position:relative;z-index:3}.wired-selector{position:relative;z-index:4}.wired-toggle{position:relative;touch-action:manipulation}.wired-toggle>*{pointer-events:none}.wired-selector-toggle{width:100%;text-align:left;touch-action:manipulation}
+
+/* Definierte Kopfbreite bereits beim ersten Layout; normale Symcon-Ereignisse erhalten. */
+.topbar{width:100%}.header-status{justify-self:stretch;width:100%;max-width:100%;min-width:0;isolation:isolate}.header-status .wired-selector{align-self:stretch;flex:0 0 auto;width:100%;min-width:0}.header-status .wired-toolbar{min-width:0;flex:0 0 auto}.wired-toggle{max-width:100%;flex:0 1 auto}.wired-name{min-width:0}

@@ -412,9 +412,11 @@ UI OK 107: Auch zehn Drahtfühler bleiben über das kompakte Menü verfügbar
 UI OK 108: Weniger verfügbare Fühler stellen die direkte Buttonleiste wieder her
 UI OK 109: Ohne verfügbare Drahtfühler entfällt auch der Menüschalter
 UI OK 110: Einzelne Drahtfühler liegen in einem normalen sichtbaren Container und bleiben im Schreibschutz klickbar
-UI OK 111: Pointer-Ereignisse der Fühlerbuttons werden nicht an übergeordnete Kachel-Gesten weitergegeben
+UI OK 111: Pointer-Ereignisse bleiben für Symcons normale Verarbeitung verfügbar
 UI OK 112: Zusammengefasste Fühlerauswahl ist ein echter Button mit geschlossenem Zustand
 UI OK 113: Klick auf den echten Menübutton öffnet die Fühlerliste
 UI OK 114: Erneuter Klick schließt die Liste ohne native Details-Abhängigkeit
-UI OK 115: Deaktivierung sperrt die bereits geöffnete Kachel
-115 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 115: Normaler Klick startet sofort die Ansichtsauswahl, ohne native Ereignisse zu unterdrücken oder ein Resize abzuwarten
+UI OK 116: Antwort gibt den Schalter ohne Größenänderung für erneute Bedienung frei
+UI OK 117: Deaktivierung sperrt die bereits geöffnete Kachel
+117 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

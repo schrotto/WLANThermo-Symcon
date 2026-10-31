@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.11.4 – 31.10.2026
+
+- Volle Grid-Breite für rechte Kopfspalte und Fühlerauswahl von Anfang an festgelegt.
+- Lange Namen/Buttons auf die verfügbare Breite begrenzt.
+- Native Pointer-/Klickweitergabe wiederhergestellt; keine künstlichen Resize-Ereignisse.
+- 302 PHP- und 117 JavaScript-Vertragsprüfungen erfolgreich; größenabhängiger Fehler im echten Symcon-Browser noch zu bestätigen.
+
 ## 1.11.3 – 31.10.2026
 
 - Fühlerleiste in normalem Container statt Details/verborgenem Summary.

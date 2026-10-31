@@ -2,6 +2,14 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.4: Anfangsbreite der Fühlerauswahl stabilisieren
+
+Die Rückmeldung betrifft die Symcon-Kachelvisualisierung im Browser: Die einzelnen Fühlerbuttons funktionieren erst nach einer Änderung der Rasterbreite/-höhe, nicht erst durch Maximieren. Die rechte Kopfspalte bekommt nun ausdrücklich die volle Breite ihrer Grid-Spalte. Zuvor konnte sie durch ihre Endausrichtung und prozentuale Kindbreiten von ihrer Inhaltsgröße abhängig sein. Namen und Buttons dürfen innerhalb der zugewiesenen Breite schrumpfen, statt darüber hinauszuragen. Die mittige Temperaturkachel bleibt unverändert angeordnet.
+
+Die in 1.11.3 ergänzte Unterdrückung von Pointer-/Klickereignissen wurde wieder entfernt. Native Ereignisse bleiben damit für Symcons normale Verarbeitung verfügbar. Die Ansichtsauswahl selbst wird weiterhin unmittelbar auf den Buttonklick gestartet. Es werden keine künstlichen Größenänderungen, Resize-Ereignisse oder periodischen Seiten-Reloads ausgelöst.
+
+Die tatsächliche Hit-Test-Situation auf der betroffenen Symcon-Seite konnte hier nicht reproduziert werden; diese Änderungen stabilisieren die bekannten Breiten- und Ereignisabhängigkeiten. Nach dem Update die Visualisierung vollständig neu laden und die Auswahl **vor einer Größenänderung** prüfen.
+
 ## Version 1.11.3: Direkte Fühlerbuttons ohne Details-Container
 
 Die gemeldete nicht anklickbare Drahtfühlerauswahl wurde überarbeitet. Einzelne Fühler stehen jetzt in einem normalen Container; die Fühlerauswahl hängt nicht mehr von einem geöffneten Details-Element mit verborgenem Summary ab. Ab fünf Fühlern öffnet ein echter Button die Liste mit explizitem Sichtbarkeitszustand und `aria-expanded`. Escape und Erhalt der geöffneten Auswahl bei Live-Daten bleiben vorhanden.

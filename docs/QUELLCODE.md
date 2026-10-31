@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.11.3
+# Vollständiger Quellcode – WLANThermo 1.11.4
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.11.3",
-    "build": 25,
+    "version": "1.11.4",
+    "build": 26,
     "date": 1793404800
 }
 ````
@@ -1005,7 +1005,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.3"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.4"
         },
         {
             "type": "ExpansionPanel",
@@ -1907,6 +1907,9 @@ class WLANThermo extends IPSModuleStrict
 
 /* Reale Buttons ohne Details-Container und ohne überlagerte Klickflächen. */
 .topbar{position:relative;z-index:2}.header-temperature{position:relative;z-index:0}.header-status{position:relative;z-index:3}.wired-selector{position:relative;z-index:4}.wired-toggle{position:relative;touch-action:manipulation}.wired-toggle>*{pointer-events:none}.wired-selector-toggle{width:100%;text-align:left;touch-action:manipulation}
+
+/* Definierte Kopfbreite bereits beim ersten Layout; normale Symcon-Ereignisse erhalten. */
+.topbar{width:100%}.header-status{justify-self:stretch;width:100%;max-width:100%;min-width:0;isolation:isolate}.header-status .wired-selector{align-self:stretch;flex:0 0 auto;width:100%;min-width:0}.header-status .wired-toolbar{min-width:0;flex:0 0 auto}.wired-toggle{max-width:100%;flex:0 1 auto}.wired-name{min-width:0}
 ````
 
 ## WLANThermo/tile.js
@@ -2077,8 +2080,7 @@ class WLANThermo extends IPSModuleStrict
         const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); pupil.setAttribute('cx','12'); pupil.setAttribute('cy','12'); pupil.setAttribute('r','2.5');
         const strike = document.createElementNS('http://www.w3.org/2000/svg', 'path'); strike.setAttribute('d','M3 3l18 18'); icon.append(eye,pupil,strike);
         button.append(icon,name);
-        button.addEventListener('pointerdown', event => event.stopPropagation());
-        button.addEventListener('click', event => { event.stopPropagation(); const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
+        button.addEventListener('click', () => { const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
         ui = {button,name,strike}; wiredButtons.set(ch.number,ui); $('wired-toolbar').append(button);
       }
       ui.name.textContent = ch.name;
@@ -2242,7 +2244,7 @@ class WLANThermo extends IPSModuleStrict
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
-  $('wired-selector-toggle').addEventListener('click', event => { event.stopPropagation(); if (wiredMenuMode) { wiredMenuOpen = !wiredMenuOpen; render(); } });
+  $('wired-selector-toggle').addEventListener('click', () => { if (wiredMenuMode) { wiredMenuOpen = !wiredMenuOpen; render(); } });
   $('wired-selector').addEventListener('keydown', event => { if (event.key === 'Escape' && wiredMenuMode && wiredMenuOpen) { wiredMenuOpen = false; render(); $('wired-selector-toggle').focus(); } });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
@@ -3267,6 +3269,14 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.11.4: Anfangsbreite der Fühlerauswahl stabilisieren
+
+Die Rückmeldung betrifft die Symcon-Kachelvisualisierung im Browser: Die einzelnen Fühlerbuttons funktionieren erst nach einer Änderung der Rasterbreite/-höhe, nicht erst durch Maximieren. Die rechte Kopfspalte bekommt nun ausdrücklich die volle Breite ihrer Grid-Spalte. Zuvor konnte sie durch ihre Endausrichtung und prozentuale Kindbreiten von ihrer Inhaltsgröße abhängig sein. Namen und Buttons dürfen innerhalb der zugewiesenen Breite schrumpfen, statt darüber hinauszuragen. Die mittige Temperaturkachel bleibt unverändert angeordnet.
+
+Die in 1.11.3 ergänzte Unterdrückung von Pointer-/Klickereignissen wurde wieder entfernt. Native Ereignisse bleiben damit für Symcons normale Verarbeitung verfügbar. Die Ansichtsauswahl selbst wird weiterhin unmittelbar auf den Buttonklick gestartet. Es werden keine künstlichen Größenänderungen, Resize-Ereignisse oder periodischen Seiten-Reloads ausgelöst.
+
+Die tatsächliche Hit-Test-Situation auf der betroffenen Symcon-Seite konnte hier nicht reproduziert werden; diese Änderungen stabilisieren die bekannten Breiten- und Ereignisabhängigkeiten. Nach dem Update die Visualisierung vollständig neu laden und die Auswahl **vor einer Größenänderung** prüfen.
 
 ## Version 1.11.3: Direkte Fühlerbuttons ohne Details-Container
 
