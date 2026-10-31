@@ -1,6 +1,16 @@
-# Prüfbericht 1.9.0 – 31. Oktober 2026
+# Prüfbericht 1.10.0 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.10.0
+
+298 PHP- und 92 JavaScript-Vertragsprüfungen erfolgreich. Neue tests/visibility.php prüft nur gültige Drahtfühler ohne Kopfkanal in der Leiste, Ausblenden im Schreibschutz ohne HTTP-Abruf/POST, weiter sichtbaren Wiederherstellungsbutton, persistente Auswahl in neuer Modullaufzeit, Zurückweisen alter Grenzanfragen, Wiedereinblenden, Ausschluss von Bluetooth/Kopfkanal, übergeordnete Modul-Auswahl, Typ-/Parameterfehler, Hostwechsel und Sonderfall Kopftemperatur. Ein simuliertes Pushover-Szenario bestätigt die Unterdrückung von Zielmeldungen für verborgene Drahtfühler.
+
+JavaScript prüft beschriftete Buttons mit aria-pressed, Betätigung im Geräte-Schreibschutz, bestätigungsgebundenen Umschaltauftrag und Doppelklicksperre, Entfernen ausschließlich der Drahtkachel bei weiter bestehendem MEATER-Paar, erreichbare Leiste/Erklärung bei vollständig verborgenen Kacheln, Wiedereinblenden, leere Leiste und Erhalt offener Fremd-Eingaben während und nach der Umschaltung.
+
+Sichtbarkeitsaktionen sind schema-/kanalgeprüft, über die Instanz-Semaphore serialisiert und schreiben ausschließlich ein Instanzattribut. Es erfolgen weder Geräteschreibzugriffe noch automatische Modul-Eigenschaftsänderungen. Die serverseitigen Freigaben der Gerätesteuerung bleiben bestehen. Keine neuen Statusvariablen. CSS und SVG-Zustände wurden im DOM-Vertrag geprüft, nicht als gerendertes IPSView-Layout.
+
+Offene Zielprüfung: Leistenposition bei schmalen/breiten Kacheln, Touch/Keyboard, alle Drahtfühler aus und wieder ein, Client-Neuladen, vorhandene Moduleigenschaftsauswahl und mehrere gleichzeitig geöffnete Visualisierungen. Reale Pushover-Zustellung bleibt weiterhin offen.
 
 ## Änderungen und Nachweise 1.9.0
 

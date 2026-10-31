@@ -251,38 +251,52 @@ OK 250: Explizites Zurücksetzen erlaubt nach behobenem Problem den nächsten re
 OK 251: Netzfehler-Sendepause gilt auch für gleichzeitig wartende andere Fühler
 OK 252: Vorwarnungsversand lässt sich separat abschalten
 OK 253: Zielmeldung bleibt bei abgeschalteter Vorwarnung aktiv
-OK 254: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
-OK 255: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
-OK 256: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
-OK 257: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
-OK 258: Fehlende Obergrenze erzeugt keine Restzeit
-OK 259: Vor drei Minuten wird keine Restzeit ausgegeben
-OK 260: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
-OK 261: Abkühlung erzeugt keine negative Restzeit
-OK 262: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
-OK 263: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
-OK 264: Veraltete Messhistorie wird nicht zur Prognose verwendet
-OK 265: Fühlerwechsel setzt Verlauf und Startpunkt zurück
-OK 266: Längere Unterbrechung startet den Verlauf neu
-OK 267: Großer abrupter Temperatursprung startet einen neuen Verlauf
-OK 268: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
-OK 269: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
-OK 270: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
-OK 271: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
-OK 272: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
-OK 273: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
-OK 274: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
-OK 275: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
-OK 276: Reset erzeugt keine künstliche Messung aus alten Cachewerten
-OK 277: Erst der nächste echte Abruf startet die neue Messreihe
-OK 278: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
-OK 279: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
-OK 280: Ungültiger Fühler verwirft seinen Messverlauf
-OK 281: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
-OK 282: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
-OK 283: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
-OK 284: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
-284 assertions passed.
+OK 254: Leiste enthält ausschließlich gültige kabelgebundene Fühler ohne separat angezeigten Kopfkanal
+OK 255: Ausblenden funktioniert im Geräte-Schreibschutz ohne HTTP-Abruf oder Geräteänderung
+OK 256: Verborgene Kachel entfällt aus Daten, ihr Button bleibt zum Einblenden erhalten
+OK 257: Gespeicherte Auswahl bleibt nach erneutem Laden der Modullaufzeit erhalten
+OK 258: Versteckter Fühler kann nicht über eine veraltete Kachelanfrage verstellt werden
+OK 259: Wiedereinblenden stellt die ursprüngliche Kachel wieder her
+OK 260: Bluetooth-Kanäle können durch die Drahtfühlerleiste nicht versteckt werden
+OK 261: Kopfkanal bleibt unabhängig von der unteren Fühlerleiste
+OK 262: Im Modul gesperrter Kanal wird durch die Leiste nicht wieder freigegeben
+OK 263: Ungültiger Sichtbarkeitstyp wird abgewiesen
+OK 264: Ansichtsschalter nimmt keine zusätzlichen Geräteparameter an
+OK 265: Auswahl eines anderen Geräts übernimmt nicht die alte Ausblendung
+OK 266: Als Kopftemperatur gewählter Fühler wird trotz früherer Ausblendung wieder angezeigt
+OK 267: Nicht benötigter ausgeblendeter Drahtfühler erzeugt keine Pushover-Zielnachricht
+OK 268: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
+OK 269: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
+OK 270: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
+OK 271: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
+OK 272: Fehlende Obergrenze erzeugt keine Restzeit
+OK 273: Vor drei Minuten wird keine Restzeit ausgegeben
+OK 274: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
+OK 275: Abkühlung erzeugt keine negative Restzeit
+OK 276: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
+OK 277: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
+OK 278: Veraltete Messhistorie wird nicht zur Prognose verwendet
+OK 279: Fühlerwechsel setzt Verlauf und Startpunkt zurück
+OK 280: Längere Unterbrechung startet den Verlauf neu
+OK 281: Großer abrupter Temperatursprung startet einen neuen Verlauf
+OK 282: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
+OK 283: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
+OK 284: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
+OK 285: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
+OK 286: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
+OK 287: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
+OK 288: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
+OK 289: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
+OK 290: Reset erzeugt keine künstliche Messung aus alten Cachewerten
+OK 291: Erst der nächste echte Abruf startet die neue Messreihe
+OK 292: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
+OK 293: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
+OK 294: Ungültiger Fühler verwirft seinen Messverlauf
+OK 295: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
+OK 296: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
+OK 297: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
+OK 298: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
+298 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert
@@ -366,5 +380,14 @@ UI OK 79: Sammlung trägt die gewünschte Beschriftung Vorgaben
 UI OK 80: Blinken lässt sich unabhängig von der roten Anzeige ausschalten
 UI OK 81: Rote Anzeige verschwindet bei entfallenem Alarmzustand
 UI OK 82: Pushover-Fehler wird in der Kachel sichtbar
-UI OK 83: Deaktivierung sperrt die bereits geöffnete Kachel
-83 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 83: Kompakte Leiste zeigt einen beschrifteten Drahtfühlerschalter auch im Geräte-Schreibschutz
+UI OK 84: Button fordert Ausblenden an und sperrt Doppelklick bis zur Bestätigung
+UI OK 85: Ausgeblendeter Drahtfühler verschwindet als Kachel, Bluetooth-Paar bleibt und Wiederherstellungsbutton ist aktiv
+UI OK 86: Wenn alle Kacheln verborgen sind, bleiben Leiste und verständlicher Wiederherstellungshinweis erreichbar
+UI OK 87: Verborgener Drahtfühler lässt sich über denselben Button wieder einblenden
+UI OK 88: Bestätigtes Einblenden stellt die Kachel und aktiven Buttonzustand wieder her
+UI OK 89: Ohne freigegebene Drahtfühler entfällt die Leiste
+UI OK 90: Ansichtsschalter verwirft während der Speicherung keine offene Eingabe eines anderen Fühlers
+UI OK 91: Bestätigte Sichtbarkeitsänderung erhält ungespeicherte Grenzänderung eines anderen Fühlers
+UI OK 92: Deaktivierung sperrt die bereits geöffnete Kachel
+92 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

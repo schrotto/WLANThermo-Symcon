@@ -43,6 +43,7 @@ trait WLTNotifications
     private function targetAlertLevel(array $channel, array $data, array $settings): string
     {
         $number = $channel['number'];
+        if (!$this->channelIsWireless($channel, $settings) && !$this->wiredChannelVisible((int) $number)) { return ''; }
         if (!$this->channelHasValidTemperature($channel, $settings) || !($this->tileChannelSelection()[$number] ?? true) ||
             ($this->ReadPropertyBoolean('TileHeaderEnabled') && $number === $this->ReadPropertyInteger('TileHeaderChannel')) ||
             ($this->meaterMetadata($data, $settings)[$number]['sensorRole'] ?? '') === 'ambient' ||

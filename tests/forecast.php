@@ -104,4 +104,11 @@ for ($second = 0; $second <= 600; $second += 30) {
 $previewData = end($forecastPreview->visualizationMessages);
 check($previewData['channels'][1]['forecast']['status'] === 'estimated' && count($forecastPreview->variables) === 0, 'Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen');
 file_put_contents(__DIR__ . '/tile-state.generated.json', WLTApi::encode($previewData));
-file_put_contents(__DIR__ . '/tile.generated.html', $forecastPreview->GetVisualizationTile());
+// Die eigenständige Designvorschau enthält zusätzlich einen Drahtfühler für die Buttonleiste.
+// Der bestehende Vertrags-Fixture bleibt unverändert.
+$toolbarPreview = clone $forecastPreview;
+$previewWire = $toolbarPreview->deviceData['channel'][0];
+$previewWire['number'] = 2; $previewWire['name'] = 'Fühler 1';
+array_splice($toolbarPreview->deviceData['channel'], 1, 0, [$previewWire]);
+$toolbarPreview->Update();
+file_put_contents(__DIR__ . '/tile.generated.html', $toolbarPreview->GetVisualizationTile());

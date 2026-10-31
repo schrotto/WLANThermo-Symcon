@@ -1,8 +1,8 @@
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  let state = {}, selected = 0, pending = null, timeout = null;
-  const probes = new Map(), pitmasters = new Map();
+  let state = {}, selected = 0, pending = null, pendingAction = '', timeout = null;
+  const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
   const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
@@ -80,11 +80,12 @@
     if (typeof window.requestAction !== 'function') { announce('Bedienung ist nur in der verbundenen Symcon-Visualisierung verfügbar.', true); return; }
     const requestId = 'wlt_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
     pending = requestId;
-    announce(action === 'refresh' ? 'Messwerte werden abgerufen …' : 'Änderung wird am Gerät geprüft …');
+    pendingAction = action;
+    announce(action === 'refresh' ? 'Messwerte werden abgerufen …' : action === 'visibility' ? 'Fühleranzeige wird gespeichert …' : 'Änderung wird am Gerät geprüft …');
     render();
-    timeout = setTimeout(() => { pending = null; announce('Keine Bestätigung erhalten. Vor erneutem Bedienen bitte aktualisieren.', true); render(); }, state.config?.actionTimeout || 35000);
+    timeout = setTimeout(() => { pending = null; pendingAction = ''; announce('Keine Bestätigung erhalten. Vor erneutem Bedienen bitte aktualisieren.', true); render(); }, state.config?.actionTimeout || 35000);
     try { window.requestAction('TileAction', JSON.stringify({requestId, action, ...values})); }
-    catch (error) { clearTimeout(timeout); pending = null; announce('Anfrage konnte nicht gesendet werden.', true); render(); }
+    catch (error) { clearTimeout(timeout); pending = null; pendingAction = ''; announce('Anfrage konnte nicht gesendet werden.', true); render(); }
   }
   function field(label, type, min, max) {
     const wrapper = node('label', 'field'); wrapper.append(node('span', '', label));
@@ -138,6 +139,7 @@
   }
   function render() {
     const cfg = state.config || {}, active = state.enabled !== false, editable = active && state.canWrite && !pending;
+    const preservingVisibility = Boolean(pending && pendingAction === 'visibility');
     document.documentElement.dataset.theme = cfg.theme || 'auto';
     document.documentElement.style.setProperty('--accent', /^#[0-9a-f]{6}$/i.test(cfg.accent || '') ? cfg.accent : '#f48941');
     document.body.classList.toggle('compact', Boolean(cfg.compact)); document.body.classList.toggle('no-icons', cfg.icons === false); document.body.classList.toggle('no-details', cfg.details === false); document.body.classList.toggle('no-animation', cfg.animations === false); document.body.classList.toggle('disabled', !active); document.body.classList.toggle('busy', Boolean(pending));
@@ -145,6 +147,27 @@
     $('connection').textContent = !active ? 'Kachel deaktiviert' : !state.active ? 'Deaktiviert' : state.online ? 'Verbunden' : state.status >= 200 ? 'Fehler' : 'Standby';
     $('connection').classList.toggle('online', Boolean(active && state.online));
     const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
+    const wired = active && state.online ? state.wiredChannels || [] : [];
+    for (const [number, ui] of wiredButtons) if (!wired.some(ch => ch.number === number)) { ui.button.remove(); wiredButtons.delete(number); }
+    for (const ch of wired) {
+      let ui = wiredButtons.get(ch.number);
+      if (!ui) {
+        const button = node('button', 'wired-toggle'), number = node('span', 'wired-number', String(ch.number)), name = node('span', 'wired-name'); button.type = 'button';
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); icon.setAttribute('viewBox','0 0 24 24'); icon.setAttribute('aria-hidden','true'); icon.setAttribute('class','wired-toggle-icon icon');
+        const eye = document.createElementNS('http://www.w3.org/2000/svg', 'path'); eye.setAttribute('d','M2 12s3-6 10-6 10 6 10 6-3 6-10 6S2 12 2 12Z');
+        const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); pupil.setAttribute('cx','12'); pupil.setAttribute('cy','12'); pupil.setAttribute('r','2.5');
+        const strike = document.createElementNS('http://www.w3.org/2000/svg', 'path'); strike.setAttribute('d','M3 3l18 18'); icon.append(eye,pupil,strike);
+        button.append(icon,number,name);
+        button.addEventListener('click', () => { const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
+        ui = {button,name,strike}; wiredButtons.set(ch.number,ui); $('wired-toolbar').append(button);
+      }
+      ui.name.textContent = ch.name;
+      ui.button.setAttribute('aria-pressed',String(ch.visible));
+      ui.button.setAttribute('aria-label','Kanal ' + ch.number + ' · ' + ch.name + (ch.visible ? ' ausblenden' : ' einblenden'));
+      ui.button.setAttribute('title',ch.name + (ch.visible ? ' ausblenden' : ' einblenden'));
+      ui.button.classList.toggle('is-hidden',!ch.visible); ui.strike.setAttribute('visibility',ch.visible ? 'hidden' : 'visible'); ui.button.disabled = Boolean(pending);
+    }
+    $('wired-toolbar').hidden = wired.length === 0;
     $('tile-title').textContent = cfg.title || 'Grillstation';
     const images = cfg.brandImages || ['',''], stacked = cfg.brandLayout === 'stacked';
     const showImage = (id, source) => { const image = $(id); image.hidden = !source; if (source) { if (image.src !== source) image.src = source; } else image.removeAttribute('src'); };
@@ -167,7 +190,7 @@
     $('hero').classList.toggle('target-alert', Boolean(main?.targetAlert));
     $('hero').classList.toggle('target-blink', Boolean(main?.targetAlert && cfg.alertBlink));
     document.body.classList.toggle('has-hero', !$('hero').hidden);
-    $('empty-state').hidden = !active || channels.length > 0;
+    $('empty-state').hidden = !active || channels.length > 0 || wired.length > 0;
     $('empty-state').textContent = state.online ? 'Keine gültigen Fühlerwerte verfügbar. Nicht angeschlossene Fühler werden automatisch ausgeblendet.' : 'Keine aktuellen Fühlerwerte – Gerät nicht erreichbar oder noch kein erfolgreicher Abruf.';
     $('hero-channel').textContent = main ? 'KANAL ' + main.number + (main.wireless ? ' · BLUETOOTH' : ' · FÜHLER') : 'TEMPERATUR';
     $('hero-name').textContent = main?.displayName || (main?.sensorRole ? main.probeName + ' · ' + (main.sensorRole === 'core' ? 'Kerntemperatur' : 'Garraumtemperatur') : main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte'));
@@ -192,10 +215,10 @@
     const ambientSensors = new Map(overview.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
     const cards = overview.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
     for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
-    cards.forEach(ch => {
+    cards.forEach((ch, index) => {
       const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
       const ambientOnly = ch.sensorRole === 'ambient';
-      let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
+      let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').insertBefore(ui.el, $('channels').children[index] || null); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
       ui.el.className = 'probe' + (ambient ? ' paired-probe' : '') + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
       ui.name.textContent = ch.displayName || ch.probeName || ch.name;
@@ -219,8 +242,8 @@
       ui.details.classList.toggle('read-only', !editable);
       ui.details.children[0].setAttribute('aria-disabled', String(!editable));
       ui.details.children[0].setAttribute('aria-label', 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit + (editable ? ', zum Ändern öffnen' : ', schreibgeschützt'));
-      ui.details.children[1].hidden = !editable;
-      if (!editable) ui.details.open = false;
+      ui.details.children[1].hidden = !editable && !preservingVisibility;
+      if (!editable && !preservingVisibility) ui.details.open = false;
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
@@ -241,14 +264,15 @@
       ui.presetBox.classList.toggle('has-selection', Boolean(displayedPreset));
       ui.presetBox.classList.toggle('read-only', !editable);
       ui.presetBox.children[0].setAttribute('aria-disabled', String(!editable));
-      ui.presetEditor.hidden = !editable;
-      if (!editable) ui.presetBox.open = false;
+      ui.presetEditor.hidden = !editable && !preservingVisibility;
+      if (!editable && !preservingVisibility) ui.presetBox.open = false;
       ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
       ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
       ui.presetSelect.disabled = !editable;
       ui.presetApply.disabled = !editable || !ui.selectedPreset();
     });
-    $('channels-section').hidden = cards.length === 0;
+    $('channels-section').hidden = cards.length === 0 && wired.length === 0;
+    $('wired-empty').hidden = cards.length > 0 || wired.length === 0;
     const pms = active ? state.pitmasters || [] : [];
     for (const [id, ui] of pitmasters) if (!pms.some(pm => pm.id === id)) { ui.el.remove(); pitmasters.delete(id); }
     pms.forEach(pm => {
@@ -266,14 +290,15 @@
   }
   window.handleMessage = data => {
     try { if (typeof data === 'string') data = JSON.parse(data); if (!data || typeof data !== 'object' || Array.isArray(data)) return;
-      if (data.enabled === false) { state = {...state, enabled:false}; if (data.response?.requestId === pending) announce(data.response.message, !data.response.ok); clearTimeout(timeout); pending = null; render(); return; }
+      if (data.enabled === false) { state = {...state, enabled:false}; if (data.response?.requestId === pending) announce(data.response.message, !data.response.ok); clearTimeout(timeout); pending = null; pendingAction = ''; render(); return; }
       if (data.version !== 1) return;
       if (data.config && !Object.prototype.hasOwnProperty.call(data.config, 'brandImages')) data.config.brandImages = state.config?.brandImages || ['',''];
       if (data.config?.primary !== state.config?.primary) selected = data.config?.primary || 0;
       state = data;
       if (data.response && data.response.requestId === pending) {
+        const preserveEditors = pendingAction === 'visibility'; pendingAction = '';
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetBox.open = false; ui.presetDirty = false; } }
+        if (data.response.ok && !preserveEditors) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetBox.open = false; ui.presetDirty = false; } }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }

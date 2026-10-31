@@ -381,5 +381,6 @@ $m->deviceData['channel'][] = $m->deviceData['channel'][0];
 check(!$m->Update(), 'Reject duplicate channel numbers');
 require __DIR__ . '/premium.php';
 require __DIR__ . '/notifications.php';
+require __DIR__ . '/visibility.php';
 require __DIR__ . '/forecast.php';
 echo $count . " assertions passed.\n";

@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 class Element {
   constructor(tag) { this.tagName = tag; this.children = []; this.attrs = {}; this.events = {}; this.dataset = {}; this.style = {setProperty:(key,value) => {this.style[key] = value;}}; this.className = ''; this.value = ''; this.hidden = false; this.open = false; this.disabled = false; this._text = ''; }
   append(...children) { for (const child of children) { child.parent = this; this.children.push(child); } }
+  insertBefore(child, reference) { child.parent = this; const index = this.children.indexOf(reference); if (index < 0) this.children.push(child); else this.children.splice(index,0,child); }
   replaceChildren(...children) { this.children = []; this._text = ''; this.append(...children); }
   remove() { if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }
   set textContent(text) { this._text = String(text); this.children = []; }
@@ -209,6 +210,27 @@ data.channels[1].targetAlert = ''; window.handleMessage(data);
 check(!coreCard.className.includes('target-alert'), 'Rote Anzeige verschwindet bei entfallenem Alarmzustand');
 data.notificationError = 'Pushover-Versand fehlgeschlagen'; window.handleMessage(data);
 check(elements['device-error'].textContent.includes('Pushover') && !elements['device-error'].hidden, 'Pushover-Fehler wird in der Kachel sichtbar');
+data = clone(); data.config.headerEnabled = false; data.canWrite = false; data.wiredChannels = [{number:1,name:'Garraum',visible:true}]; window.handleMessage(data);
+let wireButton = elements['wired-toolbar'].children[0];
+check(!elements['wired-toolbar'].hidden && elements['wired-toolbar'].children.length === 1 && wireButton.attrs['aria-pressed'] === 'true' && !wireButton.disabled, 'Kompakte Leiste zeigt einen beschrifteten Drahtfühlerschalter auch im Geräte-Schreibschutz');
+wireButton.dispatch('click');
+check(requested.at(-1).action === 'visibility' && requested.at(-1).number === 1 && requested.at(-1).visible === false && wireButton.disabled, 'Button fordert Ausblenden an und sperrt Doppelklick bis zur Bestätigung');
+data.channels = data.channels.filter(ch => ch.number !== 1); data.wiredChannels[0].visible = false; data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Fühler ausgeblendet.'}; window.handleMessage(data);
+check(elements.channels.children.length === 1 && wireButton.attrs['aria-pressed'] === 'false' && wireButton.className.includes('is-hidden') && !wireButton.disabled, 'Ausgeblendeter Drahtfühler verschwindet als Kachel, Bluetooth-Paar bleibt und Wiederherstellungsbutton ist aktiv');
+data.channels = []; window.handleMessage(data);
+check(!elements['channels-section'].hidden && !elements['wired-empty'].hidden && elements['empty-state'].hidden, 'Wenn alle Kacheln verborgen sind, bleiben Leiste und verständlicher Wiederherstellungshinweis erreichbar');
+wireButton.dispatch('click');
+check(requested.at(-1).visible === true, 'Verborgener Drahtfühler lässt sich über denselben Button wieder einblenden');
+data.channels = [clone().channels[0]]; data.wiredChannels[0].visible = true; data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Fühler eingeblendet.'}; window.handleMessage(data);
+check(elements.channels.children.length === 1 && elements['wired-empty'].hidden && wireButton.attrs['aria-pressed'] === 'true', 'Bestätigtes Einblenden stellt die Kachel und aktiven Buttonzustand wieder her');
+data.wiredChannels = []; window.handleMessage(data);
+check(elements['wired-toolbar'].hidden && elements['wired-toolbar'].children.length === 0, 'Ohne freigegebene Drahtfühler entfällt die Leiste');
+data = clone(); data.config.headerEnabled = false; data.canWrite = true; data.wiredChannels = [{number:1,name:'Garraum',visible:true}]; window.handleMessage(data);
+coreCard = elements.channels.children.find(el => el.attrs['aria-label']?.startsWith('Meater,')); coreCard.children[6].open = true; coreCard.children[6].children[1].children[0].children[1].value = '81';
+elements['wired-toolbar'].children[0].dispatch('click');
+check(coreCard.children[6].open && coreCard.children[6].children[1].children[0].children[1].value === '81', 'Ansichtsschalter verwirft während der Speicherung keine offene Eingabe eines anderen Fühlers');
+data.channels = data.channels.filter(ch => ch.number !== 1); data.wiredChannels[0].visible = false; data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Ausgeblendet'}; window.handleMessage(data);
+check(coreCard.children[6].open && coreCard.children[6].children[1].children[0].children[1].value === '81', 'Bestätigte Sichtbarkeitsänderung erhält ungespeicherte Grenzänderung eines anderen Fühlers');
 window.handleMessage({enabled:false});
 check(elements.refresh.disabled && elements.connection.textContent === 'Kachel deaktiviert', 'Deaktivierung sperrt die bereits geöffnete Kachel');
 console.log(count + ' UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.');

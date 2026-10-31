@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.10.0 – 31.10.2026
+
+- Kompakte Augen-Buttonleiste zum Ein-/Ausblenden einzelner gültiger Drahtfühler in der Visualisierung.
+- Persistente, hostgebundene Ansichtsauswahl ohne Gerätezugriff, Variablenänderung oder Löschung.
+- Bluetooth-/MEATER-Kanäle und Kopftemperatur ausgenommen; Wiederherstellung auch bei vollständig leerer Übersicht erreichbar.
+- Pushover-Zielmeldungen für versteckte Drahtfühler unterdrückt; offene Eingaben anderer Fühler erhalten.
+- 298 PHP- und 92 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.9.0 – 31.10.2026
 
 - Rote Kern-/Fühlertemperatur ab einstellbarem Vorlauf, optional mit sanftem Pulsieren.

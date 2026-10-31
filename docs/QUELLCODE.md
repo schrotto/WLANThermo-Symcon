@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.9.0
+# Vollständiger Quellcode – WLANThermo 1.10.0
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.9.0",
-    "build": 18,
+    "version": "1.10.0",
+    "build": 19,
     "date": 1793404800
 }
 ````
@@ -1006,7 +1006,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.9.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.10.0"
         },
         {
             "type": "ExpansionPanel",
@@ -1851,7 +1851,7 @@ class WLANThermo extends IPSModuleStrict
     <div id="gauge" class="gauge" aria-label="Temperatur im Verhältnis zur Obergrenze"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">OBERGRENZE</span><strong id="gauge-range">—</strong></div></div>
   </section>
   <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
-  <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title"><h2>Fühlerübersicht</h2></div><div id="channels" class="probe-grid"></div></section>
+  <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title probe-section-heading"><h2>Fühlerübersicht</h2><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></div><p id="wired-empty" class="empty" role="status" hidden>Alle kabelgebundenen Fühler sind ausgeblendet. Über die Leiste kannst du sie wieder einblenden.</p><div id="channels" class="probe-grid"></div></section>
   <section id="pitmasters-section" aria-label="Pitmaster"><div class="section-title"><h2>Pitmaster</h2><span class="subtle">Regelung am Mini V3</span></div><div id="pitmasters" class="pitmaster-grid"></div></section>
 
   <p id="notice" role="status" aria-live="polite" hidden></p>
@@ -1895,6 +1895,7 @@ class WLANThermo extends IPSModuleStrict
 /* Sammlung: gleicher ruhiger Wertblock wie die Obergrenze, Bedienung nur aufgeklappt. */
 .core-presets{display:block;padding:0;border:0;background:none}.preset-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;gap:3px 5px;min-height:61px;padding:8px 10px;background:var(--raised);border-radius:10px;text-align:center;list-style:none}.preset-summary::-webkit-details-marker{display:none}.preset-summary .preset-caption{grid-column:1/-1;font-size:10px}.preset-value{grid-column:1;font-size:13px;font-weight:550;line-height:1.4;overflow-wrap:anywhere;color:var(--text)}.has-selection .preset-value{font-size:18px;font-variant-numeric:tabular-nums}.preset-name{grid-column:1/-1;grid-row:3;font-size:10px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}.preset-chevron{grid-column:2;grid-row:2;font-size:12px;color:var(--muted)}.core-presets[open] .preset-chevron{transform:rotate(180deg)}.core-presets.read-only .preset-chevron{display:none}.core-presets.read-only summary{cursor:default}.preset-editor{display:grid;gap:7px;margin-top:8px}.core-presets:not([open]) .preset-editor{display:none}.preset-input-label{font-size:10px;color:var(--muted)}.preset-editor>button{min-height:34px;padding:6px;font-size:11px}.preset-field select{font-size:11px}.brand-images{display:flex;flex-direction:column;gap:7px;flex-shrink:0}.brand-image{width:56px;height:62px;max-width:100%;object-fit:contain;flex-shrink:0}.brand-title{min-width:0}@media(max-width:520px){.probe.has-presets>.core-presets,.probe.has-presets.paired-probe>.core-presets{display:block;padding:0;background:none}.preset-summary{min-height:56px}.brand{flex-wrap:wrap}.brand-image{width:40px;height:46px}}@media(pointer:coarse){.preset-editor>button{min-height:44px}}
 :root{--target-alert:#ff625b}:root[data-theme="light"]{--target-alert:#bf2525}@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--target-alert:#bf2525}}.probe.target-alert:not(.paired-probe)>.probe-value,.probe.target-alert.paired-probe .measurement:first-child .measurement-reading,.hero.target-alert #hero-temperature{color:var(--target-alert)}.probe.target-blink:not(.paired-probe)>.probe-value,.probe.target-blink.paired-probe .measurement:first-child .measurement-reading,.hero.target-blink #hero-temperature{animation:wlt-target-pulse 2s ease-in-out infinite}@keyframes wlt-target-pulse{0%,100%{opacity:1}50%{opacity:.6}}@media(prefers-reduced-motion:reduce){.probe.target-blink>.probe-value,.probe.target-blink .measurement-reading,.hero.target-blink #hero-temperature{animation:none!important}}.probe.has-presets.paired-probe>.core-presets{grid-row:2}.probe.has-presets.paired-probe>.probe-limit{grid-row:3;grid-column:3}.probe.has-presets.paired-probe>.probe-label{grid-row:3;grid-column:1/3}@media(max-width:520px){.probe.has-presets.paired-probe>.probe-limit{grid-column:2;grid-row:3}.probe.has-presets.paired-probe>.probe-label{grid-column:1;grid-row:3}.probe.has-presets.paired-probe>.core-presets{grid-row:4}}
+.probe-section-heading{flex-wrap:wrap;align-items:center;gap:12px 18px}.wired-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;margin-left:auto}.wired-toggle{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 10px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:10px;background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--text);font-size:11px;line-height:1.4}.wired-toggle-icon{width:16px;height:16px;color:var(--accent);stroke-width:1.6}.wired-number{font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}.wired-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wired-toggle.is-hidden{background:var(--surface);border-color:var(--border);color:var(--muted)}.wired-toggle.is-hidden .wired-toggle-icon{color:var(--muted)}.wired-toggle[aria-pressed="true"] .wired-number{color:var(--accent)}#wired-empty{padding:3px 0 12px}@media(max-width:520px){.wired-toolbar{justify-content:flex-start;margin-left:0;width:100%}.wired-name{max-width:125px}}@media(pointer:coarse){.wired-toggle{min-height:44px}}
 ````
 
 ## WLANThermo/tile.js
@@ -1903,8 +1904,8 @@ class WLANThermo extends IPSModuleStrict
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  let state = {}, selected = 0, pending = null, timeout = null;
-  const probes = new Map(), pitmasters = new Map();
+  let state = {}, selected = 0, pending = null, pendingAction = '', timeout = null;
+  const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
   const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
@@ -1982,11 +1983,12 @@ class WLANThermo extends IPSModuleStrict
     if (typeof window.requestAction !== 'function') { announce('Bedienung ist nur in der verbundenen Symcon-Visualisierung verfügbar.', true); return; }
     const requestId = 'wlt_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
     pending = requestId;
-    announce(action === 'refresh' ? 'Messwerte werden abgerufen …' : 'Änderung wird am Gerät geprüft …');
+    pendingAction = action;
+    announce(action === 'refresh' ? 'Messwerte werden abgerufen …' : action === 'visibility' ? 'Fühleranzeige wird gespeichert …' : 'Änderung wird am Gerät geprüft …');
     render();
-    timeout = setTimeout(() => { pending = null; announce('Keine Bestätigung erhalten. Vor erneutem Bedienen bitte aktualisieren.', true); render(); }, state.config?.actionTimeout || 35000);
+    timeout = setTimeout(() => { pending = null; pendingAction = ''; announce('Keine Bestätigung erhalten. Vor erneutem Bedienen bitte aktualisieren.', true); render(); }, state.config?.actionTimeout || 35000);
     try { window.requestAction('TileAction', JSON.stringify({requestId, action, ...values})); }
-    catch (error) { clearTimeout(timeout); pending = null; announce('Anfrage konnte nicht gesendet werden.', true); render(); }
+    catch (error) { clearTimeout(timeout); pending = null; pendingAction = ''; announce('Anfrage konnte nicht gesendet werden.', true); render(); }
   }
   function field(label, type, min, max) {
     const wrapper = node('label', 'field'); wrapper.append(node('span', '', label));
@@ -2040,6 +2042,7 @@ class WLANThermo extends IPSModuleStrict
   }
   function render() {
     const cfg = state.config || {}, active = state.enabled !== false, editable = active && state.canWrite && !pending;
+    const preservingVisibility = Boolean(pending && pendingAction === 'visibility');
     document.documentElement.dataset.theme = cfg.theme || 'auto';
     document.documentElement.style.setProperty('--accent', /^#[0-9a-f]{6}$/i.test(cfg.accent || '') ? cfg.accent : '#f48941');
     document.body.classList.toggle('compact', Boolean(cfg.compact)); document.body.classList.toggle('no-icons', cfg.icons === false); document.body.classList.toggle('no-details', cfg.details === false); document.body.classList.toggle('no-animation', cfg.animations === false); document.body.classList.toggle('disabled', !active); document.body.classList.toggle('busy', Boolean(pending));
@@ -2047,6 +2050,27 @@ class WLANThermo extends IPSModuleStrict
     $('connection').textContent = !active ? 'Kachel deaktiviert' : !state.active ? 'Deaktiviert' : state.online ? 'Verbunden' : state.status >= 200 ? 'Fehler' : 'Standby';
     $('connection').classList.toggle('online', Boolean(active && state.online));
     const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
+    const wired = active && state.online ? state.wiredChannels || [] : [];
+    for (const [number, ui] of wiredButtons) if (!wired.some(ch => ch.number === number)) { ui.button.remove(); wiredButtons.delete(number); }
+    for (const ch of wired) {
+      let ui = wiredButtons.get(ch.number);
+      if (!ui) {
+        const button = node('button', 'wired-toggle'), number = node('span', 'wired-number', String(ch.number)), name = node('span', 'wired-name'); button.type = 'button';
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); icon.setAttribute('viewBox','0 0 24 24'); icon.setAttribute('aria-hidden','true'); icon.setAttribute('class','wired-toggle-icon icon');
+        const eye = document.createElementNS('http://www.w3.org/2000/svg', 'path'); eye.setAttribute('d','M2 12s3-6 10-6 10 6 10 6-3 6-10 6S2 12 2 12Z');
+        const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); pupil.setAttribute('cx','12'); pupil.setAttribute('cy','12'); pupil.setAttribute('r','2.5');
+        const strike = document.createElementNS('http://www.w3.org/2000/svg', 'path'); strike.setAttribute('d','M3 3l18 18'); icon.append(eye,pupil,strike);
+        button.append(icon,number,name);
+        button.addEventListener('click', () => { const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
+        ui = {button,name,strike}; wiredButtons.set(ch.number,ui); $('wired-toolbar').append(button);
+      }
+      ui.name.textContent = ch.name;
+      ui.button.setAttribute('aria-pressed',String(ch.visible));
+      ui.button.setAttribute('aria-label','Kanal ' + ch.number + ' · ' + ch.name + (ch.visible ? ' ausblenden' : ' einblenden'));
+      ui.button.setAttribute('title',ch.name + (ch.visible ? ' ausblenden' : ' einblenden'));
+      ui.button.classList.toggle('is-hidden',!ch.visible); ui.strike.setAttribute('visibility',ch.visible ? 'hidden' : 'visible'); ui.button.disabled = Boolean(pending);
+    }
+    $('wired-toolbar').hidden = wired.length === 0;
     $('tile-title').textContent = cfg.title || 'Grillstation';
     const images = cfg.brandImages || ['',''], stacked = cfg.brandLayout === 'stacked';
     const showImage = (id, source) => { const image = $(id); image.hidden = !source; if (source) { if (image.src !== source) image.src = source; } else image.removeAttribute('src'); };
@@ -2069,7 +2093,7 @@ class WLANThermo extends IPSModuleStrict
     $('hero').classList.toggle('target-alert', Boolean(main?.targetAlert));
     $('hero').classList.toggle('target-blink', Boolean(main?.targetAlert && cfg.alertBlink));
     document.body.classList.toggle('has-hero', !$('hero').hidden);
-    $('empty-state').hidden = !active || channels.length > 0;
+    $('empty-state').hidden = !active || channels.length > 0 || wired.length > 0;
     $('empty-state').textContent = state.online ? 'Keine gültigen Fühlerwerte verfügbar. Nicht angeschlossene Fühler werden automatisch ausgeblendet.' : 'Keine aktuellen Fühlerwerte – Gerät nicht erreichbar oder noch kein erfolgreicher Abruf.';
     $('hero-channel').textContent = main ? 'KANAL ' + main.number + (main.wireless ? ' · BLUETOOTH' : ' · FÜHLER') : 'TEMPERATUR';
     $('hero-name').textContent = main?.displayName || (main?.sensorRole ? main.probeName + ' · ' + (main.sensorRole === 'core' ? 'Kerntemperatur' : 'Garraumtemperatur') : main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte'));
@@ -2094,10 +2118,10 @@ class WLANThermo extends IPSModuleStrict
     const ambientSensors = new Map(overview.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
     const cards = overview.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
     for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
-    cards.forEach(ch => {
+    cards.forEach((ch, index) => {
       const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
       const ambientOnly = ch.sensorRole === 'ambient';
-      let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
+      let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').insertBefore(ui.el, $('channels').children[index] || null); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
       ui.el.className = 'probe' + (ambient ? ' paired-probe' : '') + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
       ui.name.textContent = ch.displayName || ch.probeName || ch.name;
@@ -2121,8 +2145,8 @@ class WLANThermo extends IPSModuleStrict
       ui.details.classList.toggle('read-only', !editable);
       ui.details.children[0].setAttribute('aria-disabled', String(!editable));
       ui.details.children[0].setAttribute('aria-label', 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit + (editable ? ', zum Ändern öffnen' : ', schreibgeschützt'));
-      ui.details.children[1].hidden = !editable;
-      if (!editable) ui.details.open = false;
+      ui.details.children[1].hidden = !editable && !preservingVisibility;
+      if (!editable && !preservingVisibility) ui.details.open = false;
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
@@ -2143,14 +2167,15 @@ class WLANThermo extends IPSModuleStrict
       ui.presetBox.classList.toggle('has-selection', Boolean(displayedPreset));
       ui.presetBox.classList.toggle('read-only', !editable);
       ui.presetBox.children[0].setAttribute('aria-disabled', String(!editable));
-      ui.presetEditor.hidden = !editable;
-      if (!editable) ui.presetBox.open = false;
+      ui.presetEditor.hidden = !editable && !preservingVisibility;
+      if (!editable && !preservingVisibility) ui.presetBox.open = false;
       ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
       ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
       ui.presetSelect.disabled = !editable;
       ui.presetApply.disabled = !editable || !ui.selectedPreset();
     });
-    $('channels-section').hidden = cards.length === 0;
+    $('channels-section').hidden = cards.length === 0 && wired.length === 0;
+    $('wired-empty').hidden = cards.length > 0 || wired.length === 0;
     const pms = active ? state.pitmasters || [] : [];
     for (const [id, ui] of pitmasters) if (!pms.some(pm => pm.id === id)) { ui.el.remove(); pitmasters.delete(id); }
     pms.forEach(pm => {
@@ -2168,14 +2193,15 @@ class WLANThermo extends IPSModuleStrict
   }
   window.handleMessage = data => {
     try { if (typeof data === 'string') data = JSON.parse(data); if (!data || typeof data !== 'object' || Array.isArray(data)) return;
-      if (data.enabled === false) { state = {...state, enabled:false}; if (data.response?.requestId === pending) announce(data.response.message, !data.response.ok); clearTimeout(timeout); pending = null; render(); return; }
+      if (data.enabled === false) { state = {...state, enabled:false}; if (data.response?.requestId === pending) announce(data.response.message, !data.response.ok); clearTimeout(timeout); pending = null; pendingAction = ''; render(); return; }
       if (data.version !== 1) return;
       if (data.config && !Object.prototype.hasOwnProperty.call(data.config, 'brandImages')) data.config.brandImages = state.config?.brandImages || ['',''];
       if (data.config?.primary !== state.config?.primary) selected = data.config?.primary || 0;
       state = data;
       if (data.response && data.response.requestId === pending) {
+        const preserveEditors = pendingAction === 'visibility'; pendingAction = '';
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetBox.open = false; ui.presetDirty = false; } }
+        if (data.response.ok && !preserveEditors) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetBox.open = false; ui.presetDirty = false; } }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
@@ -2441,6 +2467,7 @@ trait WLTVisualization
     private function registerVisualization(): void
     {
         $this->RegisterPropertyBoolean('TileEnabled', true);
+        $this->RegisterAttributeString('TileWiredVisibility', '{}');
         $this->RegisterPropertyString('TileTitle', 'Grillstation');
         $this->RegisterPropertyBoolean('TileHeaderEnabled', true);
         $this->RegisterPropertyInteger('TileHeaderChannel', 1);
@@ -2673,6 +2700,34 @@ trait WLTVisualization
             (!$this->channelIsWireless($channel, $settings) || !empty($channel['connected']));
     }
 
+    private function wiredHiddenChannels(): array
+    {
+        $saved = json_decode($this->ReadAttributeString('TileWiredVisibility'), true) ?: [];
+        return ($saved['host'] ?? '') === $this->ReadPropertyString('Host') && is_array($saved['hidden'] ?? null) ? $saved['hidden'] : [];
+    }
+
+    private function wiredChannelVisible(int $number): bool
+    {
+        // Die separat konfigurierte Kopftemperatur bleibt von der Übersichtsauswahl unabhängig.
+        if ($this->ReadPropertyBoolean('TileHeaderEnabled') && $this->ReadPropertyInteger('TileHeaderChannel') === $number) { return true; }
+        return !($this->wiredHiddenChannels()[$number] ?? false);
+    }
+
+    private function setWiredChannelVisibility(int $number, bool $visible): void
+    {
+        $key = 'WLT_' . $this->InstanceID;
+        if (!IPS_SemaphoreEnter($key, 1000)) { throw new RuntimeException('Instanz ist beschäftigt. Bitte erneut versuchen.'); }
+        try {
+            $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+            if ($this->channelIsWireless($channel, $this->cached('Settings'))) { throw new InvalidArgumentException('Die Fühlerleiste gilt nur für kabelgebundene Fühler.'); }
+            if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist in der Modulkonfiguration ausgeblendet.'); }
+            if ($this->ReadPropertyBoolean('TileHeaderEnabled') && $number === $this->ReadPropertyInteger('TileHeaderChannel')) { throw new InvalidArgumentException('Die Kopftemperatur wird separat konfiguriert.'); }
+            $hidden = $this->wiredHiddenChannels();
+            if ($visible) { unset($hidden[$number]); } else { $hidden[$number] = true; }
+            $this->WriteAttributeString('TileWiredVisibility', WLTApi::encode(['host'=>$this->ReadPropertyString('Host'),'hidden'=>$hidden]));
+        } finally { IPS_SemaphoreLeave($key); }
+    }
+
     /** Nur benötigte, freigegebene Daten an die Kachel übertragen. */
     private function visualizationData(): array
     {
@@ -2680,7 +2735,7 @@ trait WLTVisualization
         $settings = $this->cached('Settings');
         $online = $this->ReadPropertyBoolean('Active') && (bool) $this->stateValue('Online', false);
         try { $choices = $this->tileChannelSelection(); } catch (Throwable $e) { $choices = []; }
-        $channels = [];
+        $channels = []; $wiredChannels = [];
         try { $meater = $this->meaterMetadata($data, $settings); }
         catch (Throwable $e) { $meater = []; $online = false; }
         try { $names = $this->tileChannelNames(); $presets = $this->corePresets($data['system']['unit'] ?? 'C'); $images = $this->brandImages(); }
@@ -2690,6 +2745,13 @@ trait WLTVisualization
             $wireless = $this->channelIsWireless($ch, $settings);
             $valid = $online && $this->channelHasValidTemperature($ch, $settings);
             if (!$valid) { continue; }
+            if (!$wireless) {
+                $visible = $this->wiredChannelVisible((int) $ch['number']);
+                if (!$this->ReadPropertyBoolean('TileHeaderEnabled') || $ch['number'] !== $this->ReadPropertyInteger('TileHeaderChannel')) {
+                    $wiredChannels[] = ['number'=>$ch['number'],'name'=>$names[$ch['number']] ?? (string) $ch['name'],'visible'=>$visible];
+                }
+                if (!$visible) { continue; }
+            }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'displayName' => $names[$ch['number']] ?? '', 'temperature' => $valid ? (float) $ch['temp'] : null,
                 'targetAlert' => $this->ReadPropertyBoolean('TargetWarningEnabled') ? $this->targetAlertLevel($ch, $data, $settings) : '', 'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null, 'selectedPreset' => $this->rememberedPreset($ch, $data['system']['unit'] ?? 'C'),
                 'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
@@ -2699,7 +2761,7 @@ trait WLTVisualization
         return ['version' => 1, 'enabled' => $this->ReadPropertyBoolean('TileEnabled'), 'online' => $online,
             'active' => $this->ReadPropertyBoolean('Active'), 'status' => $this->GetStatus(), 'lastUpdate' => $this->stateValue('LastUpdate', 0),
             'notificationError' => $this->GetNotificationError(), 'error' => $this->GetLastError(), 'bluetoothError' => $this->stateValue('BluetoothError', ''),
-            'unit' => ($data['system']['unit'] ?? 'C') === 'F' ? '°F' : '°C', 'channels' => $channels,
+            'unit' => ($data['system']['unit'] ?? 'C') === 'F' ? '°F' : '°C', 'channels' => $channels, 'wiredChannels'=>$wiredChannels,
             'pitmasters' => $this->ReadPropertyBoolean('TilePitmaster') ? array_values(array_map(static fn(array $pm): array =>
                 array_intersect_key($pm, array_flip(['id', 'typ', 'set', 'value', 'channel'])), $data['pitmaster']['pm'] ?? [])) : [],
             'bluetooth' => isset($bt['enabled']) ? (bool) $bt['enabled'] : null,
@@ -2769,6 +2831,7 @@ trait WLTVisualization
             $action = $request['action'] ?? '';
             $allowed = match ($action) {
                 'refresh' => ['requestId', 'action'],
+                'visibility' => ['requestId', 'action', 'number', 'visible'],
                 'forecastReset' => ['requestId', 'action', 'number'],
                 'channel' => ['requestId', 'action', 'number', 'max', 'preset'],
                 'pitmaster' => ['requestId', 'action', 'id', 'mode', 'target', 'output'],
@@ -2776,14 +2839,22 @@ trait WLTVisualization
                 default => throw new InvalidArgumentException('Unbekannte Kachelaktion.')
             };
             if (array_diff(array_keys($request), $allowed)) { throw new InvalidArgumentException('Unbekannte Aktionsparameter.'); }
-            if (!in_array($action, ['refresh', 'forecastReset'], true) && (!$this->ReadPropertyBoolean('TileControls') || !$this->ReadPropertyBoolean('AllowWrite') || !$this->stateValue('Online', false))) {
+            if (!in_array($action, ['refresh', 'forecastReset', 'visibility'], true) && (!$this->ReadPropertyBoolean('TileControls') || !$this->ReadPropertyBoolean('AllowWrite') || !$this->stateValue('Online', false))) {
                 throw new RuntimeException('Bedienung ist gesperrt oder das Gerät ist nicht erreichbar.');
             }
             if ($action === 'refresh') { $ok = $this->Update(); }
+            elseif ($action === 'visibility') {
+                $number = WLTApi::integer($request['number'] ?? null, 1, 255);
+                if (!is_bool($request['visible'] ?? null)) { throw new InvalidArgumentException('Sichtbarkeit muss ein Schalter sein.'); }
+                $this->setWiredChannelVisibility($number, $request['visible']);
+                $ok = true;
+            }
             elseif ($action === 'forecastReset') {
                 if (!$this->ReadPropertyBoolean('TileControls')) { throw new RuntimeException('Kachelbedienung ist gesperrt.'); }
                 $number = WLTApi::integer($request['number'] ?? null, 1, 255);
                 if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist ausgeblendet.'); }
+                $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+                if (!$this->channelIsWireless($channel, $this->cached('Settings')) && !$this->wiredChannelVisible($number)) { throw new InvalidArgumentException('Dieser Fühler ist in der Übersicht ausgeblendet.'); }
                 $this->resetChannelForecast($number);
                 $ok = true;
             }
@@ -2791,6 +2862,7 @@ trait WLTVisualization
                 $number = WLTApi::integer($request['number'] ?? null, 1, 255);
                 if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist in der Kachel ausgeblendet.'); }
                 $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+                if (!$this->channelIsWireless($channel, $this->cached('Settings')) && !$this->wiredChannelVisible($number)) { throw new InvalidArgumentException('Dieser Fühler ist in der Übersicht ausgeblendet.'); }
                 if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
                     throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
                 }
@@ -2830,6 +2902,7 @@ trait WLTVisualization
             }
             $message = $ok ? ($action === 'refresh' ? 'Messwerte aktualisiert.' : ($action === 'forecastReset' ? 'Temperaturverlauf neu gestartet.' : 'Änderung am Gerät bestätigt.')) : ($this->GetLastError() ?: 'Instanz ist beschäftigt. Bitte erneut versuchen.');
             if ($ok && $adjusted) { $message = 'Obergrenze bestätigt; Untergrenze automatisch angepasst.'; }
+            if ($ok && $action === 'visibility') { $message = $request['visible'] ? 'Fühler eingeblendet.' : 'Fühler ausgeblendet.'; }
         } catch (Throwable $e) { $ok = false; $message = $e->getMessage(); }
         // Auch Fehler quittieren; keine Erfolgsmeldung vor dem tatsächlichen Rücklesen.
         $this->pushVisualization(['requestId' => $requestID, 'ok' => $ok, 'message' => $message]);
@@ -3029,6 +3102,7 @@ trait WLTNotifications
     private function targetAlertLevel(array $channel, array $data, array $settings): string
     {
         $number = $channel['number'];
+        if (!$this->channelIsWireless($channel, $settings) && !$this->wiredChannelVisible((int) $number)) { return ''; }
         if (!$this->channelHasValidTemperature($channel, $settings) || !($this->tileChannelSelection()[$number] ?? true) ||
             ($this->ReadPropertyBoolean('TileHeaderEnabled') && $number === $this->ReadPropertyInteger('TileHeaderChannel')) ||
             ($this->meaterMetadata($data, $settings)[$number]['sensorRole'] ?? '') === 'ambient' ||
@@ -3140,6 +3214,16 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.10.0: Drahtfühler direkt in der Kachel ein-/ausblenden
+
+Neben **Fühlerübersicht** steht eine kompakte Leiste mit Augen-Buttons für aktuell gültige kabelgebundene Fühler. Jeder Button zeigt Kanalnummer und Anzeigenamen. Anklicken blendet seine Kachel aus; der durchgestrichene Button bleibt zum erneuten Einblenden sichtbar. Bluetooth-/MEATER-Sensoren und die separate Kopftemperatur werden nicht über diese Leiste geschaltet. Bei schmaler Kachel bricht die Leiste unter die Überschrift um.
+
+Die Ansichtsauswahl wird in der Instanz gespeichert und bleibt nach Neuladen oder erneutem Start der Modullaufzeit erhalten. Sie ist an den konfigurierten Gerätehost gebunden. Die Buttons ändern weder Gerätekanäle noch Variablen, Archive oder Modul-Eigenschaften und benötigen keinen Geräte-Schreibzugriff. Auch bei deaktivierter Gerätebedienung kann die reine Ansichtsauswahl verwendet werden. Der bestehende Schalter „Anzeigen“ in der Modul-Kanaltabelle bleibt übergeordnet: Dort ausgeschlossene Fühler werden von der Leiste nicht freigegeben.
+
+Für über die Leiste ausgeblendete Drahtfühler werden keine Pushover-Zielmeldungen ausgelöst; Temperaturabfrage, Variablen und interne Verläufe laufen weiter. Veraltete Kachelanfragen können ihre Obergrenze nicht verstellen. Andere Sensoren behalten ihre Funktionen. Offene Eingaben anderer Fühler bleiben beim Umschalten erhalten. Wird ein zuvor versteckter Kanal als Kopftemperatur gewählt, erscheint er dort unabhängig von der unteren Auswahl.
+
+Auch wenn alle Fühlerkacheln ausgeblendet sind, bleiben Leiste und ein Hinweis zum Wiederherstellen erreichbar. Ungültige/abgesteckte Fühler bekommen keine Temperaturkachel und keinen Schalter; bei Wiederverbindung gilt die gespeicherte Auswahl. Nach dem Update Kachel/IPSView neu laden. Die tatsächliche Darstellung im Zielclient bleibt zu prüfen.
 
 ## Version 1.9.0: Zielwarnung und optionale Pushover-Nachrichten
 

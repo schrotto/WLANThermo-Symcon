@@ -7,6 +7,7 @@ trait WLTVisualization
     private function registerVisualization(): void
     {
         $this->RegisterPropertyBoolean('TileEnabled', true);
+        $this->RegisterAttributeString('TileWiredVisibility', '{}');
         $this->RegisterPropertyString('TileTitle', 'Grillstation');
         $this->RegisterPropertyBoolean('TileHeaderEnabled', true);
         $this->RegisterPropertyInteger('TileHeaderChannel', 1);
@@ -239,6 +240,34 @@ trait WLTVisualization
             (!$this->channelIsWireless($channel, $settings) || !empty($channel['connected']));
     }
 
+    private function wiredHiddenChannels(): array
+    {
+        $saved = json_decode($this->ReadAttributeString('TileWiredVisibility'), true) ?: [];
+        return ($saved['host'] ?? '') === $this->ReadPropertyString('Host') && is_array($saved['hidden'] ?? null) ? $saved['hidden'] : [];
+    }
+
+    private function wiredChannelVisible(int $number): bool
+    {
+        // Die separat konfigurierte Kopftemperatur bleibt von der Übersichtsauswahl unabhängig.
+        if ($this->ReadPropertyBoolean('TileHeaderEnabled') && $this->ReadPropertyInteger('TileHeaderChannel') === $number) { return true; }
+        return !($this->wiredHiddenChannels()[$number] ?? false);
+    }
+
+    private function setWiredChannelVisibility(int $number, bool $visible): void
+    {
+        $key = 'WLT_' . $this->InstanceID;
+        if (!IPS_SemaphoreEnter($key, 1000)) { throw new RuntimeException('Instanz ist beschäftigt. Bitte erneut versuchen.'); }
+        try {
+            $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+            if ($this->channelIsWireless($channel, $this->cached('Settings'))) { throw new InvalidArgumentException('Die Fühlerleiste gilt nur für kabelgebundene Fühler.'); }
+            if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist in der Modulkonfiguration ausgeblendet.'); }
+            if ($this->ReadPropertyBoolean('TileHeaderEnabled') && $number === $this->ReadPropertyInteger('TileHeaderChannel')) { throw new InvalidArgumentException('Die Kopftemperatur wird separat konfiguriert.'); }
+            $hidden = $this->wiredHiddenChannels();
+            if ($visible) { unset($hidden[$number]); } else { $hidden[$number] = true; }
+            $this->WriteAttributeString('TileWiredVisibility', WLTApi::encode(['host'=>$this->ReadPropertyString('Host'),'hidden'=>$hidden]));
+        } finally { IPS_SemaphoreLeave($key); }
+    }
+
     /** Nur benötigte, freigegebene Daten an die Kachel übertragen. */
     private function visualizationData(): array
     {
@@ -246,7 +275,7 @@ trait WLTVisualization
         $settings = $this->cached('Settings');
         $online = $this->ReadPropertyBoolean('Active') && (bool) $this->stateValue('Online', false);
         try { $choices = $this->tileChannelSelection(); } catch (Throwable $e) { $choices = []; }
-        $channels = [];
+        $channels = []; $wiredChannels = [];
         try { $meater = $this->meaterMetadata($data, $settings); }
         catch (Throwable $e) { $meater = []; $online = false; }
         try { $names = $this->tileChannelNames(); $presets = $this->corePresets($data['system']['unit'] ?? 'C'); $images = $this->brandImages(); }
@@ -256,6 +285,13 @@ trait WLTVisualization
             $wireless = $this->channelIsWireless($ch, $settings);
             $valid = $online && $this->channelHasValidTemperature($ch, $settings);
             if (!$valid) { continue; }
+            if (!$wireless) {
+                $visible = $this->wiredChannelVisible((int) $ch['number']);
+                if (!$this->ReadPropertyBoolean('TileHeaderEnabled') || $ch['number'] !== $this->ReadPropertyInteger('TileHeaderChannel')) {
+                    $wiredChannels[] = ['number'=>$ch['number'],'name'=>$names[$ch['number']] ?? (string) $ch['name'],'visible'=>$visible];
+                }
+                if (!$visible) { continue; }
+            }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'displayName' => $names[$ch['number']] ?? '', 'temperature' => $valid ? (float) $ch['temp'] : null,
                 'targetAlert' => $this->ReadPropertyBoolean('TargetWarningEnabled') ? $this->targetAlertLevel($ch, $data, $settings) : '', 'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null, 'selectedPreset' => $this->rememberedPreset($ch, $data['system']['unit'] ?? 'C'),
                 'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
@@ -265,7 +301,7 @@ trait WLTVisualization
         return ['version' => 1, 'enabled' => $this->ReadPropertyBoolean('TileEnabled'), 'online' => $online,
             'active' => $this->ReadPropertyBoolean('Active'), 'status' => $this->GetStatus(), 'lastUpdate' => $this->stateValue('LastUpdate', 0),
             'notificationError' => $this->GetNotificationError(), 'error' => $this->GetLastError(), 'bluetoothError' => $this->stateValue('BluetoothError', ''),
-            'unit' => ($data['system']['unit'] ?? 'C') === 'F' ? '°F' : '°C', 'channels' => $channels,
+            'unit' => ($data['system']['unit'] ?? 'C') === 'F' ? '°F' : '°C', 'channels' => $channels, 'wiredChannels'=>$wiredChannels,
             'pitmasters' => $this->ReadPropertyBoolean('TilePitmaster') ? array_values(array_map(static fn(array $pm): array =>
                 array_intersect_key($pm, array_flip(['id', 'typ', 'set', 'value', 'channel'])), $data['pitmaster']['pm'] ?? [])) : [],
             'bluetooth' => isset($bt['enabled']) ? (bool) $bt['enabled'] : null,
@@ -335,6 +371,7 @@ trait WLTVisualization
             $action = $request['action'] ?? '';
             $allowed = match ($action) {
                 'refresh' => ['requestId', 'action'],
+                'visibility' => ['requestId', 'action', 'number', 'visible'],
                 'forecastReset' => ['requestId', 'action', 'number'],
                 'channel' => ['requestId', 'action', 'number', 'max', 'preset'],
                 'pitmaster' => ['requestId', 'action', 'id', 'mode', 'target', 'output'],
@@ -342,14 +379,22 @@ trait WLTVisualization
                 default => throw new InvalidArgumentException('Unbekannte Kachelaktion.')
             };
             if (array_diff(array_keys($request), $allowed)) { throw new InvalidArgumentException('Unbekannte Aktionsparameter.'); }
-            if (!in_array($action, ['refresh', 'forecastReset'], true) && (!$this->ReadPropertyBoolean('TileControls') || !$this->ReadPropertyBoolean('AllowWrite') || !$this->stateValue('Online', false))) {
+            if (!in_array($action, ['refresh', 'forecastReset', 'visibility'], true) && (!$this->ReadPropertyBoolean('TileControls') || !$this->ReadPropertyBoolean('AllowWrite') || !$this->stateValue('Online', false))) {
                 throw new RuntimeException('Bedienung ist gesperrt oder das Gerät ist nicht erreichbar.');
             }
             if ($action === 'refresh') { $ok = $this->Update(); }
+            elseif ($action === 'visibility') {
+                $number = WLTApi::integer($request['number'] ?? null, 1, 255);
+                if (!is_bool($request['visible'] ?? null)) { throw new InvalidArgumentException('Sichtbarkeit muss ein Schalter sein.'); }
+                $this->setWiredChannelVisibility($number, $request['visible']);
+                $ok = true;
+            }
             elseif ($action === 'forecastReset') {
                 if (!$this->ReadPropertyBoolean('TileControls')) { throw new RuntimeException('Kachelbedienung ist gesperrt.'); }
                 $number = WLTApi::integer($request['number'] ?? null, 1, 255);
                 if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist ausgeblendet.'); }
+                $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+                if (!$this->channelIsWireless($channel, $this->cached('Settings')) && !$this->wiredChannelVisible($number)) { throw new InvalidArgumentException('Dieser Fühler ist in der Übersicht ausgeblendet.'); }
                 $this->resetChannelForecast($number);
                 $ok = true;
             }
@@ -357,6 +402,7 @@ trait WLTVisualization
                 $number = WLTApi::integer($request['number'] ?? null, 1, 255);
                 if (!($this->tileChannelSelection()[$number] ?? true)) { throw new InvalidArgumentException('Dieser Kanal ist in der Kachel ausgeblendet.'); }
                 $channel = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+                if (!$this->channelIsWireless($channel, $this->cached('Settings')) && !$this->wiredChannelVisible($number)) { throw new InvalidArgumentException('Dieser Fühler ist in der Übersicht ausgeblendet.'); }
                 if (!$this->channelHasValidTemperature($channel, $this->cached('Settings'))) {
                     throw new InvalidArgumentException('Dieser Fühler liefert keinen gültigen Messwert.');
                 }
@@ -396,6 +442,7 @@ trait WLTVisualization
             }
             $message = $ok ? ($action === 'refresh' ? 'Messwerte aktualisiert.' : ($action === 'forecastReset' ? 'Temperaturverlauf neu gestartet.' : 'Änderung am Gerät bestätigt.')) : ($this->GetLastError() ?: 'Instanz ist beschäftigt. Bitte erneut versuchen.');
             if ($ok && $adjusted) { $message = 'Obergrenze bestätigt; Untergrenze automatisch angepasst.'; }
+            if ($ok && $action === 'visibility') { $message = $request['visible'] ? 'Fühler eingeblendet.' : 'Fühler ausgeblendet.'; }
         } catch (Throwable $e) { $ok = false; $message = $e->getMessage(); }
         // Auch Fehler quittieren; keine Erfolgsmeldung vor dem tatsächlichen Rücklesen.
         $this->pushVisualization(['requestId' => $requestID, 'ok' => $ok, 'message' => $message]);

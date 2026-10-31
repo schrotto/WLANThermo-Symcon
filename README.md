@@ -2,6 +2,16 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.10.0: Drahtfühler direkt in der Kachel ein-/ausblenden
+
+Neben **Fühlerübersicht** steht eine kompakte Leiste mit Augen-Buttons für aktuell gültige kabelgebundene Fühler. Jeder Button zeigt Kanalnummer und Anzeigenamen. Anklicken blendet seine Kachel aus; der durchgestrichene Button bleibt zum erneuten Einblenden sichtbar. Bluetooth-/MEATER-Sensoren und die separate Kopftemperatur werden nicht über diese Leiste geschaltet. Bei schmaler Kachel bricht die Leiste unter die Überschrift um.
+
+Die Ansichtsauswahl wird in der Instanz gespeichert und bleibt nach Neuladen oder erneutem Start der Modullaufzeit erhalten. Sie ist an den konfigurierten Gerätehost gebunden. Die Buttons ändern weder Gerätekanäle noch Variablen, Archive oder Modul-Eigenschaften und benötigen keinen Geräte-Schreibzugriff. Auch bei deaktivierter Gerätebedienung kann die reine Ansichtsauswahl verwendet werden. Der bestehende Schalter „Anzeigen“ in der Modul-Kanaltabelle bleibt übergeordnet: Dort ausgeschlossene Fühler werden von der Leiste nicht freigegeben.
+
+Für über die Leiste ausgeblendete Drahtfühler werden keine Pushover-Zielmeldungen ausgelöst; Temperaturabfrage, Variablen und interne Verläufe laufen weiter. Veraltete Kachelanfragen können ihre Obergrenze nicht verstellen. Andere Sensoren behalten ihre Funktionen. Offene Eingaben anderer Fühler bleiben beim Umschalten erhalten. Wird ein zuvor versteckter Kanal als Kopftemperatur gewählt, erscheint er dort unabhängig von der unteren Auswahl.
+
+Auch wenn alle Fühlerkacheln ausgeblendet sind, bleiben Leiste und ein Hinweis zum Wiederherstellen erreichbar. Ungültige/abgesteckte Fühler bekommen keine Temperaturkachel und keinen Schalter; bei Wiederverbindung gilt die gespeicherte Auswahl. Nach dem Update Kachel/IPSView neu laden. Die tatsächliche Darstellung im Zielclient bleibt zu prüfen.
+
 ## Version 1.9.0: Zielwarnung und optionale Pushover-Nachrichten
 
 Die Temperatur wird standardmäßig **1 °C vor der Obergrenze rot** und bleibt ab Zielerreichung rot. Im Modul sind **0,5 / 1 / 2 °C Vorlauf** oder ausschließlich Zielerreichung wählbar. Bei Fahrenheit entspricht der Vorlauf derselben Temperaturdifferenz, z. B. 1 °C = 1,8 °F. Optional kann der Wert sanft pulsieren. Animationen aus und reduzierte Bewegung unterdrücken das Pulsieren. Bei MEATER wird nur der Kernwert rot, nicht der Garraummesswert. Ausgeschlossene/ungültige Kanäle, Kopfkanal und MEATER-Garraum gehören nicht zu den Kern-Zielwarnungen.
