@@ -1,5 +1,11 @@
 # Änderungen
 
+## 1.11.5 – 31.10.2026
+
+- Gewünschter Platztausch: Akku/WLAN/Zeit nach oben, Fühlerauswahl darunter im Geräteinfo-Container.
+- Fühlerauswahl bleibt bei ausgeblendeten Gerätedetails sichtbar.
+- 302 PHP- und 117 JavaScript-Vertragsprüfungen erfolgreich; tatsächliche Browserbedienung offen.
+
 ## 1.11.4 – 31.10.2026
 
 - Volle Grid-Breite für rechte Kopfspalte und Fühlerauswahl von Anfang an festgelegt.

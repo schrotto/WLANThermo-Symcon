@@ -43,3 +43,6 @@
 
 /* Definierte Kopfbreite bereits beim ersten Layout; normale Symcon-Ereignisse erhalten. */
 .topbar{width:100%}.header-status{justify-self:stretch;width:100%;max-width:100%;min-width:0;isolation:isolate}.header-status .wired-selector{align-self:stretch;flex:0 0 auto;width:100%;min-width:0}.header-status .wired-toolbar{min-width:0;flex:0 0 auto}.wired-toggle{max-width:100%;flex:0 1 auto}.wired-name{min-width:0}
+
+/* Fühlerauswahl an der bisherigen Position von Akku/WLAN/Zeit im rechten Infobereich. */
+.header-status footer{width:100%;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px}.header-status #telemetry{grid-column:1/-1;grid-row:1}.header-status #updated{grid-column:1/-1;grid-row:2}.header-status #device{grid-column:1;grid-row:3}.header-status #bluetooth{grid-column:2;grid-row:3}.header-status #wired-selector{grid-column:1/-1;grid-row:4;margin-top:5px}.no-details .header-status footer{display:grid}.no-details .header-status #telemetry,.no-details .header-status #updated,.no-details .header-status #device,.no-details .header-status #bluetooth{display:none}.no-details .header-status #wired-selector{grid-row:1;margin-top:0}

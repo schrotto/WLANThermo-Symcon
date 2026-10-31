@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.11.4
+# Vollständiger Quellcode – WLANThermo 1.11.5
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.11.4",
-    "build": 26,
+    "version": "1.11.5",
+    "build": 27,
     "date": 1793404800
 }
 ````
@@ -1005,7 +1005,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.4"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.5"
         },
         {
             "type": "ExpansionPanel",
@@ -1843,7 +1843,7 @@ class WLANThermo extends IPSModuleStrict
   <header class="topbar">
     <div class="header-brand-column"><div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div></div>
     <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div id="header-image-left" class="header-image-slot"></div><div class="header-temperature-main"><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></div><div id="header-image-right" class="header-image-slot"></div></section>
-    <div class="header-status"><div id="wired-selector" class="wired-selector" hidden><button type="button" aria-expanded="false" aria-controls="wired-toolbar" id="wired-selector-toggle" class="wired-selector-toggle" hidden>Fühler auswählen <span aria-hidden="true">⌄</span></button><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></div><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
+    <div class="header-status"><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span><div id="wired-selector" class="wired-selector" hidden><button type="button" aria-expanded="false" aria-controls="wired-toolbar" id="wired-selector-toggle" class="wired-selector-toggle" hidden>Fühler auswählen <span aria-hidden="true">⌄</span></button><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></div></footer></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
     <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><div id="hero-forecast" class="hero-forecast" hidden><span class="hero-forecast-label">GESCHÄTZTE RESTZEIT</span><strong id="hero-forecast-value"></strong><span id="hero-forecast-eta" class="hero-forecast-eta" hidden></span></div></div>
@@ -1910,6 +1910,9 @@ class WLANThermo extends IPSModuleStrict
 
 /* Definierte Kopfbreite bereits beim ersten Layout; normale Symcon-Ereignisse erhalten. */
 .topbar{width:100%}.header-status{justify-self:stretch;width:100%;max-width:100%;min-width:0;isolation:isolate}.header-status .wired-selector{align-self:stretch;flex:0 0 auto;width:100%;min-width:0}.header-status .wired-toolbar{min-width:0;flex:0 0 auto}.wired-toggle{max-width:100%;flex:0 1 auto}.wired-name{min-width:0}
+
+/* Fühlerauswahl an der bisherigen Position von Akku/WLAN/Zeit im rechten Infobereich. */
+.header-status footer{width:100%;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px}.header-status #telemetry{grid-column:1/-1;grid-row:1}.header-status #updated{grid-column:1/-1;grid-row:2}.header-status #device{grid-column:1;grid-row:3}.header-status #bluetooth{grid-column:2;grid-row:3}.header-status #wired-selector{grid-column:1/-1;grid-row:4;margin-top:5px}.no-details .header-status footer{display:grid}.no-details .header-status #telemetry,.no-details .header-status #updated,.no-details .header-status #device,.no-details .header-status #bluetooth{display:none}.no-details .header-status #wired-selector{grid-row:1;margin-top:0}
 ````
 
 ## WLANThermo/tile.js
@@ -3269,6 +3272,12 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.11.5: Fühlerauswahl mit den Geräteinformationen tauschen
+
+Auf Wunsch wurden die Plätze im rechten Kopfbereich getauscht: Akku/WLAN und Aktualisierungszeit stehen jetzt oben; darunter Gerätekennung/Bluetooth und anschließend die Fühlerauswahl. Die Auswahl befindet sich damit im selben Informationscontainer wie der weiterhin funktionierende Bluetooth-Button. Bei ausgeschalteten Gerätedetails bleibt die Fühlerauswahl allein sichtbar.
+
+Die Bedienlogik bleibt unverändert. Dies ist die gewünschte Layout-Alternative, keine Bestätigung der genauen Ursache des blockierten oberen Bereichs im betroffenen Browser. Nach dem Update die Visualisierung vollständig neu laden (Strg+F5) und ohne vorausgehende Größenänderung prüfen.
 
 ## Version 1.11.4: Anfangsbreite der Fühlerauswahl stabilisieren
 

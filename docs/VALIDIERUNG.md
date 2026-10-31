@@ -1,6 +1,12 @@
-# Prüfbericht 1.11.4 – 31. Oktober 2026
+# Prüfbericht 1.11.5 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.5
+
+302 PHP- und 117 JavaScript-Vertragsprüfungen erfolgreich. Auf ausdrücklichen Benutzerwunsch Layout-Alternative umgesetzt: statische Akku-/WLAN-/Zeitinformationen übernehmen die obere Position, Fühlerauswahl steht unterhalb im selben Container wie Bluetooth. HTML mit Parser auf die gemeinsamen Vorfahren von Auswahl und Bluetooth geprüft. Gerätedetails-aus-Regeln lassen die Fühlerauswahl sichtbar.
+
+Keine Änderung der Aktions-/Sichtbarkeitslogik und keine weitere Behauptung über die Ursache des bisher blockierten Clientbereichs. Der Benutzer bestätigte den vorherigen Fehler weiterhin, während Bluetooth funktioniert. Die neue Position muss nach vollständig geladenem HTML im echten Browser und ohne Größenänderung geprüft werden.
 
 ## Änderungen und Nachweise 1.11.4
 

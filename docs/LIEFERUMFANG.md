@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.11.4
+# Lieferumfang A–I – WLANThermo 1.11.5
 
 ## A. Modulbeschreibung
 
@@ -113,3 +113,5 @@ Version 1.11.2 korrigiert die Neuinitialisierung bei fehlenden HTML-/NONE-SDK-Ko
 Version 1.11.3 ersetzt den Fühlerauswahl-Details-Container durch normale Buttons und explizites Menü. Klick-/Pointer-Ebenen abgesichert. 302 PHP-/115 JavaScript-Vertragsprüfungen erfolgreich; gemeldete Clientursache noch nicht reproduziert.
 
 Version 1.11.4 stabilisiert die Anfangsbreite der rechten Fühlerauswahl und erhält native Pointer-/Klickereignisse. 302 PHP-/117 JavaScript-Vertragsprüfungen erfolgreich; echte größenabhängige Clientbedienung weiter zu bestätigen.
+
+Version 1.11.5 tauscht Fühlerauswahl und Geräteinformationen im rechten Kopfbereich entsprechend dem Benutzerwunsch. 302 PHP-/117 JavaScript-Vertragsprüfungen erfolgreich; echte Browserbedienung offen.
