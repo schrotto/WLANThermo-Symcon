@@ -7,6 +7,10 @@ trait WLTVisualization
     private function registerVisualization(): void
     {
         $this->RegisterPropertyBoolean('TileEnabled', true);
+        $this->RegisterPropertyString('TileTitle', 'Grillstation');
+        $this->RegisterPropertyBoolean('TileHeaderEnabled', true);
+        $this->RegisterPropertyInteger('TileHeaderChannel', 1);
+        $this->RegisterPropertyString('TileHeaderName', 'Grilltemperatur');
         $this->RegisterPropertyBoolean('TileHero', false);
         $this->RegisterPropertyBoolean('TileFullscreen', false);
         $this->RegisterPropertyString('TileTheme', 'auto');
@@ -32,6 +36,10 @@ trait WLTVisualization
         }
         WLTApi::integer($this->ReadPropertyInteger('TileAccent'), 0, 0xffffff);
         WLTApi::integer($this->ReadPropertyInteger('TilePrimary'), 0, 255);
+        WLTApi::integer($this->ReadPropertyInteger('TileHeaderChannel'), 1, 255);
+        foreach (['TileTitle', 'TileHeaderName'] as $property) {
+            if (strlen($this->ReadPropertyString($property)) > 240) { throw new InvalidArgumentException('Kacheltitel dürfen höchstens 240 Bytes lang sein.'); }
+        }
         WLTApi::integer($this->ReadPropertyInteger('ForecastWindow'), 5, 60);
         $this->tileChannelSelection();
         $this->meaterPairSelection();
@@ -187,7 +195,10 @@ trait WLTVisualization
             'rssi' => $this->ReadPropertyBoolean('TileDetails') ? ($data['system']['rssi'] ?? null) : null,
             'canRefresh' => $this->ReadPropertyBoolean('Active'),
             'canWrite' => $online && $this->ReadPropertyBoolean('TileControls') && $this->ReadPropertyBoolean('AllowWrite'),
-            'config' => ['theme' => in_array($this->ReadPropertyString('TileTheme'), ['auto', 'light', 'dark'], true) ? $this->ReadPropertyString('TileTheme') : 'auto',
+            'config' => ['title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
+                'headerEnabled' => $this->ReadPropertyBoolean('TileHeaderEnabled'), 'headerChannel' => $this->ReadPropertyInteger('TileHeaderChannel'),
+                'headerName' => trim($this->ReadPropertyString('TileHeaderName')) ?: 'Grilltemperatur',
+                'theme' => in_array($this->ReadPropertyString('TileTheme'), ['auto', 'light', 'dark'], true) ? $this->ReadPropertyString('TileTheme') : 'auto',
                 'accent' => sprintf('#%06x', max(0, min(0xffffff, $this->ReadPropertyInteger('TileAccent')))),
                 'compact' => $this->ReadPropertyBoolean('TileCompact'), 'details' => $this->ReadPropertyBoolean('TileDetails'),
                 'icons' => $this->ReadPropertyBoolean('TileIcons'), 'animations' => $this->ReadPropertyBoolean('TileAnimations'),

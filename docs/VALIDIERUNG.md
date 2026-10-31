@@ -1,6 +1,14 @@
-# Prüfbericht 1.6.0 – 31. Oktober 2026
+# Prüfbericht 1.6.1 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.6.1
+
+236 PHP- und 61 JavaScript-Vertragsprüfungen erfolgreich. Neue Konfigurationsfelder sind registriert und im Formular vorhanden. PHP prüft Titel/Kopfanzeige-Standard, eigene Beschriftungen und Kanalnummer, Ausschluss gesperrter Messwerte, ungültige Kanalnummer, überlange Texte und Standardtexte bei leeren Eingaben. Keine zusätzlichen Statusvariablen.
+
+JavaScript prüft Titel/Temperaturausgabe, Vermeidung doppelter Kanäle und passende Übersichtszähler, Rückkehr nach Abschalten, fehlenden/ungültigen Kopfkanal, Wegfall einer leeren Übersicht, Kopfkanal aus einem MEATER-Paar, sichere Textausgabe, erhaltene offene Eingabe, Schreibauftrag für die gewählte Kanalnummer, Verwerfen beim Kanalwechsel, Garraum ohne Eingabe und Schreibschutz.
+
+CSS ordnet Titel, Kopfkachel und Verbindung auf breiten Flächen nebeneinander an; unter 700 Pixeln steht die Kopfanzeige in einer eigenen Zeile. Die Tests sind DOM-Vertragsprüfungen und bestätigen kein Browserlayout. Echte IPSView-Darstellung und Gerätebedienung bleiben am Zielsystem zu prüfen. Die Vorschau verwendet tatsächlichen Kachelcode mit synthetischen Messwerten.
 
 ## Änderungen und Nachweise 1.6.0
 

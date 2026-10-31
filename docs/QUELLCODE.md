@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.6.0
+# Vollständiger Quellcode – WLANThermo 1.6.1
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.6.0",
-    "build": 13,
+    "version": "1.6.1",
+    "build": 14,
     "date": 1793404800
 }
 ````
@@ -1001,7 +1001,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.1"
         },
         {
             "type": "ExpansionPanel",
@@ -1331,6 +1331,32 @@ class WLANThermo extends IPSModuleStrict
                     "caption": "Pitmaster anzeigen"
                 },
                 {
+                    "type": "ValidationTextBox",
+                    "name": "TileTitle",
+                    "caption": "Titel der Kachel (z. B. Grillstation)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileHeaderEnabled",
+                    "caption": "Kompakte Temperaturkachel oben im Kopfbereich anzeigen"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "TileHeaderChannel",
+                    "caption": "Temperaturkanal für die Kachel im Kopfbereich",
+                    "minimum": 1,
+                    "maximum": 255
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "TileHeaderName",
+                    "caption": "Name der Temperaturkachel (z. B. Grilltemperatur oder Räucherkammertemperatur)"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Der Titel und der Name sind frei einstellbar. Die kompakte Temperaturkachel zeigt nur den gewählten, freigegebenen und gültigen Messwert. Bei fehlendem Wert wird sie ausgeblendet. Geräte- und Variablennamen bleiben erhalten."
+                },
+                {
                     "type": "CheckBox",
                     "name": "TileHero",
                     "caption": "Große Haupttemperatur oben anzeigen (z. B. Garraum)"
@@ -1641,7 +1667,8 @@ class WLANThermo extends IPSModuleStrict
 <body>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1>Grillstation</h1></div></div>
+    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1 id="tile-title">Grillstation</h1></div></div>
+    <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2><span id="header-temperature-channel" class="header-temperature-channel"></span></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div><details id="header-limits" class="header-limits"><summary>Obergrenze bearbeiten</summary><form id="header-limits-form" class="limits-form"><label class="field"><span>Obergrenze</span><input id="header-maximum" type="number" step="1" min="-30" max="999" required></label><button id="header-limit-submit" type="submit">Obergrenze übernehmen</button></form></details></section>
     <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
@@ -1682,6 +1709,9 @@ class WLANThermo extends IPSModuleStrict
 
 .hero-forecast{display:flex;flex-direction:column;gap:4px;margin-top:14px;overflow-wrap:anywhere}.hero-forecast-label{font-size:9px;letter-spacing:1.3px;color:var(--muted);font-weight:650}.hero-forecast strong{font-size:13px;font-weight:550;line-height:1.35}.hero-forecast.estimated strong{font-size:clamp(18px,3vw,26px);font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}.hero-forecast-eta{font-size:11px;color:var(--muted);font-weight:400}
 .probe-value.paired-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.measurement{min-width:0}.measurement-label{display:block;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.5;color:var(--muted);margin-bottom:5px;overflow-wrap:anywhere}.measurement-reading{font-size:clamp(24px,3vw,32px);line-height:1.25;font-variant-numeric:tabular-nums;letter-spacing:-1px;white-space:nowrap}.paired-values .measurement+.measurement{border-left:1px solid var(--border);padding-left:12px}.measurement-reading small{font-size:12px;margin-left:4px}.probe-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}@media(max-width:300px){.probe-value.paired-values{grid-template-columns:1fr;gap:10px}.paired-values .measurement+.measurement{border:0;padding-left:0}}
+.brand>div{min-width:0}#tile-title{overflow-wrap:anywhere}.has-header-temperature .topbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,340px) auto;gap:18px}.header-temperature{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;min-width:0;padding:12px 18px;background:var(--surface);border:1px solid var(--border);border-radius:14px}.header-temperature-copy{min-width:0}.header-temperature h2{font-size:13px;line-height:1.4;overflow-wrap:anywhere}.header-temperature-channel{display:block;font-size:10px;line-height:1.5;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.header-temperature-reading{display:flex;align-items:baseline;gap:5px;flex-shrink:0;font-variant-numeric:tabular-nums}.header-temperature-reading strong{font-size:30px;line-height:1.2;letter-spacing:-1px;font-weight:550}.header-temperature-reading>span{font-size:12px;color:var(--muted)}@media(max-width:700px){.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr) auto;gap:12px}.has-header-temperature .top-actions{grid-column:2;grid-row:1}.header-temperature{grid-column:1/-1;grid-row:2;padding:12px 15px}.header-temperature-reading strong{font-size:28px}}
+
+.header-limits{grid-column:1/-1;width:100%;margin-top:0;padding-top:6px}.header-limits summary{min-height:22px}.header-limits .limits-form{margin-top:6px}.header-temperature{row-gap:6px}
 ````
 
 ## WLANThermo/tile.js
@@ -1690,7 +1720,7 @@ class WLANThermo extends IPSModuleStrict
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  let state = {}, selected = 0, pending = null, timeout = null;
+  let state = {}, selected = 0, pending = null, timeout = null, headerEditingChannel = 0;
   const probes = new Map(), pitmasters = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
@@ -1819,6 +1849,22 @@ class WLANThermo extends IPSModuleStrict
     $('connection').textContent = !active ? 'Kachel deaktiviert' : !state.active ? 'Deaktiviert' : state.online ? 'Verbunden' : state.status >= 200 ? 'Fehler' : 'Standby';
     $('connection').classList.toggle('online', Boolean(active && state.online));
     const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
+    $('tile-title').textContent = cfg.title || 'Grillstation';
+    $('grill').setAttribute('aria-label', 'WLANThermo · ' + (cfg.title || 'Grillstation'));
+    const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
+    const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
+    $('header-temperature').hidden = !showHeader;
+    document.body.classList.toggle('has-header-temperature', showHeader);
+    $('header-temperature-name').textContent = cfg.headerName || 'Grilltemperatur';
+    $('header-temperature').setAttribute('aria-label', cfg.headerName || 'Grilltemperatur');
+    $('header-temperature-channel').textContent = headerChannel ? 'Kanal ' + headerChannel.number + ' · ' + headerChannel.name : '';
+    $('header-temperature-value').textContent = fmt(headerChannel?.temperature);
+    $('header-temperature-unit').textContent = state.unit || '°C';
+    if (headerEditingChannel !== headerChannel?.number || !showHeader) { $('header-limits').open = false; headerEditingChannel = headerChannel?.number || 0; }
+    $('header-limits').hidden = !showHeader || cfg.controls === false || headerChannel?.sensorRole === 'ambient' || !Number.isFinite(headerChannel?.max);
+    if (!$('header-limits').open) $('header-maximum').value = headerChannel?.max ?? '';
+    $('header-maximum').disabled = $('header-limit-submit').disabled = !editable;
+
     if (!channels.some(ch => ch.number === selected)) selected = cfg.primary > 0 ? (channels.some(ch => ch.number === cfg.primary) ? cfg.primary : 0) : channels[0]?.number || 0;
     const main = channels.find(ch => ch.number === (cfg.primary > 0 ? cfg.primary : selected));
     $('hero').hidden = !cfg.hero || !main;
@@ -1843,10 +1889,11 @@ class WLANThermo extends IPSModuleStrict
     $('gauge').hidden = !main || mainAmbient || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
     $('gauge').setAttribute('aria-label', main && cfg.forecast !== false && Number.isFinite(main.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(main.forecast.progress * 100) + ' Prozent' : main ? 'Temperatur im Verhältnis zur Obergrenze: ' + describe(main) : 'Keine Obergrenze verfügbar');
-    const cores = new Map(channels.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
-    const ambientSensors = new Map(channels.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
-    const cards = channels.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
-    $('probe-count').textContent = cards.length + ' Fühler · ' + channels.length + (channels.length === 1 ? ' Messwert' : ' Messwerte');
+    const overview = channels.filter(ch => !showHeader || ch.number !== headerChannel.number);
+    const cores = new Map(overview.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const ambientSensors = new Map(overview.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const cards = overview.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
+    $('probe-count').textContent = cards.length + ' Fühler · ' + overview.length + (overview.length === 1 ? ' Messwert' : ' Messwerte');
     for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     cards.forEach(ch => {
       const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
@@ -1874,7 +1921,7 @@ class WLANThermo extends IPSModuleStrict
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
     });
-    $('channels-section').hidden = channels.length === 0;
+    $('channels-section').hidden = cards.length === 0;
     const pms = active ? state.pitmasters || [] : [];
     for (const [id, ui] of pitmasters) if (!pms.some(pm => pm.id === id)) { ui.el.remove(); pitmasters.delete(id); }
     pms.forEach(pm => {
@@ -1898,11 +1945,12 @@ class WLANThermo extends IPSModuleStrict
       state = data;
       if (data.response && data.response.requestId === pending) {
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
+        if (data.response.ok) { $('header-limits').open = false; for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
+  $('header-limits-form').addEventListener('submit', event => { event.preventDefault(); if ($('header-limits-form').reportValidity() && !$('header-limits').hidden) send('channel', {number:headerEditingChannel, max:Number($('header-maximum').value)}); });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }
@@ -2164,6 +2212,10 @@ trait WLTVisualization
     private function registerVisualization(): void
     {
         $this->RegisterPropertyBoolean('TileEnabled', true);
+        $this->RegisterPropertyString('TileTitle', 'Grillstation');
+        $this->RegisterPropertyBoolean('TileHeaderEnabled', true);
+        $this->RegisterPropertyInteger('TileHeaderChannel', 1);
+        $this->RegisterPropertyString('TileHeaderName', 'Grilltemperatur');
         $this->RegisterPropertyBoolean('TileHero', false);
         $this->RegisterPropertyBoolean('TileFullscreen', false);
         $this->RegisterPropertyString('TileTheme', 'auto');
@@ -2189,6 +2241,10 @@ trait WLTVisualization
         }
         WLTApi::integer($this->ReadPropertyInteger('TileAccent'), 0, 0xffffff);
         WLTApi::integer($this->ReadPropertyInteger('TilePrimary'), 0, 255);
+        WLTApi::integer($this->ReadPropertyInteger('TileHeaderChannel'), 1, 255);
+        foreach (['TileTitle', 'TileHeaderName'] as $property) {
+            if (strlen($this->ReadPropertyString($property)) > 240) { throw new InvalidArgumentException('Kacheltitel dürfen höchstens 240 Bytes lang sein.'); }
+        }
         WLTApi::integer($this->ReadPropertyInteger('ForecastWindow'), 5, 60);
         $this->tileChannelSelection();
         $this->meaterPairSelection();
@@ -2344,7 +2400,10 @@ trait WLTVisualization
             'rssi' => $this->ReadPropertyBoolean('TileDetails') ? ($data['system']['rssi'] ?? null) : null,
             'canRefresh' => $this->ReadPropertyBoolean('Active'),
             'canWrite' => $online && $this->ReadPropertyBoolean('TileControls') && $this->ReadPropertyBoolean('AllowWrite'),
-            'config' => ['theme' => in_array($this->ReadPropertyString('TileTheme'), ['auto', 'light', 'dark'], true) ? $this->ReadPropertyString('TileTheme') : 'auto',
+            'config' => ['title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
+                'headerEnabled' => $this->ReadPropertyBoolean('TileHeaderEnabled'), 'headerChannel' => $this->ReadPropertyInteger('TileHeaderChannel'),
+                'headerName' => trim($this->ReadPropertyString('TileHeaderName')) ?: 'Grilltemperatur',
+                'theme' => in_array($this->ReadPropertyString('TileTheme'), ['auto', 'light', 'dark'], true) ? $this->ReadPropertyString('TileTheme') : 'auto',
                 'accent' => sprintf('#%06x', max(0, min(0xffffff, $this->ReadPropertyInteger('TileAccent')))),
                 'compact' => $this->ReadPropertyBoolean('TileCompact'), 'details' => $this->ReadPropertyBoolean('TileDetails'),
                 'icons' => $this->ReadPropertyBoolean('TileIcons'), 'animations' => $this->ReadPropertyBoolean('TileAnimations'),
@@ -2600,6 +2659,16 @@ trait WLTForecastSupport
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.6.1: Freier Titel und Temperaturkachel im Kopfbereich
+
+**Titel der Kachel** ersetzt den bisherigen festen Text „Grillstation“. Unter **Kompakte Temperaturkachel oben im Kopfbereich anzeigen** lässt sich zwischen Titel und Verbindungsanzeige ein einzelner Temperaturkanal anzeigen. **Temperaturkanal für die Kachel im Kopfbereich** wählt die Kanalnummer, **Name der Temperaturkachel** die freie Beschriftung, etwa „Grilltemperatur“ oder „Räucherkammertemperatur“. Standardmäßig ist die Kopfanzeige für Kanal 1 mit dem Namen „Grilltemperatur“ eingeschaltet. Leere Texte verwenden die Standardbeschriftungen.
+
+Der dort sichtbare Kanal entfällt in der unteren Fühlerübersicht, auch wenn er Teil eines MEATER-Paares ist. Wird die Kopfanzeige abgeschaltet, erscheint der weiterhin freigegebene und gültige Kanal wieder unten. Fühler-/Messwertzähler beziehen sich auf die untere Übersicht. Wenn kein weiterer Fühler verbleibt, entfällt der gesamte leere Übersichtsbereich.
+
+Ausgeschlossene, ungültige oder nicht erreichbare Kanäle erscheinen auch oben nicht; es gibt keinen automatischen Ersatzkanal. Die Kopfkachel zeigt Messwert und Einheit. Bei bedienbaren Kanälen ist die Obergrenze dort weiterhin aufklappbar; Schreibschutz und Rückleseprüfung bleiben wirksam. MEATER-Garraummessstellen bleiben reine Anzeigen. Offene Eingaben bleiben bei Messwertaktualisierungen erhalten und werden beim Kanalwechsel verworfen.
+
+Auf schmalen Kacheln rückt die Kopftemperatur unter Titel/Verbindung. Die bestehende große optionale Hauptanzeige bleibt separat konfigurierbar. Texte ändern nur die Visualisierung; Geräte-/Variablennamen und IDs bleiben erhalten. Nach dem Update Kachel/IPSView neu laden, bei direkter Dateikopie zusätzlich Symcon neu starten.
 
 ## Version 1.6.0: Ein MEATER, eine gemeinsame Kachel
 

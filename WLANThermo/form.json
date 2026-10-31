@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.1"
         },
         {
             "type": "ExpansionPanel",
@@ -330,6 +330,32 @@
                     "type": "CheckBox",
                     "name": "TilePitmaster",
                     "caption": "Pitmaster anzeigen"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "TileTitle",
+                    "caption": "Titel der Kachel (z. B. Grillstation)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileHeaderEnabled",
+                    "caption": "Kompakte Temperaturkachel oben im Kopfbereich anzeigen"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "TileHeaderChannel",
+                    "caption": "Temperaturkanal für die Kachel im Kopfbereich",
+                    "minimum": 1,
+                    "maximum": 255
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "TileHeaderName",
+                    "caption": "Name der Temperaturkachel (z. B. Grilltemperatur oder Räucherkammertemperatur)"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Der Titel und der Name sind frei einstellbar. Die kompakte Temperaturkachel zeigt nur den gewählten, freigegebenen und gültigen Messwert. Bei fehlendem Wert wird sie ausgeblendet. Geräte- und Variablennamen bleiben erhalten."
                 },
                 {
                     "type": "CheckBox",

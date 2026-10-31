@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  let state = {}, selected = 0, pending = null, timeout = null;
+  let state = {}, selected = 0, pending = null, timeout = null, headerEditingChannel = 0;
   const probes = new Map(), pitmasters = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
@@ -130,6 +130,22 @@
     $('connection').textContent = !active ? 'Kachel deaktiviert' : !state.active ? 'Deaktiviert' : state.online ? 'Verbunden' : state.status >= 200 ? 'Fehler' : 'Standby';
     $('connection').classList.toggle('online', Boolean(active && state.online));
     const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
+    $('tile-title').textContent = cfg.title || 'Grillstation';
+    $('grill').setAttribute('aria-label', 'WLANThermo · ' + (cfg.title || 'Grillstation'));
+    const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
+    const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
+    $('header-temperature').hidden = !showHeader;
+    document.body.classList.toggle('has-header-temperature', showHeader);
+    $('header-temperature-name').textContent = cfg.headerName || 'Grilltemperatur';
+    $('header-temperature').setAttribute('aria-label', cfg.headerName || 'Grilltemperatur');
+    $('header-temperature-channel').textContent = headerChannel ? 'Kanal ' + headerChannel.number + ' · ' + headerChannel.name : '';
+    $('header-temperature-value').textContent = fmt(headerChannel?.temperature);
+    $('header-temperature-unit').textContent = state.unit || '°C';
+    if (headerEditingChannel !== headerChannel?.number || !showHeader) { $('header-limits').open = false; headerEditingChannel = headerChannel?.number || 0; }
+    $('header-limits').hidden = !showHeader || cfg.controls === false || headerChannel?.sensorRole === 'ambient' || !Number.isFinite(headerChannel?.max);
+    if (!$('header-limits').open) $('header-maximum').value = headerChannel?.max ?? '';
+    $('header-maximum').disabled = $('header-limit-submit').disabled = !editable;
+
     if (!channels.some(ch => ch.number === selected)) selected = cfg.primary > 0 ? (channels.some(ch => ch.number === cfg.primary) ? cfg.primary : 0) : channels[0]?.number || 0;
     const main = channels.find(ch => ch.number === (cfg.primary > 0 ? cfg.primary : selected));
     $('hero').hidden = !cfg.hero || !main;
@@ -154,10 +170,11 @@
     $('gauge').hidden = !main || mainAmbient || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
     $('gauge').setAttribute('aria-label', main && cfg.forecast !== false && Number.isFinite(main.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(main.forecast.progress * 100) + ' Prozent' : main ? 'Temperatur im Verhältnis zur Obergrenze: ' + describe(main) : 'Keine Obergrenze verfügbar');
-    const cores = new Map(channels.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
-    const ambientSensors = new Map(channels.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
-    const cards = channels.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
-    $('probe-count').textContent = cards.length + ' Fühler · ' + channels.length + (channels.length === 1 ? ' Messwert' : ' Messwerte');
+    const overview = channels.filter(ch => !showHeader || ch.number !== headerChannel.number);
+    const cores = new Map(overview.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const ambientSensors = new Map(overview.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const cards = overview.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
+    $('probe-count').textContent = cards.length + ' Fühler · ' + overview.length + (overview.length === 1 ? ' Messwert' : ' Messwerte');
     for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     cards.forEach(ch => {
       const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
@@ -185,7 +202,7 @@
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
     });
-    $('channels-section').hidden = channels.length === 0;
+    $('channels-section').hidden = cards.length === 0;
     const pms = active ? state.pitmasters || [] : [];
     for (const [id, ui] of pitmasters) if (!pms.some(pm => pm.id === id)) { ui.el.remove(); pitmasters.delete(id); }
     pms.forEach(pm => {
@@ -209,11 +226,12 @@
       state = data;
       if (data.response && data.response.requestId === pending) {
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
+        if (data.response.ok) { $('header-limits').open = false; for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
+  $('header-limits-form').addEventListener('submit', event => { event.preventDefault(); if ($('header-limits-form').reportValidity() && !$('header-limits').hidden) send('channel', {number:headerEditingChannel, max:Number($('header-maximum').value)}); });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }

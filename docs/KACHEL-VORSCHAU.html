@@ -22,13 +22,17 @@
 
 .hero-forecast{display:flex;flex-direction:column;gap:4px;margin-top:14px;overflow-wrap:anywhere}.hero-forecast-label{font-size:9px;letter-spacing:1.3px;color:var(--muted);font-weight:650}.hero-forecast strong{font-size:13px;font-weight:550;line-height:1.35}.hero-forecast.estimated strong{font-size:clamp(18px,3vw,26px);font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}.hero-forecast-eta{font-size:11px;color:var(--muted);font-weight:400}
 .probe-value.paired-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.measurement{min-width:0}.measurement-label{display:block;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.5;color:var(--muted);margin-bottom:5px;overflow-wrap:anywhere}.measurement-reading{font-size:clamp(24px,3vw,32px);line-height:1.25;font-variant-numeric:tabular-nums;letter-spacing:-1px;white-space:nowrap}.paired-values .measurement+.measurement{border-left:1px solid var(--border);padding-left:12px}.measurement-reading small{font-size:12px;margin-left:4px}.probe-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}@media(max-width:300px){.probe-value.paired-values{grid-template-columns:1fr;gap:10px}.paired-values .measurement+.measurement{border:0;padding-left:0}}
+.brand>div{min-width:0}#tile-title{overflow-wrap:anywhere}.has-header-temperature .topbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,340px) auto;gap:18px}.header-temperature{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;min-width:0;padding:12px 18px;background:var(--surface);border:1px solid var(--border);border-radius:14px}.header-temperature-copy{min-width:0}.header-temperature h2{font-size:13px;line-height:1.4;overflow-wrap:anywhere}.header-temperature-channel{display:block;font-size:10px;line-height:1.5;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.header-temperature-reading{display:flex;align-items:baseline;gap:5px;flex-shrink:0;font-variant-numeric:tabular-nums}.header-temperature-reading strong{font-size:30px;line-height:1.2;letter-spacing:-1px;font-weight:550}.header-temperature-reading>span{font-size:12px;color:var(--muted)}@media(max-width:700px){.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr) auto;gap:12px}.has-header-temperature .top-actions{grid-column:2;grid-row:1}.header-temperature{grid-column:1/-1;grid-row:2;padding:12px 15px}.header-temperature-reading strong{font-size:28px}}
+
+.header-limits{grid-column:1/-1;width:100%;margin-top:0;padding-top:6px}.header-limits summary{min-height:22px}.header-limits .limits-form{margin-top:6px}.header-temperature{row-gap:6px}
 </style>
 </head>
 <body>
 <p style="padding:12px 24px;margin:0;font:12px system-ui;color:var(--muted)">Designvorschau · synthetische Testdaten · ohne Geräteverbindung</p>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1>Grillstation</h1></div></div>
+    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1 id="tile-title">Grillstation</h1></div></div>
+    <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2><span id="header-temperature-channel" class="header-temperature-channel"></span></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div><details id="header-limits" class="header-limits"><summary>Obergrenze bearbeiten</summary><form id="header-limits-form" class="limits-form"><label class="field"><span>Obergrenze</span><input id="header-maximum" type="number" step="1" min="-30" max="999" required></label><button id="header-limit-submit" type="submit">Obergrenze übernehmen</button></form></details></section>
     <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
@@ -42,11 +46,11 @@
   <p id="notice" role="status" aria-live="polite" hidden></p>
   <p id="device-error" role="status" hidden></p>
 </main>
-<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793432527,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","temperature":110.5,"valid":true,"wireless":false,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":110.5,"startedAt":1793431927,"points":[[1793431927,110.5],[1793431957,110.5],[1793431987,110.5],[1793432017,110.5],[1793432047,110.5],[1793432077,110.5],[1793432107,110.5],[1793432137,110.5],[1793432167,110.5],[1793432197,110.5],[1793432227,110.5],[1793432257,110.5],[1793432287,110.5],[1793432317,110.5],[1793432347,110.5],[1793432377,110.5],[1793432407,110.5],[1793432437,110.5],[1793432467,110.5],[1793432497,110.5],[1793432527,110.5]]},"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","temperature":60.3,"valid":true,"wireless":true,"max":75,"forecast":{"status":"estimated","seconds":2940,"eta":1793435467,"rate":0.3000000000000001,"progress":0.16949152542372878,"start":57.3,"startedAt":1793431927,"points":[[1793431927,57.3],[1793431957,57.449999999999996],[1793431987,57.599999999999994],[1793432017,57.75],[1793432047,57.9],[1793432077,58.05],[1793432107,58.199999999999996],[1793432137,58.349999999999994],[1793432167,58.5],[1793432197,58.65],[1793432227,58.8],[1793432257,58.949999999999996],[1793432287,59.099999999999994],[1793432317,59.25],[1793432347,59.4],[1793432377,59.55],[1793432407,59.699999999999996],[1793432437,59.849999999999994],[1793432467,60],[1793432497,60.15],[1793432527,60.3]]},"alarm":0,"outOfRange":false,"sensorRole":"core","probeName":"Meater","pairKey":"meater_13"},{"number":14,"name":"MeaterGT","temperature":118.4,"valid":true,"wireless":true,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":118.4,"startedAt":1793431927,"points":[[1793431927,118.4],[1793431957,118.4],[1793431987,118.4],[1793432017,118.4],[1793432047,118.4],[1793432077,118.4],[1793432107,118.4],[1793432137,118.4],[1793432167,118.4],[1793432197,118.4],[1793432227,118.4],[1793432257,118.4],[1793432287,118.4],[1793432317,118.4],[1793432347,118.4],[1793432377,118.4],[1793432407,118.4],[1793432437,118.4],[1793432467,118.4],[1793432497,118.4],[1793432527,118.4]]},"alarm":0,"outOfRange":false,"sensorRole":"ambient","probeName":"Meater","pairKey":"meater_13"}],"pitmasters":[{"id":0,"channel":1,"value":0,"set":120,"typ":"off"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"hero":false,"forecast":true,"forecastChart":true,"controls":true,"primary":13}}</script>
+<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793433899,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","temperature":110.5,"valid":true,"wireless":false,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":110.5,"startedAt":1793433298,"points":[[1793433298,110.5],[1793433328,110.5],[1793433358,110.5],[1793433388,110.5],[1793433418,110.5],[1793433448,110.5],[1793433478,110.5],[1793433508,110.5],[1793433538,110.5],[1793433568,110.5],[1793433598,110.5],[1793433628,110.5],[1793433658,110.5],[1793433688,110.5],[1793433718,110.5],[1793433748,110.5],[1793433778,110.5],[1793433808,110.5],[1793433838,110.5],[1793433868,110.5],[1793433898,110.5]]},"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","temperature":60.3,"valid":true,"wireless":true,"max":75,"forecast":{"status":"estimated","seconds":2940,"eta":1793436838,"rate":0.3000000000000001,"progress":0.16949152542372878,"start":57.3,"startedAt":1793433298,"points":[[1793433298,57.3],[1793433328,57.449999999999996],[1793433358,57.599999999999994],[1793433388,57.75],[1793433418,57.9],[1793433448,58.05],[1793433478,58.199999999999996],[1793433508,58.349999999999994],[1793433538,58.5],[1793433568,58.65],[1793433598,58.8],[1793433628,58.949999999999996],[1793433658,59.099999999999994],[1793433688,59.25],[1793433718,59.4],[1793433748,59.55],[1793433778,59.699999999999996],[1793433808,59.849999999999994],[1793433838,60],[1793433868,60.15],[1793433898,60.3]]},"alarm":0,"outOfRange":false,"sensorRole":"core","probeName":"Meater","pairKey":"meater_13"},{"number":14,"name":"MeaterGT","temperature":118.4,"valid":true,"wireless":true,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":118.4,"startedAt":1793433298,"points":[[1793433298,118.4],[1793433328,118.4],[1793433358,118.4],[1793433388,118.4],[1793433418,118.4],[1793433448,118.4],[1793433478,118.4],[1793433508,118.4],[1793433538,118.4],[1793433568,118.4],[1793433598,118.4],[1793433628,118.4],[1793433658,118.4],[1793433688,118.4],[1793433718,118.4],[1793433748,118.4],[1793433778,118.4],[1793433808,118.4],[1793433838,118.4],[1793433868,118.4],[1793433898,118.4]]},"alarm":0,"outOfRange":false,"sensorRole":"ambient","probeName":"Meater","pairKey":"meater_13"}],"pitmasters":[{"id":0,"channel":1,"value":0,"set":120,"typ":"off"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"title":"Grillstation","headerEnabled":true,"headerChannel":1,"headerName":"Grilltemperatur","theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"hero":false,"forecast":true,"forecastChart":true,"controls":true,"primary":13}}</script>
 <script>'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  let state = {}, selected = 0, pending = null, timeout = null;
+  let state = {}, selected = 0, pending = null, timeout = null, headerEditingChannel = 0;
   const probes = new Map(), pitmasters = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
@@ -175,6 +179,22 @@
     $('connection').textContent = !active ? 'Kachel deaktiviert' : !state.active ? 'Deaktiviert' : state.online ? 'Verbunden' : state.status >= 200 ? 'Fehler' : 'Standby';
     $('connection').classList.toggle('online', Boolean(active && state.online));
     const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
+    $('tile-title').textContent = cfg.title || 'Grillstation';
+    $('grill').setAttribute('aria-label', 'WLANThermo · ' + (cfg.title || 'Grillstation'));
+    const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
+    const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
+    $('header-temperature').hidden = !showHeader;
+    document.body.classList.toggle('has-header-temperature', showHeader);
+    $('header-temperature-name').textContent = cfg.headerName || 'Grilltemperatur';
+    $('header-temperature').setAttribute('aria-label', cfg.headerName || 'Grilltemperatur');
+    $('header-temperature-channel').textContent = headerChannel ? 'Kanal ' + headerChannel.number + ' · ' + headerChannel.name : '';
+    $('header-temperature-value').textContent = fmt(headerChannel?.temperature);
+    $('header-temperature-unit').textContent = state.unit || '°C';
+    if (headerEditingChannel !== headerChannel?.number || !showHeader) { $('header-limits').open = false; headerEditingChannel = headerChannel?.number || 0; }
+    $('header-limits').hidden = !showHeader || cfg.controls === false || headerChannel?.sensorRole === 'ambient' || !Number.isFinite(headerChannel?.max);
+    if (!$('header-limits').open) $('header-maximum').value = headerChannel?.max ?? '';
+    $('header-maximum').disabled = $('header-limit-submit').disabled = !editable;
+
     if (!channels.some(ch => ch.number === selected)) selected = cfg.primary > 0 ? (channels.some(ch => ch.number === cfg.primary) ? cfg.primary : 0) : channels[0]?.number || 0;
     const main = channels.find(ch => ch.number === (cfg.primary > 0 ? cfg.primary : selected));
     $('hero').hidden = !cfg.hero || !main;
@@ -199,10 +219,11 @@
     $('gauge').hidden = !main || mainAmbient || !Number.isFinite(main.max) || (main.max <= 0 && !Number.isFinite(main.forecast?.progress));
     $('gauge').style.setProperty('--progress', ((main ? fraction(main) : 0) * 360) + 'deg');
     $('gauge').setAttribute('aria-label', main && cfg.forecast !== false && Number.isFinite(main.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(main.forecast.progress * 100) + ' Prozent' : main ? 'Temperatur im Verhältnis zur Obergrenze: ' + describe(main) : 'Keine Obergrenze verfügbar');
-    const cores = new Map(channels.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
-    const ambientSensors = new Map(channels.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
-    const cards = channels.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
-    $('probe-count').textContent = cards.length + ' Fühler · ' + channels.length + (channels.length === 1 ? ' Messwert' : ' Messwerte');
+    const overview = channels.filter(ch => !showHeader || ch.number !== headerChannel.number);
+    const cores = new Map(overview.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const ambientSensors = new Map(overview.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
+    const cards = overview.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
+    $('probe-count').textContent = cards.length + ' Fühler · ' + overview.length + (overview.length === 1 ? ' Messwert' : ' Messwerte');
     for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     cards.forEach(ch => {
       const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
@@ -230,7 +251,7 @@
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
     });
-    $('channels-section').hidden = channels.length === 0;
+    $('channels-section').hidden = cards.length === 0;
     const pms = active ? state.pitmasters || [] : [];
     for (const [id, ui] of pitmasters) if (!pms.some(pm => pm.id === id)) { ui.el.remove(); pitmasters.delete(id); }
     pms.forEach(pm => {
@@ -254,11 +275,12 @@
       state = data;
       if (data.response && data.response.requestId === pending) {
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
+        if (data.response.ok) { $('header-limits').open = false; for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
+  $('header-limits-form').addEventListener('submit', event => { event.preventDefault(); if ($('header-limits-form').reportValidity() && !$('header-limits').hidden) send('channel', {number:headerEditingChannel, max:Number($('header-maximum').value)}); });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }

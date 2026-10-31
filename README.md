@@ -2,6 +2,16 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.6.1: Freier Titel und Temperaturkachel im Kopfbereich
+
+**Titel der Kachel** ersetzt den bisherigen festen Text „Grillstation“. Unter **Kompakte Temperaturkachel oben im Kopfbereich anzeigen** lässt sich zwischen Titel und Verbindungsanzeige ein einzelner Temperaturkanal anzeigen. **Temperaturkanal für die Kachel im Kopfbereich** wählt die Kanalnummer, **Name der Temperaturkachel** die freie Beschriftung, etwa „Grilltemperatur“ oder „Räucherkammertemperatur“. Standardmäßig ist die Kopfanzeige für Kanal 1 mit dem Namen „Grilltemperatur“ eingeschaltet. Leere Texte verwenden die Standardbeschriftungen.
+
+Der dort sichtbare Kanal entfällt in der unteren Fühlerübersicht, auch wenn er Teil eines MEATER-Paares ist. Wird die Kopfanzeige abgeschaltet, erscheint der weiterhin freigegebene und gültige Kanal wieder unten. Fühler-/Messwertzähler beziehen sich auf die untere Übersicht. Wenn kein weiterer Fühler verbleibt, entfällt der gesamte leere Übersichtsbereich.
+
+Ausgeschlossene, ungültige oder nicht erreichbare Kanäle erscheinen auch oben nicht; es gibt keinen automatischen Ersatzkanal. Die Kopfkachel zeigt Messwert und Einheit. Bei bedienbaren Kanälen ist die Obergrenze dort weiterhin aufklappbar; Schreibschutz und Rückleseprüfung bleiben wirksam. MEATER-Garraummessstellen bleiben reine Anzeigen. Offene Eingaben bleiben bei Messwertaktualisierungen erhalten und werden beim Kanalwechsel verworfen.
+
+Auf schmalen Kacheln rückt die Kopftemperatur unter Titel/Verbindung. Die bestehende große optionale Hauptanzeige bleibt separat konfigurierbar. Texte ändern nur die Visualisierung; Geräte-/Variablennamen und IDs bleiben erhalten. Nach dem Update Kachel/IPSView neu laden, bei direkter Dateikopie zusätzlich Symcon neu starten.
+
 ## Version 1.6.0: Ein MEATER, eine gemeinsame Kachel
 
 Ein klassischer MEATER mit zwei Messstellen erscheint als eine gemeinsame Kachel: **Kerntemperatur** und **Garraumtemperatur** stehen nebeneinander. Obergrenze, Fortschritt und Restzeit beziehen sich auf den Kern. Die Garraumtemperatur ist eine reine Messwertanzeige ohne Obergrenzenfeld, Zielwarnung oder Restzeitprognose. Das gilt auch, wenn der Garraum als optionaler Hauptkanal gewählt wird. Normale kabelgebundene Garraumfühler behalten ihre bisherige Bedienung.

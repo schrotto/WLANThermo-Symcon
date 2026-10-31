@@ -197,38 +197,44 @@ OK 196: Doppelte Zuordnung eines MEATER-Kanals wird als Konfigurationsfehler abg
 OK 197: Ein Kanal kann nicht zugleich Kern und Garraum sein
 OK 198: Leerer MEATER-Anzeigename wird abgefangen
 OK 199: Doppelte Kerntemperaturnamen verhindern eine mehrdeutige automatische Paarung
-OK 200: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
-OK 201: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
-OK 202: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
-OK 203: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
-OK 204: Fehlende Obergrenze erzeugt keine Restzeit
-OK 205: Vor drei Minuten wird keine Restzeit ausgegeben
-OK 206: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
-OK 207: Abkühlung erzeugt keine negative Restzeit
-OK 208: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
-OK 209: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
-OK 210: Veraltete Messhistorie wird nicht zur Prognose verwendet
-OK 211: Fühlerwechsel setzt Verlauf und Startpunkt zurück
-OK 212: Längere Unterbrechung startet den Verlauf neu
-OK 213: Großer abrupter Temperatursprung startet einen neuen Verlauf
-OK 214: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
-OK 215: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
-OK 216: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
-OK 217: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
-OK 218: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
-OK 219: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
-OK 220: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
-OK 221: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
-OK 222: Reset erzeugt keine künstliche Messung aus alten Cachewerten
-OK 223: Erst der nächste echte Abruf startet die neue Messreihe
-OK 224: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
-OK 225: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
-OK 226: Ungültiger Fühler verwirft seinen Messverlauf
-OK 227: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
-OK 228: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
-OK 229: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
-OK 230: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
-230 assertions passed.
+OK 200: Neue Kopfanzeige verwendet frei einstellbaren Titel und Kanal 1 als Standard
+OK 201: Titel, Beschriftung und gewählter Kopfkanal werden aus der Instanzkonfiguration übertragen
+OK 202: Kopfanzeige erhält keinen in der Kanalauswahl gesperrten Messwert
+OK 203: Ungültiger Kopfkanal wird als Konfigurationsfehler abgefangen
+OK 204: Überlanger Kacheltitel wird abgefangen
+OK 205: Leere Namen verwenden Standardbeschriftungen ohne zusätzliche Statusvariablen
+OK 206: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
+OK 207: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
+OK 208: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
+OK 209: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
+OK 210: Fehlende Obergrenze erzeugt keine Restzeit
+OK 211: Vor drei Minuten wird keine Restzeit ausgegeben
+OK 212: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
+OK 213: Abkühlung erzeugt keine negative Restzeit
+OK 214: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
+OK 215: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
+OK 216: Veraltete Messhistorie wird nicht zur Prognose verwendet
+OK 217: Fühlerwechsel setzt Verlauf und Startpunkt zurück
+OK 218: Längere Unterbrechung startet den Verlauf neu
+OK 219: Großer abrupter Temperatursprung startet einen neuen Verlauf
+OK 220: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
+OK 221: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
+OK 222: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
+OK 223: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
+OK 224: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
+OK 225: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
+OK 226: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
+OK 227: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
+OK 228: Reset erzeugt keine künstliche Messung aus alten Cachewerten
+OK 229: Erst der nächste echte Abruf startet die neue Messreihe
+OK 230: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
+OK 231: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
+OK 232: Ungültiger Fühler verwirft seinen Messverlauf
+OK 233: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
+OK 234: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
+OK 235: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
+OK 236: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
+236 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert
@@ -277,5 +283,18 @@ UI OK 44: Garraum als Hauptkanal zeigt nur den Messwert ohne Zielwarnung oder Pr
 UI OK 45: Ausgeblendeter oder ungültiger Garraum wird nicht als alter Wert angezeigt
 UI OK 46: Zwei MEATER bleiben auch bei vertauschter Reihenfolge getrennt zugeordnet
 UI OK 47: Ohne eindeutige Paarzuordnung werden keine benachbarten Kanäle zusammengefasst
-UI OK 48: Deaktivierung sperrt die bereits geöffnete Kachel
-48 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 48: Freier Titel und beschriftete Kopfkachel zeigen den gewählten Temperaturkanal
+UI OK 49: Kopfkanal entfällt unten und die Fühlerzählung beschreibt nur die Übersicht
+UI OK 50: Abschalten der Kopfkachel bringt den Kanal ohne Datenverlust in die Übersicht zurück
+UI OK 51: Fehlender Kopfkanal wird nicht durch einen anderen Messwert ersetzt
+UI OK 52: Wenn nur der Kopfkanal vorhanden ist, entfällt die leere Fühlerübersicht
+UI OK 53: Aus MEATER-Paar gewählter Kopfkanal wird auch innerhalb der gemeinsamen Kachel nicht doppelt angezeigt
+UI OK 54: Kern im Kopfbereich lässt unten ausschließlich die reine Garraumanzeige übrig
+UI OK 55: Ungültiger Kopfkanal verschwindet vollständig
+UI OK 56: Frei eingegebene Titel werden als Text und nicht als HTML gerendert
+UI OK 57: Kopfkanal behält Obergrenzenbedienung und offene Eingaben bei Live-Daten
+UI OK 58: Obergrenze aus der Kopfkachel schreibt auf den gewählten Kanal
+UI OK 59: MEATER-Garraum besitzt auch oben kein Obergrenzenformular; Kanalwechsel verwirft alte Eingabe
+UI OK 60: Schreibschutz sperrt die Obergrenzenbedienung im Kopfbereich
+UI OK 61: Deaktivierung sperrt die bereits geöffnete Kachel
+61 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

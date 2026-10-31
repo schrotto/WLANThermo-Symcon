@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.6.0
+# Veröffentlichung – WLANThermo 1.6.1
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -40,3 +40,5 @@ Version 1.5.1 reduziert die Restzeitanzeige auf eine aufklappbare Zeile, ergänz
 Version 1.5.2 zeigt die geschätzte Restdauer und den voraussichtlichen Zielzeitpunkt im optionalen Hauptbereich. Die Testdaten-Vorschau blendet diesen Bereich ein. Aktueller Prüfumfang: 218 PHP- und 40 JavaScript-Vertragsprüfungen.
 
 Version 1.6.0: gemeinsame MEATER-Kachel für Kerntemperatur/Garraumtemperatur. Nur der Kern bietet Ziel, Restzeit und Obergrenzenbedienung. Eindeutige Namen oder explizite MEATER-Zuordnung verbinden die Messstellen. Geräte- und Variablennamen bleiben erhalten. 230 PHP- und 48 JavaScript-Vertragsprüfungen erfolgreich; reale IPSView-/Geräteprüfung offen.
+
+Version 1.6.1: frei einstellbarer Titel und kompakte Kopftemperatur mit wählbarem Kanal/Anzeigenamen. Oben angezeigter Kanal entfällt unten; Obergrenzenbedienung und MEATER-Garraum-Anzeigerolle bleiben erhalten. Aktuell 236 PHP-/61 JavaScript-Vertragsprüfungen erfolgreich, reale IPSView-Prüfung offen.

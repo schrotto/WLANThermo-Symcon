@@ -17,6 +17,8 @@ class Element {
   get classList() { return {add:cls => { this.className = (this.className + ' ' + cls).trim(); },toggle:(cls,on) => { const classes = new Set(this.className.split(' ').filter(Boolean)); if (on) classes.add(cls); else classes.delete(cls); this.className = [...classes].join(' '); }}; }
 }
 const fixture = JSON.parse(fs.readFileSync(__dirname + '/tile-state.generated.json','utf8'));
+// Bestehende Vertragsfälle prüfen weiterhin die vollständige Fühlerübersicht.
+fixture.config.headerEnabled = false;
 const ids = [...fs.readFileSync(__dirname + '/../WLANThermo/module.html','utf8').matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
 const elements = Object.fromEntries(ids.map(id => [id, new Element('div')]));
 elements['initial-state'].textContent = JSON.stringify(fixture);
@@ -132,6 +134,33 @@ data.channels = [data.channels[0], secondAmbient, data.channels[2], secondCore, 
 check(elements.channels.children.length === 3 && elements.channels.children.find(el => el.children[0].children[0].children[1].textContent === 'MEATER 2').children[1].textContent.includes('150'), 'Zwei MEATER bleiben auch bei vertauschter Reihenfolge getrennt zugeordnet');
 data = clone(); delete data.channels[1].pairKey; delete data.channels[2].pairKey; window.handleMessage(data);
 check(elements.channels.children.length === 3, 'Ohne eindeutige Paarzuordnung werden keine benachbarten Kanäle zusammengefasst');
+data = clone(); data.config.headerEnabled = true; data.config.headerChannel = 1; data.config.headerName = 'Räucherkammertemperatur'; data.config.title = 'Mein Smoker'; window.handleMessage(data);
+check(elements['tile-title'].textContent === 'Mein Smoker' && elements['header-temperature-name'].textContent === 'Räucherkammertemperatur' && elements['header-temperature-value'].textContent === '110,5', 'Freier Titel und beschriftete Kopfkachel zeigen den gewählten Temperaturkanal');
+check(!elements['header-temperature'].hidden && elements.channels.children.length === 1 && !elements.channels.children.some(el => el.attrs['aria-label']?.includes('Kanal 1 ')) && elements['probe-count'].textContent === '1 Fühler · 2 Messwerte', 'Kopfkanal entfällt unten und die Fühlerzählung beschreibt nur die Übersicht');
+data.config.headerEnabled = false; window.handleMessage(data);
+check(elements['header-temperature'].hidden && elements.channels.children.length === 2, 'Abschalten der Kopfkachel bringt den Kanal ohne Datenverlust in die Übersicht zurück');
+data.config.headerEnabled = true; data.config.headerChannel = 99; window.handleMessage(data);
+check(elements['header-temperature'].hidden && elements.channels.children.length === 2, 'Fehlender Kopfkanal wird nicht durch einen anderen Messwert ersetzt');
+data.config.headerChannel = 1; data.channels = [data.channels[0]]; window.handleMessage(data);
+check(!elements['header-temperature'].hidden && elements['channels-section'].hidden && elements.channels.children.length === 0 && elements['empty-state'].hidden, 'Wenn nur der Kopfkanal vorhanden ist, entfällt die leere Fühlerübersicht');
+data = clone(); data.config.headerEnabled = true; data.config.headerChannel = 14; window.handleMessage(data);
+check(elements['header-temperature-value'].textContent === '118,4' && !elements.channels.children[1].children[1].textContent.includes('Garraumtemperatur'), 'Aus MEATER-Paar gewählter Kopfkanal wird auch innerhalb der gemeinsamen Kachel nicht doppelt angezeigt');
+data.config.headerChannel = 13; window.handleMessage(data);
+check(elements.channels.children[1].children[1].textContent.includes('Garraumtemperatur') && !elements.channels.children[1].children[1].textContent.includes('Kerntemperatur') && elements.channels.children[1].children[6].hidden, 'Kern im Kopfbereich lässt unten ausschließlich die reine Garraumanzeige übrig');
+data = clone(); data.config.headerEnabled = true; data.config.headerChannel = 1; data.channels[0].temperature = 999; window.handleMessage(data);
+check(elements['header-temperature'].hidden, 'Ungültiger Kopfkanal verschwindet vollständig');
+data = clone(); data.config.title = '<img src=x onerror=alert(1)>'; data.config.headerName = '<script>test</script>'; data.config.headerEnabled = true; data.config.headerChannel = 1; window.handleMessage(data);
+check(elements['tile-title'].textContent === data.config.title && elements['header-temperature-name'].textContent === data.config.headerName, 'Frei eingegebene Titel werden als Text und nicht als HTML gerendert');
+data = clone(); data.config.headerEnabled = true; data.config.headerChannel = 1; data.canWrite = true; window.handleMessage(data);
+elements['header-limits'].open = true; elements['header-maximum'].value = '145'; window.handleMessage(data);
+check(elements['header-maximum'].value === '145' && !elements['header-limits'].hidden, 'Kopfkanal behält Obergrenzenbedienung und offene Eingaben bei Live-Daten');
+elements['header-limits-form'].dispatch('submit');
+check(requested.at(-1).number === 1 && requested.at(-1).max === 145, 'Obergrenze aus der Kopfkachel schreibt auf den gewählten Kanal');
+data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Bestätigt'}; window.handleMessage(data);
+data.config.headerChannel = 14; window.handleMessage(data);
+check(elements['header-limits'].hidden && !elements['header-limits'].open && elements['header-maximum'].value === data.channels[2].max, 'MEATER-Garraum besitzt auch oben kein Obergrenzenformular; Kanalwechsel verwirft alte Eingabe');
+data.config.headerChannel = 1; data.canWrite = false; window.handleMessage(data);
+check(elements['header-maximum'].disabled && elements['header-limit-submit'].disabled, 'Schreibschutz sperrt die Obergrenzenbedienung im Kopfbereich');
 window.handleMessage({enabled:false});
 check(elements.refresh.disabled && elements.connection.textContent === 'Kachel deaktiviert', 'Deaktivierung sperrt die bereits geöffnete Kachel');
 console.log(count + ' UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.');

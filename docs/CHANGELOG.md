@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.6.1 – 31.10.2026
+
+- Frei einstellbarer Kacheltitel statt festem „Grillstation“.
+- Kompakte Temperaturkachel zwischen Titel und Verbindung mit wählbarem Kanal und eigener Beschriftung.
+- Oben angezeigter Kanal entfällt unten; Ausschalten stellt die normale Übersicht wieder her.
+- Gültigkeits-/Sichtbarkeitsregeln, MEATER-Rollen, Schreibschutz und Obergrenzenbedienung berücksichtigt.
+- 236 PHP- und 61 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.6.0 – 31.10.2026
 
 - MEATER-Kern und Garraum gemeinsam in einer Kachel mit eindeutigen Messstellenbezeichnungen.
