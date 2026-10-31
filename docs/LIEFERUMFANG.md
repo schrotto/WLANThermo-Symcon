@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.11.2
+# Lieferumfang A–I – WLANThermo 1.11.3
 
 ## A. Modulbeschreibung
 
@@ -109,3 +109,5 @@ Version 1.11.0 setzt das freigegebene Kopflayout um und verwendet ab fünf Draht
 Version 1.11.1 zentriert die Kopftemperatur durch symmetrische Kopfspalten zur gesamten Ansicht.
 
 Version 1.11.2 korrigiert die Neuinitialisierung bei fehlenden HTML-/NONE-SDK-Konstanten und die vollständige Wiederaktivierung der Kachel. 302 PHP-/110 JavaScript-Vertragsprüfungen erfolgreich; echte betroffene Installation noch zu prüfen.
+
+Version 1.11.3 ersetzt den Fühlerauswahl-Details-Container durch normale Buttons und explizites Menü. Klick-/Pointer-Ebenen abgesichert. 302 PHP-/115 JavaScript-Vertragsprüfungen erfolgreich; gemeldete Clientursache noch nicht reproduziert.

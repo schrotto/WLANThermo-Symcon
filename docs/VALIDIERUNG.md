@@ -1,6 +1,14 @@
-# Prüfbericht 1.11.2 – 31. Oktober 2026
+# Prüfbericht 1.11.3 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.3
+
+302 PHP- und 115 JavaScript-Vertragsprüfungen erfolgreich. Der Benutzer meldete die einzelnen Augen-Buttons als nicht anklickbar. Ohne Zugriff auf den betroffenen Client ist die konkrete Hit-Test-/Ereignisursache nicht reproduziert. Korrigiert wurden die browserabhängige Details-Hülle, mögliche überlagerte Kopf-Klickflächen und die Weitergabe von Button-Ereignissen an Kachel-Gesten.
+
+Der Test-DOM übernimmt nun die tatsächlichen Tags der statischen HTML-IDs. Neue Verträge prüfen normalen sichtbaren Buttoncontainer im Schreibschutz, gestoppte Pointer-Weitergabe, echten Menübutton samt aria-expanded sowie Öffnen/Schließen durch tatsächliche Button-Handler statt künstlichem Setzen einer nativen open-Eigenschaft. Bestehende Sichtbarkeitsaktionen, persistente Auswahl, Antwort-/Doppelklickbehandlung und Escape bleiben geprüft.
+
+CSS-Klickfläche und Ebenenreihenfolge wurden nicht im gerenderten Zielclient gemessen. Auf dem echten Client sind Klick auf Icon/Name/Hintergrund, Touch, Geräte-Schreibschutz, zwei/vier/fünf Fühler, Live-Daten und Kopfkachelüberlagerung zu prüfen. HTML-/JS-Neuladen nach dem Update ist notwendig.
 
 ## Änderungen und Nachweise 1.11.2
 

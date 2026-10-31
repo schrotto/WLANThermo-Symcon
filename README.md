@@ -2,6 +2,14 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.3: Direkte Fühlerbuttons ohne Details-Container
+
+Die gemeldete nicht anklickbare Drahtfühlerauswahl wurde überarbeitet. Einzelne Fühler stehen jetzt in einem normalen Container; die Fühlerauswahl hängt nicht mehr von einem geöffneten Details-Element mit verborgenem Summary ab. Ab fünf Fühlern öffnet ein echter Button die Liste mit explizitem Sichtbarkeitszustand und `aria-expanded`. Escape und Erhalt der geöffneten Auswahl bei Live-Daten bleiben vorhanden.
+
+Die Kopf-Bedienelemente erhalten eine eigene Ebenenreihenfolge vor der Temperaturkachel. Kinder der Fühlerbuttons sind keine eigenen Pointer-Ziele; Symbol und Name gehören damit zur gesamten Buttonfläche. Pointer-/Klickereignisse werden nicht an übergeordnete Kachel-Gesten weitergegeben. Geräte-Schreibschutz sperrt die reine Ansichtsauswahl weiterhin nicht.
+
+Die genaue Ursache im betroffenen Client wurde hier nicht reproduziert. Die Änderungen sichern die bekannten möglichen Eingabekonflikte im bisherigen Container ab; DOM-Verträge ersetzen keinen echten Hit-Test. Nach dem Update die Visualisierung vollständig neu laden, im Browser gegebenenfalls mit **Strg+F5**, damit auch das geänderte HTML geladen wird.
+
 ## Version 1.11.2: Neuinstallation ohne SDK-Konstanten
 
 Der gemeldete Fehler `Undefined constant "INSTANCE_VISUALIZATION_TYPE_HTML"` beim Übernehmen einer neuen Instanz ist korrigiert. Die Initialisierung prüft die Verfügbarkeit der Visualisierungskonstanten. Fehlen sie, verwendet sie die [offiziell dokumentierten Werte](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setvisualizationtype/) **1 für HTML** und **0 für ausgeschaltet**, ohne globale Konstanten nachzudefinieren. Optionales Vollbild wird weiterhin nur bei vorhandener Vollbild-Konstante verwendet, sonst normales HTML.

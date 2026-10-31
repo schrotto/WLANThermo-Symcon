@@ -15,7 +15,7 @@ class Element {
   setAttribute(key, value) { this.attrs[key] = value; }
   removeAttribute(key) { delete this.attrs[key]; if (key === 'src') this.src = ''; }
   addEventListener(name, handler) { this.events[name] = handler; }
-  dispatch(name, extra={}) { return this.events[name]?.({target:this, preventDefault(){}, ...extra}); }
+  dispatch(name, extra={}) { return this.events[name]?.({target:this, preventDefault(){}, stopPropagation(){}, ...extra}); }
   focus() { this.focused = true; }
   reportValidity() { return true; }
   get classList() { return {add:cls => { this.className = (this.className + ' ' + cls).trim(); },toggle:(cls,on) => { const classes = new Set(this.className.split(' ').filter(Boolean)); if (on) classes.add(cls); else classes.delete(cls); this.className = [...classes].join(' '); }}; }
@@ -23,8 +23,10 @@ class Element {
 const fixture = JSON.parse(fs.readFileSync(__dirname + '/tile-state.generated.json','utf8'));
 // Bestehende Vertragsfälle prüfen weiterhin die vollständige Fühlerübersicht.
 fixture.config.headerEnabled = false;
-const ids = [...fs.readFileSync(__dirname + '/../WLANThermo/module.html','utf8').matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
-const elements = Object.fromEntries(ids.map(id => [id, new Element('div')]));
+const markup = fs.readFileSync(__dirname + '/../WLANThermo/module.html','utf8');
+const taggedIDs = [...markup.matchAll(/<([a-z][a-z0-9-]*)\b[^>]*\bid="([^"]+)"[^>]*>/g)];
+const ids = taggedIDs.map(match => match[2]);
+const elements = Object.fromEntries(taggedIDs.map(match => [match[2], new Element(match[1])]));
 elements['initial-state'].textContent = JSON.stringify(fixture);
 const document = { getElementById:id => {assert(elements[id], 'Fehlendes Element: '+id); return elements[id];}, createElement:tag => new Element(tag), createElementNS:(_namespace,tag) => new Element(tag), createTextNode:text => {const el = new Element('#text');el.textContent = text; return el;}, documentElement:new Element('html'), body:new Element('body') };
 let requested = [], timers = [];
@@ -254,21 +256,31 @@ elements.refresh.dispatch('click'); data.response = {requestId:requested.at(-1).
 olderDismiss(); check(!elements.notice.hidden && elements.notice.textContent === 'Neuere Meldung', 'Abgelaufener alter Timer kann eine neuere Meldung nicht vorzeitig ausblenden');
 newerDismiss(); check(elements.notice.hidden, 'Aktueller Timer blendet die zugehörige neuere Meldung aus');
 data = clone(); data.wiredChannels = [1,2,3,4].map(number => ({number,name:'Fühler '+number,visible:true})); window.handleMessage(data);
-check(!elements['wired-selector'].hidden && elements['wired-selector'].open && elements['wired-selector-toggle'].hidden && elements['wired-toolbar'].children.length === 4, 'Bis vier Drahtfühler bleiben als direkt erreichbare Buttonleiste dargestellt');
+check(!elements['wired-selector'].hidden && !elements['wired-toolbar'].hidden && elements['wired-selector-toggle'].hidden && elements['wired-toolbar'].children.length === 4, 'Bis vier Drahtfühler bleiben als direkt erreichbare Buttonleiste dargestellt');
 data.wiredChannels.push({number:5,name:'Fühler 5',visible:true}); window.handleMessage(data);
-check(!elements['wired-selector-toggle'].hidden && !elements['wired-selector'].open && elements['wired-selector'].className.includes('is-menu') && elements['wired-toolbar'].children.length === 5, 'Ab fünf Fühlern wechselt die Auswahl automatisch in ein zunächst geschlossenes Menü');
-elements['wired-selector'].open = true; window.handleMessage(data);
-check(elements['wired-selector'].open, 'Geöffnetes Fühlermenü bleibt bei Live-Messwerten offen');
+check(!elements['wired-selector-toggle'].hidden && elements['wired-toolbar'].hidden && elements['wired-selector'].className.includes('is-menu') && elements['wired-toolbar'].children.length === 5, 'Ab fünf Fühlern wechselt die Auswahl automatisch in ein zunächst geschlossenes Menü');
+elements['wired-selector-toggle'].dispatch('click'); window.handleMessage(data);
+check(!elements['wired-toolbar'].hidden, 'Geöffnetes Fühlermenü bleibt bei Live-Messwerten offen');
 elements['wired-toolbar'].children[0].dispatch('click'); data.wiredChannels[0].visible = false; data.channels = data.channels.filter(ch => ch.number !== 1); data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Fühler ausgeblendet.'}; window.handleMessage(data);
-check(elements['wired-selector'].open && elements['wired-toolbar'].children[0].attrs['aria-pressed'] === 'false', 'Menü bleibt nach Ausblenden eines Fühlers für weitere Auswahl erreichbar');
+check(!elements['wired-toolbar'].hidden && elements['wired-toolbar'].children[0].attrs['aria-pressed'] === 'false', 'Menü bleibt nach Ausblenden eines Fühlers für weitere Auswahl erreichbar');
 elements['wired-selector'].dispatch('keydown',{key:'Escape'});
-check(!elements['wired-selector'].open && elements['wired-selector-toggle'].focused, 'Escape schließt die Auswahl und gibt den Fokus an den Menüschalter zurück');
+check(elements['wired-toolbar'].hidden && elements['wired-selector-toggle'].focused, 'Escape schließt die Auswahl und gibt den Fokus an den Menüschalter zurück');
 data.wiredChannels = Array.from({length:10},(_,index) => ({number:index+1,name:'Fühler '+(index+1),visible:true})); window.handleMessage(data);
 check(elements['wired-toolbar'].children.length === 10 && !elements['wired-selector-toggle'].hidden, 'Auch zehn Drahtfühler bleiben über das kompakte Menü verfügbar');
 data.wiredChannels = data.wiredChannels.slice(0,4); window.handleMessage(data);
-check(elements['wired-selector'].open && elements['wired-selector-toggle'].hidden && elements['wired-toolbar'].children.length === 4, 'Weniger verfügbare Fühler stellen die direkte Buttonleiste wieder her');
+check(!elements['wired-toolbar'].hidden && elements['wired-selector-toggle'].hidden && elements['wired-toolbar'].children.length === 4, 'Weniger verfügbare Fühler stellen die direkte Buttonleiste wieder her');
 data.wiredChannels = []; window.handleMessage(data);
 check(elements['wired-selector'].hidden, 'Ohne verfügbare Drahtfühler entfällt auch der Menüschalter');
+data = clone(); data.wiredChannels = [{number:1,name:'Garraum',visible:true}]; data.canWrite = false; window.handleMessage(data);
+check(elements['wired-selector'].tagName === 'div' && !elements['wired-toolbar'].hidden && !elements['wired-toolbar'].children[0].disabled, 'Einzelne Drahtfühler liegen in einem normalen sichtbaren Container und bleiben im Schreibschutz klickbar');
+let pointerStopped = false; elements['wired-toolbar'].children[0].dispatch('pointerdown',{stopPropagation(){ pointerStopped = true; }});
+check(pointerStopped, 'Pointer-Ereignisse der Fühlerbuttons werden nicht an übergeordnete Kachel-Gesten weitergegeben');
+data.wiredChannels = Array.from({length:5},(_,index) => ({number:index+1,name:'Fühler '+(index+1),visible:true})); window.handleMessage(data);
+check(elements['wired-selector-toggle'].tagName === 'button' && elements['wired-selector-toggle'].attrs['aria-expanded'] === 'false', 'Zusammengefasste Fühlerauswahl ist ein echter Button mit geschlossenem Zustand');
+elements['wired-selector-toggle'].dispatch('click');
+check(elements['wired-selector-toggle'].attrs['aria-expanded'] === 'true' && !elements['wired-toolbar'].hidden, 'Klick auf den echten Menübutton öffnet die Fühlerliste');
+elements['wired-selector-toggle'].dispatch('click');
+check(elements['wired-selector-toggle'].attrs['aria-expanded'] === 'false' && elements['wired-toolbar'].hidden, 'Erneuter Klick schließt die Liste ohne native Details-Abhängigkeit');
 window.handleMessage({enabled:false});
 check(elements.refresh.disabled && elements.connection.textContent === 'Kachel deaktiviert', 'Deaktivierung sperrt die bereits geöffnete Kachel');
 console.log(count + ' UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.');

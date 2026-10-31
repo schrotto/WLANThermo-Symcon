@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.11.3 – 31.10.2026
+
+- Fühlerleiste in normalem Container statt Details/verborgenem Summary.
+- Echter Menübutton mit expliziter Sichtbarkeit und aria-expanded ab fünf Fühlern.
+- Abgesicherte Klickflächen, Pointer-Ereignisse und Ebenenreihenfolge im Kopfbereich.
+- 302 PHP- und 115 JavaScript-Vertragsprüfungen erfolgreich; echte Clientursache nicht reproduziert.
+
 ## 1.11.2 – 31.10.2026
 
 - Fatal Error bei Neuinstallation ohne INSTANCE_VISUALIZATION_TYPE_HTML/NONE behoben: geprüfte Konstanten mit dokumentierten numerischen Rückfallwerten.

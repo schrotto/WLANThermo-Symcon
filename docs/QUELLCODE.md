@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.11.2
+# Vollständiger Quellcode – WLANThermo 1.11.3
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.11.2",
-    "build": 24,
+    "version": "1.11.3",
+    "build": 25,
     "date": 1793404800
 }
 ````
@@ -1005,7 +1005,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.2"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.3"
         },
         {
             "type": "ExpansionPanel",
@@ -1843,7 +1843,7 @@ class WLANThermo extends IPSModuleStrict
   <header class="topbar">
     <div class="header-brand-column"><div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div></div>
     <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div id="header-image-left" class="header-image-slot"></div><div class="header-temperature-main"><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></div><div id="header-image-right" class="header-image-slot"></div></section>
-    <div class="header-status"><details id="wired-selector" class="wired-selector" hidden><summary id="wired-selector-toggle" class="wired-selector-toggle" hidden>Fühler auswählen <span aria-hidden="true">⌄</span></summary><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></details><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
+    <div class="header-status"><div id="wired-selector" class="wired-selector" hidden><button type="button" aria-expanded="false" aria-controls="wired-toolbar" id="wired-selector-toggle" class="wired-selector-toggle" hidden>Fühler auswählen <span aria-hidden="true">⌄</span></button><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></div><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
     <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><div id="hero-forecast" class="hero-forecast" hidden><span class="hero-forecast-label">GESCHÄTZTE RESTZEIT</span><strong id="hero-forecast-value"></strong><span id="hero-forecast-eta" class="hero-forecast-eta" hidden></span></div></div>
@@ -1900,10 +1900,13 @@ class WLANThermo extends IPSModuleStrict
 /* Titelbilder flankieren den Messwert; die Mitte bleibt für Name und Temperatur frei. */
 .header-temperature{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:14px 18px;min-height:116px}.header-temperature-main{grid-column:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:0}.header-temperature.has-header-images{grid-template-columns:80px minmax(0,1fr) 80px}.has-header-images .header-temperature-main{grid-column:2}#header-image-left{grid-column:1;grid-row:1}#header-image-right{grid-column:3;grid-row:1}.header-temperature-main{grid-row:1}.header-image-slot{display:flex;justify-content:center;align-items:center;min-width:0}.header-image-slot .brand-image{width:80px;height:88px}.header-temperature h2{overflow-wrap:anywhere}.header-image-slot .brand-images{align-items:center}.header-temperature:not(.has-header-images) .header-image-slot{display:none}.brand-title{flex:1 1 auto}@media(max-width:520px){.header-temperature.has-header-images{grid-template-columns:54px minmax(0,1fr) 54px;gap:8px;padding:14px}.header-image-slot .brand-image{width:54px;height:64px}.header-temperature-reading strong{font-size:36px}.header-temperature-reading>span{font-size:14px}}
 /* Kompakter Kopf: Titel/Verbindung links, Messwert mittig, Fühlerwahl/Status rechts. */
-#grill{gap:18px}.topbar,.has-header-temperature .topbar{align-items:start}.header-brand-column{grid-column:1;grid-row:1;display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0;padding-top:5px}.header-brand-column .top-actions{justify-content:flex-start;gap:10px}.header-status{grid-column:3;grid-row:1;gap:10px;align-self:start}.header-temperature{align-self:start}.probe-section-heading{margin-bottom:12px}.header-status .wired-toolbar{justify-content:flex-end;margin:0;width:100%}.wired-selector{position:relative;min-width:0;width:100%;margin:0;padding:0;border:0}.wired-selector:not(.is-menu){max-width:100%}.wired-selector-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;color:var(--text);font-size:12px;font-weight:550}.wired-selector-toggle::-webkit-details-marker{display:none}.wired-selector-toggle>span{color:var(--muted)}.wired-selector.is-menu[open]>.wired-selector-toggle>span{transform:rotate(180deg)}.wired-selector.is-menu:not([open])>.wired-toolbar{display:none}.wired-selector.is-menu[open]>.wired-toolbar{position:absolute;z-index:30;right:0;top:calc(100% + 8px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:min(340px,calc(100vw - 40px));padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:0 12px 32px #0005}.wired-selector .wired-toggle{min-width:0}.wired-selector.is-menu .wired-name{min-width:0;max-width:100%}.wired-selector:not(.is-menu) .wired-name{max-width:140px}@media(max-width:940px){.header-brand-column{grid-column:1;grid-row:1}.header-status{grid-column:2;grid-row:1}.header-brand-column .top-actions{grid-column:auto;grid-row:auto}.header-temperature{grid-column:1/-1;grid-row:2}}@media(max-width:300px){.header-status{grid-column:1;grid-row:2;justify-self:stretch;align-items:flex-end}.header-temperature{grid-row:3}.header-brand-column{grid-column:1;grid-row:1}}@media(pointer:coarse){.wired-selector-toggle{min-height:44px}}
+#grill{gap:18px}.topbar,.has-header-temperature .topbar{align-items:start}.header-brand-column{grid-column:1;grid-row:1;display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0;padding-top:5px}.header-brand-column .top-actions{justify-content:flex-start;gap:10px}.header-status{grid-column:3;grid-row:1;gap:10px;align-self:start}.header-temperature{align-self:start}.probe-section-heading{margin-bottom:12px}.header-status .wired-toolbar{justify-content:flex-end;margin:0;width:100%}.wired-selector{position:relative;min-width:0;width:100%;margin:0;padding:0;border:0}.wired-selector:not(.is-menu){max-width:100%}.wired-selector-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;color:var(--text);font-size:12px;font-weight:550}.wired-selector-toggle::-webkit-details-marker{display:none}.wired-selector-toggle>span{color:var(--muted)}.wired-selector.is-menu.is-open>.wired-selector-toggle>span{transform:rotate(180deg)}.wired-selector.is-menu:not(.is-open)>.wired-toolbar{display:none}.wired-selector.is-menu.is-open>.wired-toolbar{position:absolute;z-index:30;right:0;top:calc(100% + 8px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:min(340px,calc(100vw - 40px));padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:0 12px 32px #0005}.wired-selector .wired-toggle{min-width:0}.wired-selector.is-menu .wired-name{min-width:0;max-width:100%}.wired-selector:not(.is-menu) .wired-name{max-width:140px}@media(max-width:940px){.header-brand-column{grid-column:1;grid-row:1}.header-status{grid-column:2;grid-row:1}.header-brand-column .top-actions{grid-column:auto;grid-row:auto}.header-temperature{grid-column:1/-1;grid-row:2}}@media(max-width:300px){.header-status{grid-column:1;grid-row:2;justify-self:stretch;align-items:flex-end}.header-temperature{grid-row:3}.header-brand-column{grid-column:1;grid-row:1}}@media(pointer:coarse){.wired-selector-toggle{min-height:44px}}
 .wired-selector.is-multi-row>.wired-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.wired-selector.is-multi-row .wired-name{min-width:0;max-width:100%}.wired-selector.is-multi-row .wired-toggle{justify-content:flex-start}
 /* Gleich breite Außenspalten zentrieren die Kopftemperatur zur gesamten Ansicht. */
 .header-temperature{justify-self:center}@media(min-width:941px){.topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr) minmax(250px,380px) minmax(0,1fr)}}
+
+/* Reale Buttons ohne Details-Container und ohne überlagerte Klickflächen. */
+.topbar{position:relative;z-index:2}.header-temperature{position:relative;z-index:0}.header-status{position:relative;z-index:3}.wired-selector{position:relative;z-index:4}.wired-toggle{position:relative;touch-action:manipulation}.wired-toggle>*{pointer-events:none}.wired-selector-toggle{width:100%;text-align:left;touch-action:manipulation}
 ````
 
 ## WLANThermo/tile.js
@@ -1916,7 +1919,7 @@ class WLANThermo extends IPSModuleStrict
   const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
-  let noticeTimer = null, noticeGeneration = 0, wiredMenuMode = false;
+  let noticeTimer = null, noticeGeneration = 0, wiredMenuMode = false, wiredMenuOpen = false;
   const announce = (message, error = false) => {
     if (noticeTimer !== null) clearTimeout(noticeTimer);
     const generation = ++noticeGeneration;
@@ -2074,7 +2077,8 @@ class WLANThermo extends IPSModuleStrict
         const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); pupil.setAttribute('cx','12'); pupil.setAttribute('cy','12'); pupil.setAttribute('r','2.5');
         const strike = document.createElementNS('http://www.w3.org/2000/svg', 'path'); strike.setAttribute('d','M3 3l18 18'); icon.append(eye,pupil,strike);
         button.append(icon,name);
-        button.addEventListener('click', () => { const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
+        button.addEventListener('pointerdown', event => event.stopPropagation());
+        button.addEventListener('click', event => { event.stopPropagation(); const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
         ui = {button,name,strike}; wiredButtons.set(ch.number,ui); $('wired-toolbar').append(button);
       }
       ui.name.textContent = ch.name;
@@ -2083,14 +2087,16 @@ class WLANThermo extends IPSModuleStrict
       ui.button.setAttribute('title',ch.name + (ch.visible ? ' ausblenden' : ' einblenden'));
       ui.button.classList.toggle('is-hidden',!ch.visible); ui.strike.setAttribute('visibility',ch.visible ? 'hidden' : 'visible'); ui.button.disabled = Boolean(pending);
     }
-    $('wired-toolbar').hidden = wired.length === 0;
     $('wired-selector').hidden = wired.length === 0;
     const useWiredMenu = wired.length >= 5;
-    if (useWiredMenu !== wiredMenuMode) { $('wired-selector').open = !useWiredMenu; wiredMenuMode = useWiredMenu; }
-    else if (!useWiredMenu) $('wired-selector').open = true;
+    if (useWiredMenu !== wiredMenuMode || !useWiredMenu) wiredMenuOpen = false;
+    wiredMenuMode = useWiredMenu;
     $('wired-selector').classList.toggle('is-menu', useWiredMenu);
+    $('wired-selector').classList.toggle('is-open', useWiredMenu && wiredMenuOpen);
     $('wired-selector').classList.toggle('is-multi-row', !useWiredMenu && wired.length >= 3);
     $('wired-selector-toggle').hidden = !useWiredMenu;
+    $('wired-selector-toggle').setAttribute('aria-expanded', String(useWiredMenu && wiredMenuOpen));
+    $('wired-toolbar').hidden = wired.length === 0 || (useWiredMenu && !wiredMenuOpen);
 
     const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
     const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
@@ -2236,7 +2242,8 @@ class WLANThermo extends IPSModuleStrict
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
-  $('wired-selector').addEventListener('keydown', event => { if (event.key === 'Escape' && wiredMenuMode && $('wired-selector').open) { $('wired-selector').open = false; $('wired-selector-toggle').focus(); } });
+  $('wired-selector-toggle').addEventListener('click', event => { event.stopPropagation(); if (wiredMenuMode) { wiredMenuOpen = !wiredMenuOpen; render(); } });
+  $('wired-selector').addEventListener('keydown', event => { if (event.key === 'Escape' && wiredMenuMode && wiredMenuOpen) { wiredMenuOpen = false; render(); $('wired-selector-toggle').focus(); } });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }
@@ -3260,6 +3267,14 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.11.3: Direkte Fühlerbuttons ohne Details-Container
+
+Die gemeldete nicht anklickbare Drahtfühlerauswahl wurde überarbeitet. Einzelne Fühler stehen jetzt in einem normalen Container; die Fühlerauswahl hängt nicht mehr von einem geöffneten Details-Element mit verborgenem Summary ab. Ab fünf Fühlern öffnet ein echter Button die Liste mit explizitem Sichtbarkeitszustand und `aria-expanded`. Escape und Erhalt der geöffneten Auswahl bei Live-Daten bleiben vorhanden.
+
+Die Kopf-Bedienelemente erhalten eine eigene Ebenenreihenfolge vor der Temperaturkachel. Kinder der Fühlerbuttons sind keine eigenen Pointer-Ziele; Symbol und Name gehören damit zur gesamten Buttonfläche. Pointer-/Klickereignisse werden nicht an übergeordnete Kachel-Gesten weitergegeben. Geräte-Schreibschutz sperrt die reine Ansichtsauswahl weiterhin nicht.
+
+Die genaue Ursache im betroffenen Client wurde hier nicht reproduziert. Die Änderungen sichern die bekannten möglichen Eingabekonflikte im bisherigen Container ab; DOM-Verträge ersetzen keinen echten Hit-Test. Nach dem Update die Visualisierung vollständig neu laden, im Browser gegebenenfalls mit **Strg+F5**, damit auch das geänderte HTML geladen wird.
 
 ## Version 1.11.2: Neuinstallation ohne SDK-Konstanten
 
