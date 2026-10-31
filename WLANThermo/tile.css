@@ -50,19 +50,20 @@
 /* Physische Reihenfolge statt CSS-Grid-Umsortierung: Infos, Bluetooth-Zeile, Fühler. */
 .header-status{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.header-info-only{display:flex;flex-direction:column;align-items:flex-end;gap:4px;width:100%;font-size:10px;line-height:1.5;color:var(--muted)}.header-status .header-info-only #telemetry,.header-status .header-info-only #updated{flex:0 0 auto;margin:0;text-align:right}.header-device-line{display:flex;align-items:center;justify-content:flex-end;gap:10px;width:100%;font-size:10px;color:var(--muted)}.header-status>.wired-selector{margin-top:0}.no-details .header-info-only,.no-details .header-device-line{display:none}
 
-/* Schmale Kacheln: Messwert neben Verbindung, Geräteinfos unter den Fühlern. */
-.mobile-device-info:empty{display:none}.mobile-device-info{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 18px;padding-top:10px;border-top:1px solid var(--border);color:var(--muted)}.mobile-device-info .header-info-only{width:auto;align-items:flex-start}.mobile-device-info .header-device-line{width:auto}.no-details .mobile-device-info{display:none}
+/* Schmale Kacheln: Temperatur links, Fühlerwahl rechts; Verbindung und Infos unten. */
+.mobile-device-info:empty{display:none}.mobile-device-info{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 18px;padding-top:10px;border-top:1px solid var(--border);color:var(--muted)}.mobile-device-info .header-info-only{width:auto;align-items:flex-start}.mobile-device-info .header-device-line{width:auto}
 @media(max-width:940px){
- .topbar,.has-header-temperature .topbar{grid-template-columns:minmax(125px,.8fr) minmax(0,1.5fr);gap:12px 14px;align-items:center}
- .header-brand-column{display:contents}.brand{grid-column:1/-1;grid-row:1}.header-brand-column .top-actions{grid-column:1;grid-row:2;align-self:center;flex-wrap:wrap}
- .header-temperature{grid-column:2;grid-row:2;max-width:380px;min-height:110px;padding:12px;gap:6px}
+ .topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px;align-items:center}
+ .header-brand-column{display:contents}.brand{grid-column:1/-1;grid-row:1}
+ .header-temperature{grid-column:1;grid-row:2;justify-self:start;max-width:380px;min-height:110px;padding:12px;gap:6px}
  .header-temperature.has-header-images{grid-template-columns:44px minmax(0,1fr) 44px}.header-image-slot .brand-image{width:44px;height:64px}.header-temperature h2{font-size:12px}.header-temperature-reading strong{font-size:34px}
- .header-status{grid-column:1/-1;grid-row:3}.header-status .wired-toolbar{justify-content:flex-end}
- body:not(.has-header-temperature) .header-brand-column .top-actions{grid-column:1/-1}
+ .header-status{grid-column:2;grid-row:2;align-self:center}.header-status .wired-toolbar{justify-content:flex-start}
+ body:not(.has-header-temperature) .header-status{grid-column:1/-1}
+ .mobile-device-info .top-actions{flex:0 0 auto;gap:10px}
 }
 @media(max-width:400px){
  .topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr);gap:12px}
- .header-brand-column .top-actions{grid-column:1;grid-row:2;flex-wrap:nowrap}.header-temperature{grid-column:1;grid-row:3;max-width:100%}.header-status{grid-column:1;grid-row:4}
+ .header-temperature{grid-column:1;grid-row:2;max-width:100%}.header-status{grid-column:1;grid-row:3}
 }
 /* Eigene Touch-Tasten statt Android-Bildschirmtastatur. */
 .touch-keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:4px}.touch-keypad button{min-width:0;min-height:44px;padding:6px 2px;font-size:16px;touch-action:manipulation}.touch-keypad button:nth-last-child(2){font-size:11px}.touch-keypad button:hover{border-color:var(--accent)}

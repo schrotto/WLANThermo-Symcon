@@ -301,8 +301,10 @@ const touchDocument = {...document, getElementById:id => {assert(touchElements[i
 const touchContext = vm.createContext({document:touchDocument,window:touchWindow,console,Intl,Date,Math,JSON,Number,Boolean,String,Map,Set,Event:class {constructor(type,options={}){this.type=type;this.bubbles=options.bubbles;}},setTimeout:()=>1,clearTimeout:()=>{}});
 vm.runInContext(fs.readFileSync(__dirname + '/../WLANThermo/tile.js','utf8'), touchContext);
 check(touchElements.details.parentElement === touchElements['mobile-device-info'] && touchElements['header-device-line'].parentElement === touchElements['mobile-device-info'], 'Schmale Ansicht verschiebt Geräteinformationen physisch ans Ende');
+check(touchElements['connection-actions'].parentElement === touchElements['mobile-device-info'], 'Verbindung und Aktualisieren stehen in schmaler Ansicht ebenfalls unten');
 narrow.matches = false; layoutChange();
 check(touchElements['header-status'].children[0] === touchElements.details && touchElements['header-status'].children[1] === touchElements['header-device-line'], 'Breitenwechsel stellt die bewährte Desktop-Reihenfolge wieder her');
+check(touchElements['connection-actions'].parentElement === touchElements['header-brand-column'], 'Breite Ansicht stellt Verbindung und Aktualisieren unter dem Titel wieder her');
 narrow.matches = true; layoutChange();
 check(touchElements.details.parentElement === touchElements['mobile-device-info'], 'Erneutes Verkleinern verschiebt Infos ohne doppelte Elemente');
 const touchProbe = touchElements.channels.children[0];

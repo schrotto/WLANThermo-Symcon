@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.11.7
+# Lieferumfang A–I – WLANThermo 1.11.8
 
 ## A. Modulbeschreibung
 
@@ -119,3 +119,5 @@ Version 1.11.5 tauscht Fühlerauswahl und Geräteinformationen im rechten Kopfbe
 Version 1.11.6 ordnet die rechten Kopfgruppen fest im HTML statt per Footer-Grid: Informationen oben, Gerätekennung/Bluetooth mittig, Fühlerauswahl unten. Bestehende 302 PHP-/117 JavaScript-Vertragsprüfungen erfolgreich.
 
 Version 1.11.7 ergänzt die schmale Kopfansicht mit Geräteinfos am Ende und eigene Touch-Eingaben für Zahlen/Vorlagen ohne Systemtastatur. 302 PHP-/130 JavaScript-Vertragsprüfungen erfolgreich. Android-Systemleisten werden vom Modul nicht gesteuert; Zielclientprüfung ausstehend.
+
+Version 1.11.8 verschiebt Verbindung/Aktualisieren in schmaler Ansicht nach unten, Kopftemperatur nach links und Fühlerauswahl daneben. Desktop-Anordnung bleibt bei großer Breite erhalten. 302 PHP-/132 JavaScript-Vertragsprüfungen erfolgreich; Zielclientlayout offen.

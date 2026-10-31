@@ -1,6 +1,12 @@
-# Prüfbericht 1.11.7 – 31. Oktober 2026
+# Prüfbericht 1.11.8 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.8
+
+302 PHP- und 132 JavaScript-Vertragsprüfungen erfolgreich. Zwei zusätzliche DOM-Vertragsfälle prüfen den Standort von Verbindung/Aktualisieren unten in schmaler Ansicht und die Wiederherstellung unter dem Titel bei breiter Ansicht. Vorhandene Prüfungen für Geräteinfos, Touch-Eingabe, Fühleraktionen und Schreibschutz bleiben erfolgreich.
+
+CSS ordnet bis 940 px die Kopftemperatur links und Fühlerauswahl rechts in derselben Zeile an, bis 400 px untereinander. Verbindung/Aktualisieren werden physisch in den unteren Informationsbereich verschoben. Die Gruppe bleibt ohne Gerätedetails sichtbar. Kein gerenderter Browsernachweis: am Zielclient Breitenwechsel, mehrere/lange Fühlernamen und ausgeschaltete Gerätedetails prüfen. Android-Vollbildbedienung aus 1.11.7 weiterhin am Tablet prüfen.
 
 ## Änderungen und Nachweise 1.11.7
 

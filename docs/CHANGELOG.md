@@ -1,5 +1,11 @@
 # Änderungen
 
+## 1.11.8 – 31.10.2026
+
+- In der schmalen Ansicht Verbindung/Aktualisieren ebenfalls unter die Fühler verschoben. Bleiben auch ohne Gerätedetails sichtbar.
+- Kopftemperatur links und Fühlerauswahl rechts daneben; bis 400 px untereinander. Desktop-Rückkehr bei Breitenwechsel erhalten.
+- 302 PHP- und 132 JavaScript-Vertragsprüfungen erfolgreich; echtes Browserlayout am Zielgerät zu prüfen.
+
 ## 1.11.7 – 31.10.2026
 
 - Schmale Ansicht mit Kopftemperatur neben Verbindung und Geräteinfos unter den Fühlern; Desktop-Anordnung beim Breitenwechsel wiederhergestellt.

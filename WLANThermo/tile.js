@@ -10,6 +10,8 @@
       if (narrowLayout?.matches) host.append($(id));
       else host.insertBefore($(id), $('wired-selector'));
     }
+    if (narrowLayout?.matches) host.insertBefore($('connection-actions'), $('header-device-line'));
+    else $('header-brand-column').append($('connection-actions'));
   }
   if (narrowLayout?.addEventListener) narrowLayout.addEventListener('change', arrangeDeviceInfo);
   arrangeDeviceInfo();

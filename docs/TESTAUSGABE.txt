@@ -420,16 +420,18 @@ UI OK 115: Normaler Klick startet sofort die Ansichtsauswahl, ohne native Ereign
 UI OK 116: Antwort gibt den Schalter ohne Größenänderung für erneute Bedienung frei
 UI OK 117: Deaktivierung sperrt die bereits geöffnete Kachel
 UI OK 118: Schmale Ansicht verschiebt Geräteinformationen physisch ans Ende
-UI OK 119: Breitenwechsel stellt die bewährte Desktop-Reihenfolge wieder her
-UI OK 120: Erneutes Verkleinern verschiebt Infos ohne doppelte Elemente
-UI OK 121: Touch-Zahlenfeld öffnet keine Systemtastatur und hält Ziffernblock zunächst verborgen
-UI OK 122: Antippen öffnet eigenen Ziffernblock
-UI OK 123: Zifferntasten ersetzen den bisherigen Wert ohne unbestätigten Gerätezugriff
-UI OK 124: Fertig schließt nur die Eingabe, ohne den Wert zu senden
-UI OK 125: Leere Readonly-Touch-Eingabe wird trotz umgangener nativer Validierung abgewiesen
-UI OK 126: Touch-Eingabe oberhalb des Feldmaximums bleibt gesperrt
-UI OK 127: Explizite Bestätigung sendet den gültigen Touch-Wert genau einmal
-UI OK 128: Touch-Vorgaben verwenden eigene Buttons statt des nativen Auswahldialogs
-UI OK 129: Touch-Vorgaben öffnen direkt die Liste
-UI OK 130: Vorlagenauswahl bleibt sichtbar und wartet vor Gerätezugriff auf Übernehmen
-130 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 119: Verbindung und Aktualisieren stehen in schmaler Ansicht ebenfalls unten
+UI OK 120: Breitenwechsel stellt die bewährte Desktop-Reihenfolge wieder her
+UI OK 121: Breite Ansicht stellt Verbindung und Aktualisieren unter dem Titel wieder her
+UI OK 122: Erneutes Verkleinern verschiebt Infos ohne doppelte Elemente
+UI OK 123: Touch-Zahlenfeld öffnet keine Systemtastatur und hält Ziffernblock zunächst verborgen
+UI OK 124: Antippen öffnet eigenen Ziffernblock
+UI OK 125: Zifferntasten ersetzen den bisherigen Wert ohne unbestätigten Gerätezugriff
+UI OK 126: Fertig schließt nur die Eingabe, ohne den Wert zu senden
+UI OK 127: Leere Readonly-Touch-Eingabe wird trotz umgangener nativer Validierung abgewiesen
+UI OK 128: Touch-Eingabe oberhalb des Feldmaximums bleibt gesperrt
+UI OK 129: Explizite Bestätigung sendet den gültigen Touch-Wert genau einmal
+UI OK 130: Touch-Vorgaben verwenden eigene Buttons statt des nativen Auswahldialogs
+UI OK 131: Touch-Vorgaben öffnen direkt die Liste
+UI OK 132: Vorlagenauswahl bleibt sichtbar und wartet vor Gerätezugriff auf Übernehmen
+132 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

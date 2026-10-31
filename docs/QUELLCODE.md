@@ -1,4 +1,4 @@
-# Quellcode – WLANThermo 1.11.7
+# Quellcode – WLANThermo 1.11.8
 
 ## library.json
 
@@ -11,8 +11,8 @@
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.11.7",
-    "build": 29,
+    "version": "1.11.8",
+    "build": 30,
     "date": 1793404800
 }
 ````
@@ -1003,7 +1003,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.7"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.8"
         },
         {
             "type": "ExpansionPanel",
@@ -1839,7 +1839,7 @@ class WLANThermo extends IPSModuleStrict
 <body>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div id="header-brand-column" class="header-brand-column"><div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div></div>
+    <div id="header-brand-column" class="header-brand-column"><div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div><div id="connection-actions" class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div></div>
     <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div id="header-image-left" class="header-image-slot"></div><div class="header-temperature-main"><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></div><div id="header-image-right" class="header-image-slot"></div></section>
     <div id="header-status" class="header-status"><div id="details" class="header-info-only"><span id="telemetry"></span><span id="updated"></span></div><div id="header-device-line" class="header-device-line"><span id="device"></span><button id="bluetooth" type="button" class="text-button"></button></div><div id="wired-selector" class="wired-selector" hidden><button type="button" aria-expanded="false" aria-controls="wired-toolbar" id="wired-selector-toggle" class="wired-selector-toggle" hidden>Fühler auswählen <span aria-hidden="true">⌄</span></button><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></div></div>
   </header>
@@ -1916,19 +1916,20 @@ class WLANThermo extends IPSModuleStrict
 /* Physische Reihenfolge statt CSS-Grid-Umsortierung: Infos, Bluetooth-Zeile, Fühler. */
 .header-status{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.header-info-only{display:flex;flex-direction:column;align-items:flex-end;gap:4px;width:100%;font-size:10px;line-height:1.5;color:var(--muted)}.header-status .header-info-only #telemetry,.header-status .header-info-only #updated{flex:0 0 auto;margin:0;text-align:right}.header-device-line{display:flex;align-items:center;justify-content:flex-end;gap:10px;width:100%;font-size:10px;color:var(--muted)}.header-status>.wired-selector{margin-top:0}.no-details .header-info-only,.no-details .header-device-line{display:none}
 
-/* Schmale Kacheln: Messwert neben Verbindung, Geräteinfos unter den Fühlern. */
-.mobile-device-info:empty{display:none}.mobile-device-info{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 18px;padding-top:10px;border-top:1px solid var(--border);color:var(--muted)}.mobile-device-info .header-info-only{width:auto;align-items:flex-start}.mobile-device-info .header-device-line{width:auto}.no-details .mobile-device-info{display:none}
+/* Schmale Kacheln: Temperatur links, Fühlerwahl rechts; Verbindung und Infos unten. */
+.mobile-device-info:empty{display:none}.mobile-device-info{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 18px;padding-top:10px;border-top:1px solid var(--border);color:var(--muted)}.mobile-device-info .header-info-only{width:auto;align-items:flex-start}.mobile-device-info .header-device-line{width:auto}
 @media(max-width:940px){
- .topbar,.has-header-temperature .topbar{grid-template-columns:minmax(125px,.8fr) minmax(0,1.5fr);gap:12px 14px;align-items:center}
- .header-brand-column{display:contents}.brand{grid-column:1/-1;grid-row:1}.header-brand-column .top-actions{grid-column:1;grid-row:2;align-self:center;flex-wrap:wrap}
- .header-temperature{grid-column:2;grid-row:2;max-width:380px;min-height:110px;padding:12px;gap:6px}
+ .topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px;align-items:center}
+ .header-brand-column{display:contents}.brand{grid-column:1/-1;grid-row:1}
+ .header-temperature{grid-column:1;grid-row:2;justify-self:start;max-width:380px;min-height:110px;padding:12px;gap:6px}
  .header-temperature.has-header-images{grid-template-columns:44px minmax(0,1fr) 44px}.header-image-slot .brand-image{width:44px;height:64px}.header-temperature h2{font-size:12px}.header-temperature-reading strong{font-size:34px}
- .header-status{grid-column:1/-1;grid-row:3}.header-status .wired-toolbar{justify-content:flex-end}
- body:not(.has-header-temperature) .header-brand-column .top-actions{grid-column:1/-1}
+ .header-status{grid-column:2;grid-row:2;align-self:center}.header-status .wired-toolbar{justify-content:flex-start}
+ body:not(.has-header-temperature) .header-status{grid-column:1/-1}
+ .mobile-device-info .top-actions{flex:0 0 auto;gap:10px}
 }
 @media(max-width:400px){
  .topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr);gap:12px}
- .header-brand-column .top-actions{grid-column:1;grid-row:2;flex-wrap:nowrap}.header-temperature{grid-column:1;grid-row:3;max-width:100%}.header-status{grid-column:1;grid-row:4}
+ .header-temperature{grid-column:1;grid-row:2;max-width:100%}.header-status{grid-column:1;grid-row:3}
 }
 /* Eigene Touch-Tasten statt Android-Bildschirmtastatur. */
 .touch-keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:4px}.touch-keypad button{min-width:0;min-height:44px;padding:6px 2px;font-size:16px;touch-action:manipulation}.touch-keypad button:nth-last-child(2){font-size:11px}.touch-keypad button:hover{border-color:var(--accent)}
@@ -1951,6 +1952,8 @@ class WLANThermo extends IPSModuleStrict
       if (narrowLayout?.matches) host.append($(id));
       else host.insertBefore($(id), $('wired-selector'));
     }
+    if (narrowLayout?.matches) host.insertBefore($('connection-actions'), $('header-device-line'));
+    else $('header-brand-column').append($('connection-actions'));
   }
   if (narrowLayout?.addEventListener) narrowLayout.addEventListener('change', arrangeDeviceInfo);
   arrangeDeviceInfo();
@@ -3349,6 +3352,12 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.11.8: Verbindung unten, Temperatur links und Fühler daneben
+
+In der schmalen Ansicht bis 940 px stehen Verbindung und Aktualisieren jetzt ebenfalls unter den Fühlerkacheln, zwischen Messwertinformationen und Gerätekennung/Bluetooth. Sie bleiben bei ausgeblendeten Gerätedetails bedienbar. Die Kopftemperatur steht links unter dem Titel, die Fühlerauswahl direkt rechts daneben. Bis 400 px werden beide Bereiche für ausreichend breite Bedienelemente untereinander angeordnet. Bei größerer Breite kehren alle Elemente zur bisherigen Desktop-Anordnung zurück. Die Touch-Eingabe aus 1.11.7 bleibt erhalten.
+
+302 PHP- und 132 JavaScript-Vertragsprüfungen erfolgreich. Tatsächliche Darstellung im Symcon-Browser und Android-Vollbild müssen am Zielgerät geprüft werden.
 
 ## Version 1.11.7: Schmale Ansicht und Touch-Eingabe
 
