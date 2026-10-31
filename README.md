@@ -2,6 +2,12 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.6: Markierte Bereiche tatsächlich im Aufbau tauschen
+
+Der rechte Kopfbereich besteht jetzt aus drei im HTML fest aufeinanderfolgenden Gruppen: oben Akku/WLAN und Aktualisierungszeit, darunter Gerätekennung/Bluetooth, zuletzt die Fühlerauswahl. Die bisherige CSS-Grid-Umsortierung im Footer entfällt zugunsten separater normaler Blöcke. Die Kopfspalte verwendet eine feste vertikale Flex-Reihenfolge. Ohne Gerätedetails bleiben nur die Fühlerbuttons sichtbar.
+
+Die Änderung setzt den markierten Platztausch um. Die zugrunde liegende Browser-Klickursache wird damit nicht als nachgewiesen behoben behauptet. Das vollständige Update enthält insbesondere geändertes HTML und CSS; nach Dateiaustausch Symcon neu starten und die Visualisierung vollständig neu laden (Strg+F5).
+
 ## Version 1.11.5: Fühlerauswahl mit den Geräteinformationen tauschen
 
 Auf Wunsch wurden die Plätze im rechten Kopfbereich getauscht: Akku/WLAN und Aktualisierungszeit stehen jetzt oben; darunter Gerätekennung/Bluetooth und anschließend die Fühlerauswahl. Die Auswahl befindet sich damit im selben Informationscontainer wie der weiterhin funktionierende Bluetooth-Button. Bei ausgeschalteten Gerätedetails bleibt die Fühlerauswahl allein sichtbar.

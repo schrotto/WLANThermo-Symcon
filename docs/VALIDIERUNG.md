@@ -1,6 +1,12 @@
-# Prüfbericht 1.11.5 – 31. Oktober 2026
+# Prüfbericht 1.11.6 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.6
+
+302 PHP- und 117 JavaScript-Vertragsprüfungen erfolgreich. Zusätzliche HTML-Parserprüfung bestätigt die direkten Kinder des rechten Kopfbereichs in Reihenfolge details/header-device-line/wired-selector, die Informationskinder telemetry/updated und die dazwischenliegende Gerätegruppe device/bluetooth. Kein Footer oder Grid-Reordering mehr für diese Gruppen. Die bisherigen Aktionen bleiben unverändert.
+
+Das letzte Benutzerbild zeigte noch Fühlerbuttons oben und Informationen unten. Ohne tatsächlichen Clientzugriff ist nicht geklärt, ob vorherige Darstellung/CSS unverändert geladen wurde. Die neue feste DOM-Reihenfolge reduziert diese Abhängigkeit. Echte Positions-/Klickprüfung nach vollständigem Austausch von HTML/CSS und Neuladen bleibt erforderlich.
 
 ## Änderungen und Nachweise 1.11.5
 

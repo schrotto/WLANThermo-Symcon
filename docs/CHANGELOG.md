@@ -1,5 +1,11 @@
 # Änderungen
 
+## 1.11.6 – 31.10.2026
+
+- Rechte Kopfgruppen physisch im HTML geordnet: Akku/WLAN/Zeit, Gerätekennung/Bluetooth, Fühlerauswahl.
+- Separate normale Blöcke statt Footer-Grid-Umsortierung.
+- 302 PHP- und 117 JavaScript-Vertragsprüfungen erfolgreich, Gruppenreihenfolge zusätzlich per HTML-Parser geprüft.
+
 ## 1.11.5 – 31.10.2026
 
 - Gewünschter Platztausch: Akku/WLAN/Zeit nach oben, Fühlerauswahl darunter im Geräteinfo-Container.

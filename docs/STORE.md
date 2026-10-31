@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.11.5
+# Veröffentlichung – WLANThermo 1.11.6
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -68,3 +68,5 @@ Version 1.11.3 ersetzt den Fühlerauswahl-Details-Container durch normale Button
 Version 1.11.4 stabilisiert die Anfangsbreite der rechten Fühlerauswahl und erhält native Pointer-/Klickereignisse. 302 PHP-/117 JavaScript-Vertragsprüfungen erfolgreich; echte größenabhängige Clientbedienung weiter zu bestätigen.
 
 Version 1.11.5 tauscht Fühlerauswahl und Geräteinformationen im rechten Kopfbereich entsprechend dem Benutzerwunsch. 302 PHP-/117 JavaScript-Vertragsprüfungen erfolgreich; echte Browserbedienung offen.
+
+Version 1.11.6 ordnet die rechten Kopfgruppen fest im HTML statt per Footer-Grid: Informationen oben, Gerätekennung/Bluetooth mittig, Fühlerauswahl unten. Bestehende 302 PHP-/117 JavaScript-Vertragsprüfungen erfolgreich.
