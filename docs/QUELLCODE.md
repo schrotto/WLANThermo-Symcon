@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.11.0
+# Vollständiger Quellcode – WLANThermo 1.11.1
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.11.0",
-    "build": 22,
+    "version": "1.11.1",
+    "build": 23,
     "date": 1793404800
 }
 ````
@@ -1006,7 +1006,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.1"
         },
         {
             "type": "ExpansionPanel",
@@ -1903,6 +1903,8 @@ class WLANThermo extends IPSModuleStrict
 /* Kompakter Kopf: Titel/Verbindung links, Messwert mittig, Fühlerwahl/Status rechts. */
 #grill{gap:18px}.topbar,.has-header-temperature .topbar{align-items:start}.header-brand-column{grid-column:1;grid-row:1;display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0;padding-top:5px}.header-brand-column .top-actions{justify-content:flex-start;gap:10px}.header-status{grid-column:3;grid-row:1;gap:10px;align-self:start}.header-temperature{align-self:start}.probe-section-heading{margin-bottom:12px}.header-status .wired-toolbar{justify-content:flex-end;margin:0;width:100%}.wired-selector{position:relative;min-width:0;width:100%;margin:0;padding:0;border:0}.wired-selector:not(.is-menu){max-width:100%}.wired-selector-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;color:var(--text);font-size:12px;font-weight:550}.wired-selector-toggle::-webkit-details-marker{display:none}.wired-selector-toggle>span{color:var(--muted)}.wired-selector.is-menu[open]>.wired-selector-toggle>span{transform:rotate(180deg)}.wired-selector.is-menu:not([open])>.wired-toolbar{display:none}.wired-selector.is-menu[open]>.wired-toolbar{position:absolute;z-index:30;right:0;top:calc(100% + 8px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:min(340px,calc(100vw - 40px));padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:0 12px 32px #0005}.wired-selector .wired-toggle{min-width:0}.wired-selector.is-menu .wired-name{min-width:0;max-width:100%}.wired-selector:not(.is-menu) .wired-name{max-width:140px}@media(max-width:940px){.header-brand-column{grid-column:1;grid-row:1}.header-status{grid-column:2;grid-row:1}.header-brand-column .top-actions{grid-column:auto;grid-row:auto}.header-temperature{grid-column:1/-1;grid-row:2}}@media(max-width:300px){.header-status{grid-column:1;grid-row:2;justify-self:stretch;align-items:flex-end}.header-temperature{grid-row:3}.header-brand-column{grid-column:1;grid-row:1}}@media(pointer:coarse){.wired-selector-toggle{min-height:44px}}
 .wired-selector.is-multi-row>.wired-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.wired-selector.is-multi-row .wired-name{min-width:0;max-width:100%}.wired-selector.is-multi-row .wired-toggle{justify-content:flex-start}
+/* Gleich breite Außenspalten zentrieren die Kopftemperatur zur gesamten Ansicht. */
+.header-temperature{justify-self:center}@media(min-width:941px){.topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr) minmax(250px,380px) minmax(0,1fr)}}
 ````
 
 ## WLANThermo/tile.js
@@ -3244,6 +3246,10 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.11.1: Kopftemperatur exakt mittig
+
+Die obere Temperaturkachel ist auf breiten Ansichten zur gesamten Visualisierung zentriert. Gleich breite äußere Kopfspalten ersetzen die zuvor asymmetrische Aufteilung. Auf schmalen Ansichten bleibt die eigene, zentrierte Zeile erhalten. Nach dem Update Kachel/IPSView neu laden.
 
 ## Version 1.11.0: Kompakter Kopf und skalierbare Fühlerauswahl
 

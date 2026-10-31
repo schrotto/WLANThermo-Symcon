@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.11.0
+# Lieferumfang A–I – WLANThermo 1.11.1
 
 ## A. Modulbeschreibung
 
@@ -105,3 +105,5 @@ Version 1.10.1: reine Fühlernamen in der Leiste, mehr Titelbreite/größere Bil
 Version 1.10.2: temporäre Rückmeldungen automatisch ausblenden, Bilder links/rechts am Kopf-Messwert mit mittigem Text und Rückfall an den Titel. 298 PHP-/102 JavaScript-Vertragsprüfungen erfolgreich; echte Clientdarstellung offen.
 
 Version 1.11.0 setzt das freigegebene Kopflayout um und verwendet ab fünf Drahtfühlern eine kompakte, aufklappbare Auswahl. Bis vier direkte Buttons, drei/vier in zwei Zeilen. 298 PHP-/110 JavaScript-Vertragsprüfungen erfolgreich; echte Clientdarstellung offen.
+
+Version 1.11.1 zentriert die Kopftemperatur durch symmetrische Kopfspalten zur gesamten Ansicht.

@@ -1,5 +1,10 @@
 # Änderungen
 
+## 1.11.1 – 31.10.2026
+
+- Kopftemperatur durch symmetrische Außenspalten exakt zur Gesamtansicht zentriert.
+- 298 PHP- und 110 JavaScript-Vertragsprüfungen erfolgreich; gerenderte Zielclientdarstellung offen.
+
 ## 1.11.0 – 31.10.2026
 
 - Freigegebenes Kopflayout: Titel/Verbindung links, Drahtfühlerauswahl und Geräteinfos rechts.

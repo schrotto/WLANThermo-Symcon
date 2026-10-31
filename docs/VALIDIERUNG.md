@@ -1,6 +1,10 @@
-# Prüfbericht 1.11.0 – 31. Oktober 2026
+# Prüfbericht 1.11.1 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.1
+
+Reine CSS-Layoutkorrektur: ab 941 Pixeln gleich breite Außenspalten und mittlere Temperaturspalte; eigene schmale Zeile weiterhin zentriert. 298 PHP- und 110 JavaScript-Vertragsprüfungen erfolgreich. Diese Regressionstests bestätigen keine gerenderte Zentrierung; tatsächliche Darstellung bei breiten/schmalen IPSView-Kacheln bleibt zu prüfen.
 
 ## Änderungen und Nachweise 1.11.0
 

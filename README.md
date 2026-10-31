@@ -2,6 +2,10 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.1: Kopftemperatur exakt mittig
+
+Die obere Temperaturkachel ist auf breiten Ansichten zur gesamten Visualisierung zentriert. Gleich breite äußere Kopfspalten ersetzen die zuvor asymmetrische Aufteilung. Auf schmalen Ansichten bleibt die eigene, zentrierte Zeile erhalten. Nach dem Update Kachel/IPSView neu laden.
+
 ## Version 1.11.0: Kompakter Kopf und skalierbare Fühlerauswahl
 
 Der freigegebene Entwurf ist umgesetzt: Titel höher links, Verbindung und Aktualisierung direkt darunter, Temperaturkachel mit Bildern in der Mitte und Drahtfühlerauswahl oben rechts über den Geräteinformationen. Die Fühlerübersicht benötigt keine eigene Schalterzeile mehr und rückt damit näher an den Kopfbereich.
