@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  let state = {}, selected = 0, pending = null, timeout = null, headerEditingChannel = 0;
+  let state = {}, selected = 0, pending = null, timeout = null;
   const probes = new Map(), pitmasters = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
@@ -93,20 +93,22 @@
   }
   function probe(ch) {
     const el = node('article', 'probe'); el.tabIndex = 0; el.setAttribute('aria-label', 'Kanal ' + ch.number);
-    const head = node('div', 'probe-head'), names = node('div'), kicker = node('div', 'probe-kicker'), name = node('h3');
-    names.append(kicker, name); head.append(names, node('span', 'probe-status'));
+    const head = node('div', 'probe-head'), names = node('div'), name = node('h3');
+    names.append(name); head.append(names, node('span', 'probe-status'));
     const value = node('div', 'probe-value'), label = node('div', 'probe-label'), rail = node('div', 'rail'), bar = node('span'), limits = node('div', 'rail-labels'), high = node('span');
     rail.append(bar); limits.append(high);
-    const details = node('details'), summary = node('summary', '', 'Obergrenze bearbeiten'), form = node('form', 'limits-form');
+    const details = node('details', 'probe-limit'), summary = node('summary', 'limit-summary'), caption = node('span', 'limit-caption', 'Obergrenze'), chevron = node('span', 'limit-chevron', '⌄'), form = node('form', 'limits-form');
+    chevron.setAttribute('aria-hidden', 'true'); summary.append(caption, high, chevron); limits.hidden = true;
     const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
     form.append(max.wrapper, submit); details.append(summary, form);
     const forecast = forecastElements(ch.number);
     el.append(head, value, label, rail, limits, forecast.el, details);
+    summary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
     const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
     form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
-    return {el, kicker, name, value, label, bar, rail, high, details, forecast, max:max.input, submit};
+    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -138,14 +140,8 @@
     document.body.classList.toggle('has-header-temperature', showHeader);
     $('header-temperature-name').textContent = cfg.headerName || 'Grilltemperatur';
     $('header-temperature').setAttribute('aria-label', cfg.headerName || 'Grilltemperatur');
-    $('header-temperature-channel').textContent = headerChannel ? 'Kanal ' + headerChannel.number + ' · ' + headerChannel.name : '';
     $('header-temperature-value').textContent = fmt(headerChannel?.temperature);
     $('header-temperature-unit').textContent = state.unit || '°C';
-    if (headerEditingChannel !== headerChannel?.number || !showHeader) { $('header-limits').open = false; headerEditingChannel = headerChannel?.number || 0; }
-    $('header-limits').hidden = !showHeader || cfg.controls === false || headerChannel?.sensorRole === 'ambient' || !Number.isFinite(headerChannel?.max);
-    if (!$('header-limits').open) $('header-maximum').value = headerChannel?.max ?? '';
-    $('header-maximum').disabled = $('header-limit-submit').disabled = !editable;
-
     if (!channels.some(ch => ch.number === selected)) selected = cfg.primary > 0 ? (channels.some(ch => ch.number === cfg.primary) ? cfg.primary : 0) : channels[0]?.number || 0;
     const main = channels.find(ch => ch.number === (cfg.primary > 0 ? cfg.primary : selected));
     $('hero').hidden = !cfg.hero || !main;
@@ -181,8 +177,8 @@
       const ambientOnly = ch.sensorRole === 'ambient';
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
-      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
-      ui.kicker.textContent = ambient ? 'KANÄLE ' + ch.number + ' / ' + ambient.number + ' · BLUETOOTH' : 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.probeName || ch.name;
+      ui.el.className = 'probe' + (ambient ? ' paired-probe' : '') + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
+      ui.name.textContent = ch.probeName || ch.name;
       ui.el.setAttribute('aria-label', (ch.probeName || ch.name) + ', Kanal ' + ch.number + (ambient ? ' und ' + ambient.number : ''));
       ui.value.classList.toggle('paired-values', Boolean(ambient));
       if (ch.sensorRole) {
@@ -194,10 +190,15 @@
         if (ambient) ui.value.append(measurement(ambient, 'Garraumtemperatur'));
       } else ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
       ui.rail.classList.toggle('is-running', forecastIsRunning(ch));
-      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
+      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = fmt(ch.max) + ' ' + state.unit;
       renderForecast(ui.forecast, ch, cfg);
       if (ambientOnly) { ui.label.textContent = 'Garraumtemperatur · Messwert'; ui.rail.hidden = true; ui.high.textContent = ''; ui.forecast.el.hidden = true; }
-      ui.details.hidden = ambientOnly || !cfg.controls || !Number.isFinite(ch.max);
+      ui.details.hidden = ambientOnly || !Number.isFinite(ch.max);
+      ui.details.classList.toggle('read-only', !editable);
+      ui.details.children[0].setAttribute('aria-disabled', String(!editable));
+      ui.details.children[0].setAttribute('aria-label', 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit + (editable ? ', zum Ändern öffnen' : ', schreibgeschützt'));
+      ui.details.children[1].hidden = !editable;
+      if (!editable) ui.details.open = false;
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
@@ -226,12 +227,11 @@
       state = data;
       if (data.response && data.response.requestId === pending) {
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { $('header-limits').open = false; for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
+        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
-  $('header-limits-form').addEventListener('submit', event => { event.preventDefault(); if ($('header-limits-form').reportValidity() && !$('header-limits').hidden) send('channel', {number:headerEditingChannel, max:Number($('header-maximum').value)}); });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }

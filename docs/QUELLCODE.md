@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.6.1
+# Vollständiger Quellcode – WLANThermo 1.6.2
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.6.1",
-    "build": 14,
+    "version": "1.6.2",
+    "build": 15,
     "date": 1793404800
 }
 ````
@@ -1001,7 +1001,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.1"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.2"
         },
         {
             "type": "ExpansionPanel",
@@ -1667,9 +1667,9 @@ class WLANThermo extends IPSModuleStrict
 <body>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1 id="tile-title">Grillstation</h1></div></div>
-    <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2><span id="header-temperature-channel" class="header-temperature-channel"></span></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div><details id="header-limits" class="header-limits"><summary>Obergrenze bearbeiten</summary><form id="header-limits-form" class="limits-form"><label class="field"><span>Obergrenze</span><input id="header-maximum" type="number" step="1" min="-30" max="999" required></label><button id="header-limit-submit" type="submit">Obergrenze übernehmen</button></form></details></section>
-    <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
+    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><h1 id="tile-title">Grillstation</h1></div></div>
+    <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></section>
+    <div class="header-status"><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
     <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><div id="hero-forecast" class="hero-forecast" hidden><span class="hero-forecast-label">GESCHÄTZTE RESTZEIT</span><strong id="hero-forecast-value"></strong><span id="hero-forecast-eta" class="hero-forecast-eta" hidden></span></div></div>
@@ -1678,7 +1678,7 @@ class WLANThermo extends IPSModuleStrict
   <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
   <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title"><h2>Fühlerübersicht</h2><span id="probe-count"></span></div><div id="channels" class="probe-grid"></div></section>
   <section id="pitmasters-section" aria-label="Pitmaster"><div class="section-title"><h2>Pitmaster</h2><span class="subtle">Regelung am Mini V3</span></div><div id="pitmasters" class="pitmaster-grid"></div></section>
-  <footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer>
+
   <p id="notice" role="status" aria-live="polite" hidden></p>
   <p id="device-error" role="status" hidden></p>
 </main>
@@ -1712,6 +1712,8 @@ class WLANThermo extends IPSModuleStrict
 .brand>div{min-width:0}#tile-title{overflow-wrap:anywhere}.has-header-temperature .topbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,340px) auto;gap:18px}.header-temperature{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;min-width:0;padding:12px 18px;background:var(--surface);border:1px solid var(--border);border-radius:14px}.header-temperature-copy{min-width:0}.header-temperature h2{font-size:13px;line-height:1.4;overflow-wrap:anywhere}.header-temperature-channel{display:block;font-size:10px;line-height:1.5;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.header-temperature-reading{display:flex;align-items:baseline;gap:5px;flex-shrink:0;font-variant-numeric:tabular-nums}.header-temperature-reading strong{font-size:30px;line-height:1.2;letter-spacing:-1px;font-weight:550}.header-temperature-reading>span{font-size:12px;color:var(--muted)}@media(max-width:700px){.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr) auto;gap:12px}.has-header-temperature .top-actions{grid-column:2;grid-row:1}.header-temperature{grid-column:1/-1;grid-row:2;padding:12px 15px}.header-temperature-reading strong{font-size:28px}}
 
 .header-limits{grid-column:1/-1;width:100%;margin-top:0;padding-top:6px}.header-limits summary{min-height:22px}.header-limits .limits-form{margin-top:6px}.header-temperature{row-gap:6px}
+/* Kopfbereich: gleich breite Außenbereiche halten den Temperaturwert wirklich mittig. */
+.topbar,.has-header-temperature .topbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,380px) minmax(0,1fr);gap:24px;align-items:center}.brand{gap:14px}.brandmark{width:54px;height:62px;border-radius:18px;border:1px solid color-mix(in srgb,var(--accent) 22%,var(--border));background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 13%,var(--surface)),var(--surface))}.brandmark svg{width:28px;height:32px}#tile-title{font-size:clamp(22px,2.4vw,30px);font-weight:650;line-height:1.2;letter-spacing:-.8px}.header-temperature{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;width:100%;padding:18px 24px;gap:7px;border-radius:18px;background:radial-gradient(ellipse at top,color-mix(in srgb,var(--accent) 7%,transparent),transparent 80%),var(--surface)}.header-temperature h2{font-size:14px;font-weight:550;color:var(--muted)}.header-temperature-reading{gap:7px}.header-temperature-reading strong{font-size:44px;font-weight:550;letter-spacing:-1.6px}.header-temperature-reading>span{font-size:17px}.header-status{grid-column:3;justify-self:end;display:flex;flex-direction:column;align-items:flex-end;gap:10px;min-width:0;max-width:100%}.header-status .top-actions{gap:9px}.header-status footer{display:flex;justify-content:flex-end;gap:5px 10px;padding:0;max-width:100%;font-size:10px;line-height:1.5}.header-status #device{font-weight:600}.header-status #telemetry{overflow-wrap:anywhere}.header-status #updated{flex-basis:100%;text-align:right;margin:0}.header-status .text-button{min-height:28px;padding:3px 9px;font-size:10px;border-radius:8px}.header-status #bluetooth{margin-left:auto}.no-details .header-status footer{display:none}.probe{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,160px);column-gap:16px;row-gap:0;align-content:start}.probe-head{grid-column:1/-1;grid-row:1;margin-bottom:8px}.probe>.probe-value{grid-column:1;grid-row:2;align-self:start;margin:12px 0}.probe>.probe-label{grid-column:1/-1;grid-row:3}.probe>.rail{grid-column:1/-1;grid-row:4}.probe>.rail-labels{display:none}.probe>.forecast{grid-column:1/-1;grid-row:5;margin-top:6px}.probe>.probe-limit{grid-column:2;grid-row:2;margin:7px 0 10px;padding:0;border:0;align-self:start;min-width:0}.limit-summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:3px 7px;padding:8px 10px;background:var(--raised);border-radius:10px;list-style:none;min-height:56px}.limit-summary::-webkit-details-marker{display:none}.limit-caption{flex-basis:100%;text-align:right;font-size:10px;color:var(--muted)}.limit-summary>span:nth-child(2){font-size:18px;line-height:1.4;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}.limit-chevron{font-size:12px;color:var(--muted)}.probe-limit[open] .limit-chevron{transform:rotate(180deg)}.probe-limit.read-only .limit-chevron{display:none}.probe-limit.read-only summary{cursor:default}.probe-limit .limits-form{grid-template-columns:minmax(0,1fr);gap:7px;margin-top:8px}.probe-limit .limits-form button{font-size:11px;padding:8px}.probe-limit .field input{font-size:14px}.probe.paired-probe>.paired-values{grid-column:1/-1;grid-row:2;padding-right:0}.probe.paired-probe>.probe-limit{grid-row:3}.probe.paired-probe>.probe-label{grid-row:3;grid-column:1;align-self:center}.probe.paired-probe>.rail{grid-row:4}@media(max-width:940px){.topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}.header-status{grid-column:2;grid-row:1}.header-status .top-actions{grid-column:auto;grid-row:auto}.header-temperature{grid-column:1/-1;grid-row:2;justify-self:center;max-width:420px}.header-temperature-reading strong{font-size:40px}}@media(max-width:440px){.topbar,.has-header-temperature .topbar{gap:14px 8px}#tile-title{font-size:22px}.brand{gap:9px}.brandmark{width:38px;height:46px;border-radius:13px}.brandmark svg{width:23px;height:27px}.header-status{gap:7px}.header-status footer{font-size:9px;gap:3px 7px}.header-status #telemetry{flex-basis:100%;text-align:right}.header-temperature{padding:17px 20px}.probe{column-gap:12px;grid-template-columns:minmax(0,1fr) minmax(115px,135px)}.limit-summary>span:nth-child(2){font-size:16px}}@media(max-width:300px){.topbar,.has-header-temperature .topbar{grid-template-columns:1fr}.header-status{grid-column:1;grid-row:2;justify-self:stretch;align-items:flex-start}.header-status footer{justify-content:flex-start}.header-status #telemetry,.header-status #updated{text-align:left}.header-temperature{grid-row:3}.probe{grid-template-columns:minmax(0,1fr) 110px}}
 ````
 
 ## WLANThermo/tile.js
@@ -1720,7 +1722,7 @@ class WLANThermo extends IPSModuleStrict
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  let state = {}, selected = 0, pending = null, timeout = null, headerEditingChannel = 0;
+  let state = {}, selected = 0, pending = null, timeout = null;
   const probes = new Map(), pitmasters = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
@@ -1812,20 +1814,22 @@ class WLANThermo extends IPSModuleStrict
   }
   function probe(ch) {
     const el = node('article', 'probe'); el.tabIndex = 0; el.setAttribute('aria-label', 'Kanal ' + ch.number);
-    const head = node('div', 'probe-head'), names = node('div'), kicker = node('div', 'probe-kicker'), name = node('h3');
-    names.append(kicker, name); head.append(names, node('span', 'probe-status'));
+    const head = node('div', 'probe-head'), names = node('div'), name = node('h3');
+    names.append(name); head.append(names, node('span', 'probe-status'));
     const value = node('div', 'probe-value'), label = node('div', 'probe-label'), rail = node('div', 'rail'), bar = node('span'), limits = node('div', 'rail-labels'), high = node('span');
     rail.append(bar); limits.append(high);
-    const details = node('details'), summary = node('summary', '', 'Obergrenze bearbeiten'), form = node('form', 'limits-form');
+    const details = node('details', 'probe-limit'), summary = node('summary', 'limit-summary'), caption = node('span', 'limit-caption', 'Obergrenze'), chevron = node('span', 'limit-chevron', '⌄'), form = node('form', 'limits-form');
+    chevron.setAttribute('aria-hidden', 'true'); summary.append(caption, high, chevron); limits.hidden = true;
     const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
     form.append(max.wrapper, submit); details.append(summary, form);
     const forecast = forecastElements(ch.number);
     el.append(head, value, label, rail, limits, forecast.el, details);
+    summary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
     const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
     form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
-    return {el, kicker, name, value, label, bar, rail, high, details, forecast, max:max.input, submit};
+    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -1857,14 +1861,8 @@ class WLANThermo extends IPSModuleStrict
     document.body.classList.toggle('has-header-temperature', showHeader);
     $('header-temperature-name').textContent = cfg.headerName || 'Grilltemperatur';
     $('header-temperature').setAttribute('aria-label', cfg.headerName || 'Grilltemperatur');
-    $('header-temperature-channel').textContent = headerChannel ? 'Kanal ' + headerChannel.number + ' · ' + headerChannel.name : '';
     $('header-temperature-value').textContent = fmt(headerChannel?.temperature);
     $('header-temperature-unit').textContent = state.unit || '°C';
-    if (headerEditingChannel !== headerChannel?.number || !showHeader) { $('header-limits').open = false; headerEditingChannel = headerChannel?.number || 0; }
-    $('header-limits').hidden = !showHeader || cfg.controls === false || headerChannel?.sensorRole === 'ambient' || !Number.isFinite(headerChannel?.max);
-    if (!$('header-limits').open) $('header-maximum').value = headerChannel?.max ?? '';
-    $('header-maximum').disabled = $('header-limit-submit').disabled = !editable;
-
     if (!channels.some(ch => ch.number === selected)) selected = cfg.primary > 0 ? (channels.some(ch => ch.number === cfg.primary) ? cfg.primary : 0) : channels[0]?.number || 0;
     const main = channels.find(ch => ch.number === (cfg.primary > 0 ? cfg.primary : selected));
     $('hero').hidden = !cfg.hero || !main;
@@ -1900,8 +1898,8 @@ class WLANThermo extends IPSModuleStrict
       const ambientOnly = ch.sensorRole === 'ambient';
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
-      ui.el.className = 'probe' + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
-      ui.kicker.textContent = ambient ? 'KANÄLE ' + ch.number + ' / ' + ambient.number + ' · BLUETOOTH' : 'KANAL ' + ch.number + (ch.wireless ? ' · BLUETOOTH' : ''); ui.name.textContent = ch.probeName || ch.name;
+      ui.el.className = 'probe' + (ambient ? ' paired-probe' : '') + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
+      ui.name.textContent = ch.probeName || ch.name;
       ui.el.setAttribute('aria-label', (ch.probeName || ch.name) + ', Kanal ' + ch.number + (ambient ? ' und ' + ambient.number : ''));
       ui.value.classList.toggle('paired-values', Boolean(ambient));
       if (ch.sensorRole) {
@@ -1913,10 +1911,15 @@ class WLANThermo extends IPSModuleStrict
         if (ambient) ui.value.append(measurement(ambient, 'Garraumtemperatur'));
       } else ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
       ui.rail.classList.toggle('is-running', forecastIsRunning(ch));
-      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit;
+      ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = fmt(ch.max) + ' ' + state.unit;
       renderForecast(ui.forecast, ch, cfg);
       if (ambientOnly) { ui.label.textContent = 'Garraumtemperatur · Messwert'; ui.rail.hidden = true; ui.high.textContent = ''; ui.forecast.el.hidden = true; }
-      ui.details.hidden = ambientOnly || !cfg.controls || !Number.isFinite(ch.max);
+      ui.details.hidden = ambientOnly || !Number.isFinite(ch.max);
+      ui.details.classList.toggle('read-only', !editable);
+      ui.details.children[0].setAttribute('aria-disabled', String(!editable));
+      ui.details.children[0].setAttribute('aria-label', 'Obergrenze ' + fmt(ch.max) + ' ' + state.unit + (editable ? ', zum Ändern öffnen' : ', schreibgeschützt'));
+      ui.details.children[1].hidden = !editable;
+      if (!editable) ui.details.open = false;
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
@@ -1945,12 +1948,11 @@ class WLANThermo extends IPSModuleStrict
       state = data;
       if (data.response && data.response.requestId === pending) {
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { $('header-limits').open = false; for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
+        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
-  $('header-limits-form').addEventListener('submit', event => { event.preventDefault(); if ($('header-limits-form').reportValidity() && !$('header-limits').hidden) send('channel', {number:headerEditingChannel, max:Number($('header-maximum').value)}); });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }
@@ -2659,6 +2661,14 @@ trait WLTForecastSupport
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.6.2: Aufgeräumter Kopfbereich und direkt sichtbare Grenzen
+
+Die Kopftemperatur steht auf breiten Flächen größer und mittig zwischen Titel und Gerätestatus. Das zusätzliche WLANTHERMO-Label, die Kanaltexte in Kopf- und Fühlerkacheln sowie das Obergrenzen-Bearbeitungsfeld der Kopfkachel wurden entfernt. Die Kopfkachel ist jetzt eine reine Temperaturanzeige. Geräteinformationen, Akku/WLAN, Bluetooth und Aktualisierungszeit stehen kompakt oben rechts bei der Verbindungsanzeige. Die Einstellung für zusätzliche Gerätedetails blendet diese Informationen weiterhin aus.
+
+In jeder bedienbaren Fühlerkachel steht die Obergrenze oben neben dem Messwert, bei gepaarten MEATER-Messstellen unter den beiden Messwerten. Der Grenzwert ist auch bei geschlossenem Bearbeitungsfeld und bei Schreibschutz sichtbar. Durch Aufklappen wird nur die Eingabe geöffnet. Im Schreibschutz bleibt der Editor geschlossen und verborgen; MEATER-Garraummessstellen erhalten weiterhin kein Ziel und keine Eingabe. Der untere doppelte Grenzwert und der bisherige Bearbeitungsblock am Kachelende entfallen.
+
+Auf schmalen Flächen wandert die mittige Kopftemperatur in eine eigene Zeile. Keine Änderungen an Gerätekanälen, Variablen oder IDs. Kachel/IPSView nach dem Update neu laden. Die mitgelieferte Vorschau verwendet synthetische Messwerte; die Darstellung auf dem echten Client ist noch zu prüfen.
 
 ## Version 1.6.1: Freier Titel und Temperaturkachel im Kopfbereich
 

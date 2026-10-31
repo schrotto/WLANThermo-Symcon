@@ -292,9 +292,8 @@ UI OK 53: Aus MEATER-Paar gewählter Kopfkanal wird auch innerhalb der gemeinsam
 UI OK 54: Kern im Kopfbereich lässt unten ausschließlich die reine Garraumanzeige übrig
 UI OK 55: Ungültiger Kopfkanal verschwindet vollständig
 UI OK 56: Frei eingegebene Titel werden als Text und nicht als HTML gerendert
-UI OK 57: Kopfkanal behält Obergrenzenbedienung und offene Eingaben bei Live-Daten
-UI OK 58: Obergrenze aus der Kopfkachel schreibt auf den gewählten Kanal
-UI OK 59: MEATER-Garraum besitzt auch oben kein Obergrenzenformular; Kanalwechsel verwirft alte Eingabe
-UI OK 60: Schreibschutz sperrt die Obergrenzenbedienung im Kopfbereich
-UI OK 61: Deaktivierung sperrt die bereits geöffnete Kachel
-61 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 57: Obergrenze steht bereits bei geschlossenem Bearbeitungsfeld vollständig in der Zusammenfassung
+UI OK 58: Geöffnetes Grenzfeld behält bei Live-Daten seine Eingabe
+UI OK 59: Schreibschutz erhält den sichtbaren Grenzwert und verbirgt ausschließlich den Editor
+UI OK 60: Deaktivierung sperrt die bereits geöffnete Kachel
+60 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

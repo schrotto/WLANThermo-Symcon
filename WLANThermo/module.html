@@ -9,9 +9,9 @@
 <body>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><span class="eyebrow">WLANTHERMO</span><h1 id="tile-title">Grillstation</h1></div></div>
-    <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2><span id="header-temperature-channel" class="header-temperature-channel"></span></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div><details id="header-limits" class="header-limits"><summary>Obergrenze bearbeiten</summary><form id="header-limits-form" class="limits-form"><label class="field"><span>Obergrenze</span><input id="header-maximum" type="number" step="1" min="-30" max="999" required></label><button id="header-limit-submit" type="submit">Obergrenze übernehmen</button></form></details></section>
-    <div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div>
+    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><h1 id="tile-title">Grillstation</h1></div></div>
+    <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></section>
+    <div class="header-status"><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
     <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><div id="hero-forecast" class="hero-forecast" hidden><span class="hero-forecast-label">GESCHÄTZTE RESTZEIT</span><strong id="hero-forecast-value"></strong><span id="hero-forecast-eta" class="hero-forecast-eta" hidden></span></div></div>
@@ -20,7 +20,7 @@
   <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
   <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title"><h2>Fühlerübersicht</h2><span id="probe-count"></span></div><div id="channels" class="probe-grid"></div></section>
   <section id="pitmasters-section" aria-label="Pitmaster"><div class="section-title"><h2>Pitmaster</h2><span class="subtle">Regelung am Mini V3</span></div><div id="pitmasters" class="pitmaster-grid"></div></section>
-  <footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer>
+
   <p id="notice" role="status" aria-live="polite" hidden></p>
   <p id="device-error" role="status" hidden></p>
 </main>

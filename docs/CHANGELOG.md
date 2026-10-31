@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.6.2 – 31.10.2026
+
+- Größere mittige Kopftemperatur, überarbeiteter Titel-/Logobereich.
+- Alle gelb markierten Zusatztexte entfernt: WLANTHERMO-Label, Kanalangaben, Kopfkachel-Bearbeitung.
+- Geräteinformationen und Bluetooth-Bedienung oben rechts statt am unteren Rand.
+- Fühler-Obergrenze oben dauerhaft sichtbar; nur die Eingabe klappt bei Schreibrecht auf.
+- 236 PHP- und 60 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.6.1 – 31.10.2026
 
 - Frei einstellbarer Kacheltitel statt festem „Grillstation“.

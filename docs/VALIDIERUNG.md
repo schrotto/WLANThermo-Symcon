@@ -1,6 +1,12 @@
-# Prüfbericht 1.6.1 – 31. Oktober 2026
+# Prüfbericht 1.6.2 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.6.2
+
+236 PHP- und 60 JavaScript-Vertragsprüfungen erfolgreich. Der neue Fühler-Grenzwert steht in der nativen Summary. Der Vertrag prüft den vollständigen sichtbaren Grenzwert bei geschlossenem Editor, Erhalt offener Eingaben bei Live-Daten und dauerhafte Wertanzeige bei verborgenem/geschlossenem Editor im Schreibschutz. Kern-/Garraum-Trennung, Kopfkanal ohne Doppelanzeige, Schreibaufträge und Prognose bleiben abgedeckt. Die bisherigen Kopfkachel-Editorprüfungen entfallen mit der ausdrücklich entfernten Kopfbedienung.
+
+Titel/Kopftemperatur/Geräteinformationen stehen im Kopfbereich. Native Grenz-Details werden per CSS-Grid nach oben angeordnet; nur das Formular klappt auf. Kein Browserlayout- oder echtes IPSView-Ergebnis wird aus DOM-Vertragsprüfungen abgeleitet. Reale Zielprüfung: breite und schmale Kachel, aufgeklappte Eingabe, Schreibschutz, MEATER-Paar, Kopfkanal ohne gültigen Wert und Gerätedetails ausgeschaltet.
 
 ## Änderungen und Nachweise 1.6.1
 

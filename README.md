@@ -2,6 +2,14 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.6.2: Aufgeräumter Kopfbereich und direkt sichtbare Grenzen
+
+Die Kopftemperatur steht auf breiten Flächen größer und mittig zwischen Titel und Gerätestatus. Das zusätzliche WLANTHERMO-Label, die Kanaltexte in Kopf- und Fühlerkacheln sowie das Obergrenzen-Bearbeitungsfeld der Kopfkachel wurden entfernt. Die Kopfkachel ist jetzt eine reine Temperaturanzeige. Geräteinformationen, Akku/WLAN, Bluetooth und Aktualisierungszeit stehen kompakt oben rechts bei der Verbindungsanzeige. Die Einstellung für zusätzliche Gerätedetails blendet diese Informationen weiterhin aus.
+
+In jeder bedienbaren Fühlerkachel steht die Obergrenze oben neben dem Messwert, bei gepaarten MEATER-Messstellen unter den beiden Messwerten. Der Grenzwert ist auch bei geschlossenem Bearbeitungsfeld und bei Schreibschutz sichtbar. Durch Aufklappen wird nur die Eingabe geöffnet. Im Schreibschutz bleibt der Editor geschlossen und verborgen; MEATER-Garraummessstellen erhalten weiterhin kein Ziel und keine Eingabe. Der untere doppelte Grenzwert und der bisherige Bearbeitungsblock am Kachelende entfallen.
+
+Auf schmalen Flächen wandert die mittige Kopftemperatur in eine eigene Zeile. Keine Änderungen an Gerätekanälen, Variablen oder IDs. Kachel/IPSView nach dem Update neu laden. Die mitgelieferte Vorschau verwendet synthetische Messwerte; die Darstellung auf dem echten Client ist noch zu prüfen.
+
 ## Version 1.6.1: Freier Titel und Temperaturkachel im Kopfbereich
 
 **Titel der Kachel** ersetzt den bisherigen festen Text „Grillstation“. Unter **Kompakte Temperaturkachel oben im Kopfbereich anzeigen** lässt sich zwischen Titel und Verbindungsanzeige ein einzelner Temperaturkanal anzeigen. **Temperaturkanal für die Kachel im Kopfbereich** wählt die Kanalnummer, **Name der Temperaturkachel** die freie Beschriftung, etwa „Grilltemperatur“ oder „Räucherkammertemperatur“. Standardmäßig ist die Kopfanzeige für Kanal 1 mit dem Namen „Grilltemperatur“ eingeschaltet. Leere Texte verwenden die Standardbeschriftungen.
