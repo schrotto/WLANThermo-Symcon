@@ -2,6 +2,14 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.10.1: Direkte Vorgabenwahl und mehr Platz im Kopfbereich
+
+Die Drahtfühler-Buttons zeigen nur noch Augen-Icon und Fühlernamen; die bisher zusätzlich sichtbare Kanalnummer entfällt. Die Kanalnummer bleibt intern zur eindeutigen Zuordnung sowie im barrierefreien Bedienlabel erhalten.
+
+Ein Klick auf die Vorgaben-Wertfläche öffnet jetzt direkt das native Auswahlmenü. Der vorgelagerte Aufklappschritt entfällt. Nach einer Auswahl erscheint **Übernehmen**; erst dieser Klick schreibt den Grenzwert. Eine bestätigte Vorgabe bleibt weiterhin mit Name und Temperatur sichtbar und nach Neuladen erhalten. Im Schreibschutz ist das native Menü gesperrt. Die gesamte Wertfläche ist der Auswahlbereich; der Tastaturfokus wird sichtbar umrandet.
+
+Auf breiten Flächen bekommt der linke Titel-/Bildbereich mehr Breite und die obere Temperaturkachel rückt etwas nach rechts. Titelbilder sind von 56 × 62 auf 80 × 88 Pixel vergrößert, auf kleinen Flächen von 40 × 46 auf 54 × 60 Pixel. Sie bleiben proportional ohne Zuschnitt. Auf schmalen Flächen gilt weiterhin das umgebrochene Kopflayout. Nach dem Update Kachel/IPSView neu laden; Menüöffnung, Bildgrößen und Abstände müssen im echten Client noch geprüft werden.
+
 ## Version 1.10.0: Drahtfühler direkt in der Kachel ein-/ausblenden
 
 Neben **Fühlerübersicht** steht eine kompakte Leiste mit Augen-Buttons für aktuell gültige kabelgebundene Fühler. Jeder Button zeigt Kanalnummer und Anzeigenamen. Anklicken blendet seine Kachel aus; der durchgestrichene Button bleibt zum erneuten Einblenden sichtbar. Bluetooth-/MEATER-Sensoren und die separate Kopftemperatur werden nicht über diese Leiste geschaltet. Bei schmaler Kachel bricht die Leiste unter die Überschrift um.

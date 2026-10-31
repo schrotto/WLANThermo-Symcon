@@ -389,5 +389,8 @@ UI OK 88: Bestätigtes Einblenden stellt die Kachel und aktiven Buttonzustand wi
 UI OK 89: Ohne freigegebene Drahtfühler entfällt die Leiste
 UI OK 90: Ansichtsschalter verwirft während der Speicherung keine offene Eingabe eines anderen Fühlers
 UI OK 91: Bestätigte Sichtbarkeitsänderung erhält ungespeicherte Grenzänderung eines anderen Fühlers
-UI OK 92: Deaktivierung sperrt die bereits geöffnete Kachel
-92 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 92: Fühlerleiste zeigt ausschließlich Icon und Fühlername ohne zusätzliche Kanalnummer
+UI OK 93: Vorgaben-Wertfläche enthält direkt das native Auswahlmenü ohne vorgelagertes Details-Element
+UI OK 94: Direkte Auswahl blendet ausschließlich die ausdrückliche Übernahme ein und sendet noch nichts
+UI OK 95: Deaktivierung sperrt die bereits geöffnete Kachel
+95 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

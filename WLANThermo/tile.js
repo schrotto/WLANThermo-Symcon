@@ -103,11 +103,10 @@
     const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
     form.append(max.wrapper, submit); details.append(summary, form);
     const forecast = forecastElements(ch.number);
-    const presetBox = node('details', 'core-presets'), presetSummary = node('summary', 'preset-summary'), presetValue = node('strong', 'preset-value', 'Wählen …'), presetName = node('span', 'preset-name'), presetChevron = node('span', 'preset-chevron', '⌄');
+    const presetBox = node('div', 'core-presets'), presetSummary = node('label', 'preset-summary'), presetValue = node('strong', 'preset-value', 'Wählen …'), presetName = node('span', 'preset-name'), presetChevron = node('span', 'preset-chevron', '⌄');
     presetChevron.setAttribute('aria-hidden', 'true'); presetSummary.append(node('span', 'preset-caption', 'Vorgaben'), presetValue, presetName, presetChevron);
-    const presetEditor = node('div', 'preset-editor'), presetLabel = node('label', 'preset-field'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
-    presetLabel.append(node('span', 'preset-input-label', 'Vorlage auswählen'), presetSelect); presetApply.type = 'button'; presetEditor.append(presetLabel, presetApply); presetBox.append(presetSummary, presetEditor);
-    presetSummary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
+    const presetEditor = node('div', 'preset-editor'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
+    presetSelect.className = 'preset-direct-select'; presetSummary.append(presetSelect); presetApply.type = 'button'; presetEditor.append(presetApply); presetBox.append(presetSummary, presetEditor);
     presetSelect.setAttribute('aria-label', 'Kerntemperatur-Vorlage für Kanal ' + ch.number);
     const presetKey = item => JSON.stringify([item.name, item.temperature]);
     const selectedPreset = () => (state.config?.corePresets || []).find(item => presetKey(item) === presetSelect.value);
@@ -152,12 +151,12 @@
     for (const ch of wired) {
       let ui = wiredButtons.get(ch.number);
       if (!ui) {
-        const button = node('button', 'wired-toggle'), number = node('span', 'wired-number', String(ch.number)), name = node('span', 'wired-name'); button.type = 'button';
+        const button = node('button', 'wired-toggle'), name = node('span', 'wired-name'); button.type = 'button';
         const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); icon.setAttribute('viewBox','0 0 24 24'); icon.setAttribute('aria-hidden','true'); icon.setAttribute('class','wired-toggle-icon icon');
         const eye = document.createElementNS('http://www.w3.org/2000/svg', 'path'); eye.setAttribute('d','M2 12s3-6 10-6 10 6 10 6-3 6-10 6S2 12 2 12Z');
         const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); pupil.setAttribute('cx','12'); pupil.setAttribute('cy','12'); pupil.setAttribute('r','2.5');
         const strike = document.createElementNS('http://www.w3.org/2000/svg', 'path'); strike.setAttribute('d','M3 3l18 18'); icon.append(eye,pupil,strike);
-        button.append(icon,number,name);
+        button.append(icon,name);
         button.addEventListener('click', () => { const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
         ui = {button,name,strike}; wiredButtons.set(ch.number,ui); $('wired-toolbar').append(button);
       }
@@ -263,9 +262,8 @@
       ui.presetName.textContent = displayedPreset?.name || ''; ui.presetName.hidden = !displayedPreset;
       ui.presetBox.classList.toggle('has-selection', Boolean(displayedPreset));
       ui.presetBox.classList.toggle('read-only', !editable);
-      ui.presetBox.children[0].setAttribute('aria-disabled', String(!editable));
-      ui.presetEditor.hidden = !editable && !preservingVisibility;
-      if (!editable && !preservingVisibility) ui.presetBox.open = false;
+      ui.presetSelect.setAttribute('aria-disabled', String(!editable));
+      ui.presetEditor.hidden = (!editable && !preservingVisibility) || !ui.presetDirty || !displayedPreset;
       ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
       ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
       ui.presetSelect.disabled = !editable;
@@ -298,7 +296,7 @@
       if (data.response && data.response.requestId === pending) {
         const preserveEditors = pendingAction === 'visibility'; pendingAction = '';
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok && !preserveEditors) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetBox.open = false; ui.presetDirty = false; } }
+        if (data.response.ok && !preserveEditors) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetDirty = false; } }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }

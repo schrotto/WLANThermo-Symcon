@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.10.1 – 31.10.2026
+
+- Drahtfühlerbuttons verwenden nur den Fühlernamen ohne zusätzliche Kanalnummer.
+- Breiterer Titelbereich, größere Bilder, obere Temperaturkachel etwas nach rechts.
+- Vorgaben öffnen direkt die native Auswahl ohne vorgeschalteten Aufklappschritt; ausdrückliches Übernehmen bleibt erhalten.
+- 298 PHP- und 95 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.10.0 – 31.10.2026
 
 - Kompakte Augen-Buttonleiste zum Ein-/Ausblenden einzelner gültiger Drahtfühler in der Visualisierung.

@@ -1,6 +1,12 @@
-# Prüfbericht 1.10.0 – 31. Oktober 2026
+# Prüfbericht 1.10.1 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.10.1
+
+298 PHP- und 95 JavaScript-Vertragsprüfungen erfolgreich. Zusätzliche UI-Verträge prüfen die ausschließlich aus Icon und Fühlername bestehenden Drahtbuttons, das unmittelbar in der Vorgabenfläche liegende native Select ohne Details-Vorstufe sowie Auswahl ohne Schreibauftrag mit anschließend sichtbarer Übernahme. Bestehende Bestätigungs-/Persistenz-, Schreibschutz- und Sichtbarkeitstests bleiben enthalten.
+
+Die Auswahlfläche ist ein Label mit einem über die gesamte Fläche angeordneten nativen Select; es wird kein showPicker-Aufruf oder künstliches Doppelklicken verwendet. Die visuelle Zusammenfassung bleibt darunter sichtbar. Tastaturfokus wird über focus-within umrandet. DOM-Verträge bestätigen keine tatsächlich geöffnete Browser-/IPSView-Auswahlliste. Kopfbreiten/Bildgrößen sind ausschließlich CSS-Anpassungen und benötigen visuelle Prüfung auf dem Zielclient.
 
 ## Änderungen und Nachweise 1.10.0
 

@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.10.0
+# Vollständiger Quellcode – WLANThermo 1.10.1
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.10.0",
-    "build": 19,
+    "version": "1.10.1",
+    "build": 20,
     "date": 1793404800
 }
 ````
@@ -1006,7 +1006,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.10.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.10.1"
         },
         {
             "type": "ExpansionPanel",
@@ -1896,6 +1896,8 @@ class WLANThermo extends IPSModuleStrict
 .core-presets{display:block;padding:0;border:0;background:none}.preset-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;gap:3px 5px;min-height:61px;padding:8px 10px;background:var(--raised);border-radius:10px;text-align:center;list-style:none}.preset-summary::-webkit-details-marker{display:none}.preset-summary .preset-caption{grid-column:1/-1;font-size:10px}.preset-value{grid-column:1;font-size:13px;font-weight:550;line-height:1.4;overflow-wrap:anywhere;color:var(--text)}.has-selection .preset-value{font-size:18px;font-variant-numeric:tabular-nums}.preset-name{grid-column:1/-1;grid-row:3;font-size:10px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}.preset-chevron{grid-column:2;grid-row:2;font-size:12px;color:var(--muted)}.core-presets[open] .preset-chevron{transform:rotate(180deg)}.core-presets.read-only .preset-chevron{display:none}.core-presets.read-only summary{cursor:default}.preset-editor{display:grid;gap:7px;margin-top:8px}.core-presets:not([open]) .preset-editor{display:none}.preset-input-label{font-size:10px;color:var(--muted)}.preset-editor>button{min-height:34px;padding:6px;font-size:11px}.preset-field select{font-size:11px}.brand-images{display:flex;flex-direction:column;gap:7px;flex-shrink:0}.brand-image{width:56px;height:62px;max-width:100%;object-fit:contain;flex-shrink:0}.brand-title{min-width:0}@media(max-width:520px){.probe.has-presets>.core-presets,.probe.has-presets.paired-probe>.core-presets{display:block;padding:0;background:none}.preset-summary{min-height:56px}.brand{flex-wrap:wrap}.brand-image{width:40px;height:46px}}@media(pointer:coarse){.preset-editor>button{min-height:44px}}
 :root{--target-alert:#ff625b}:root[data-theme="light"]{--target-alert:#bf2525}@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--target-alert:#bf2525}}.probe.target-alert:not(.paired-probe)>.probe-value,.probe.target-alert.paired-probe .measurement:first-child .measurement-reading,.hero.target-alert #hero-temperature{color:var(--target-alert)}.probe.target-blink:not(.paired-probe)>.probe-value,.probe.target-blink.paired-probe .measurement:first-child .measurement-reading,.hero.target-blink #hero-temperature{animation:wlt-target-pulse 2s ease-in-out infinite}@keyframes wlt-target-pulse{0%,100%{opacity:1}50%{opacity:.6}}@media(prefers-reduced-motion:reduce){.probe.target-blink>.probe-value,.probe.target-blink .measurement-reading,.hero.target-blink #hero-temperature{animation:none!important}}.probe.has-presets.paired-probe>.core-presets{grid-row:2}.probe.has-presets.paired-probe>.probe-limit{grid-row:3;grid-column:3}.probe.has-presets.paired-probe>.probe-label{grid-row:3;grid-column:1/3}@media(max-width:520px){.probe.has-presets.paired-probe>.probe-limit{grid-column:2;grid-row:3}.probe.has-presets.paired-probe>.probe-label{grid-column:1;grid-row:3}.probe.has-presets.paired-probe>.core-presets{grid-row:4}}
 .probe-section-heading{flex-wrap:wrap;align-items:center;gap:12px 18px}.wired-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;margin-left:auto}.wired-toggle{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 10px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:10px;background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--text);font-size:11px;line-height:1.4}.wired-toggle-icon{width:16px;height:16px;color:var(--accent);stroke-width:1.6}.wired-number{font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}.wired-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wired-toggle.is-hidden{background:var(--surface);border-color:var(--border);color:var(--muted)}.wired-toggle.is-hidden .wired-toggle-icon{color:var(--muted)}.wired-toggle[aria-pressed="true"] .wired-number{color:var(--accent)}#wired-empty{padding:3px 0 12px}@media(max-width:520px){.wired-toolbar{justify-content:flex-start;margin-left:0;width:100%}.wired-name{max-width:125px}}@media(pointer:coarse){.wired-toggle{min-height:44px}}
+/* Direktwahl: das native Select liegt auf der Wertfläche, ohne vorgelagertes Aufklappen. */
+.preset-summary{position:relative;cursor:pointer}.preset-direct-select{position:absolute;inset:0;width:100%;height:100%;min-height:100%;opacity:0;cursor:pointer;padding:0;border:0;font-size:16px}.preset-direct-select:disabled{cursor:default}.preset-direct-select option{background:var(--surface);color:var(--text)}.preset-summary:focus-within{outline:3px solid var(--accent);outline-offset:3px}.core-presets .preset-editor:not([hidden]){display:block}.preset-editor>button{width:100%}.brand{gap:16px}.brand-title{flex:1 1 auto}.brand-images{gap:10px}.brand-image{width:80px;height:88px}.wired-name{max-width:170px}@media(min-width:941px){.topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1.25fr) minmax(250px,380px) minmax(0,.75fr)}}@media(max-width:520px){.brand-image{width:54px;height:60px}.brand{gap:10px}.brand-images{gap:7px}}
 ````
 
 ## WLANThermo/tile.js
@@ -2006,11 +2008,10 @@ class WLANThermo extends IPSModuleStrict
     const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
     form.append(max.wrapper, submit); details.append(summary, form);
     const forecast = forecastElements(ch.number);
-    const presetBox = node('details', 'core-presets'), presetSummary = node('summary', 'preset-summary'), presetValue = node('strong', 'preset-value', 'Wählen …'), presetName = node('span', 'preset-name'), presetChevron = node('span', 'preset-chevron', '⌄');
+    const presetBox = node('div', 'core-presets'), presetSummary = node('label', 'preset-summary'), presetValue = node('strong', 'preset-value', 'Wählen …'), presetName = node('span', 'preset-name'), presetChevron = node('span', 'preset-chevron', '⌄');
     presetChevron.setAttribute('aria-hidden', 'true'); presetSummary.append(node('span', 'preset-caption', 'Vorgaben'), presetValue, presetName, presetChevron);
-    const presetEditor = node('div', 'preset-editor'), presetLabel = node('label', 'preset-field'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
-    presetLabel.append(node('span', 'preset-input-label', 'Vorlage auswählen'), presetSelect); presetApply.type = 'button'; presetEditor.append(presetLabel, presetApply); presetBox.append(presetSummary, presetEditor);
-    presetSummary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
+    const presetEditor = node('div', 'preset-editor'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
+    presetSelect.className = 'preset-direct-select'; presetSummary.append(presetSelect); presetApply.type = 'button'; presetEditor.append(presetApply); presetBox.append(presetSummary, presetEditor);
     presetSelect.setAttribute('aria-label', 'Kerntemperatur-Vorlage für Kanal ' + ch.number);
     const presetKey = item => JSON.stringify([item.name, item.temperature]);
     const selectedPreset = () => (state.config?.corePresets || []).find(item => presetKey(item) === presetSelect.value);
@@ -2055,12 +2056,12 @@ class WLANThermo extends IPSModuleStrict
     for (const ch of wired) {
       let ui = wiredButtons.get(ch.number);
       if (!ui) {
-        const button = node('button', 'wired-toggle'), number = node('span', 'wired-number', String(ch.number)), name = node('span', 'wired-name'); button.type = 'button';
+        const button = node('button', 'wired-toggle'), name = node('span', 'wired-name'); button.type = 'button';
         const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); icon.setAttribute('viewBox','0 0 24 24'); icon.setAttribute('aria-hidden','true'); icon.setAttribute('class','wired-toggle-icon icon');
         const eye = document.createElementNS('http://www.w3.org/2000/svg', 'path'); eye.setAttribute('d','M2 12s3-6 10-6 10 6 10 6-3 6-10 6S2 12 2 12Z');
         const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); pupil.setAttribute('cx','12'); pupil.setAttribute('cy','12'); pupil.setAttribute('r','2.5');
         const strike = document.createElementNS('http://www.w3.org/2000/svg', 'path'); strike.setAttribute('d','M3 3l18 18'); icon.append(eye,pupil,strike);
-        button.append(icon,number,name);
+        button.append(icon,name);
         button.addEventListener('click', () => { const current = (state.wiredChannels || []).find(item => item.number === ch.number); if (current && !button.disabled) send('visibility',{number:ch.number,visible:!current.visible}); });
         ui = {button,name,strike}; wiredButtons.set(ch.number,ui); $('wired-toolbar').append(button);
       }
@@ -2166,9 +2167,8 @@ class WLANThermo extends IPSModuleStrict
       ui.presetName.textContent = displayedPreset?.name || ''; ui.presetName.hidden = !displayedPreset;
       ui.presetBox.classList.toggle('has-selection', Boolean(displayedPreset));
       ui.presetBox.classList.toggle('read-only', !editable);
-      ui.presetBox.children[0].setAttribute('aria-disabled', String(!editable));
-      ui.presetEditor.hidden = !editable && !preservingVisibility;
-      if (!editable && !preservingVisibility) ui.presetBox.open = false;
+      ui.presetSelect.setAttribute('aria-disabled', String(!editable));
+      ui.presetEditor.hidden = (!editable && !preservingVisibility) || !ui.presetDirty || !displayedPreset;
       ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
       ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
       ui.presetSelect.disabled = !editable;
@@ -2201,7 +2201,7 @@ class WLANThermo extends IPSModuleStrict
       if (data.response && data.response.requestId === pending) {
         const preserveEditors = pendingAction === 'visibility'; pendingAction = '';
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok && !preserveEditors) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetBox.open = false; ui.presetDirty = false; } }
+        if (data.response.ok && !preserveEditors) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetDirty = false; } }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
@@ -3214,6 +3214,14 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.10.1: Direkte Vorgabenwahl und mehr Platz im Kopfbereich
+
+Die Drahtfühler-Buttons zeigen nur noch Augen-Icon und Fühlernamen; die bisher zusätzlich sichtbare Kanalnummer entfällt. Die Kanalnummer bleibt intern zur eindeutigen Zuordnung sowie im barrierefreien Bedienlabel erhalten.
+
+Ein Klick auf die Vorgaben-Wertfläche öffnet jetzt direkt das native Auswahlmenü. Der vorgelagerte Aufklappschritt entfällt. Nach einer Auswahl erscheint **Übernehmen**; erst dieser Klick schreibt den Grenzwert. Eine bestätigte Vorgabe bleibt weiterhin mit Name und Temperatur sichtbar und nach Neuladen erhalten. Im Schreibschutz ist das native Menü gesperrt. Die gesamte Wertfläche ist der Auswahlbereich; der Tastaturfokus wird sichtbar umrandet.
+
+Auf breiten Flächen bekommt der linke Titel-/Bildbereich mehr Breite und die obere Temperaturkachel rückt etwas nach rechts. Titelbilder sind von 56 × 62 auf 80 × 88 Pixel vergrößert, auf kleinen Flächen von 40 × 46 auf 54 × 60 Pixel. Sie bleiben proportional ohne Zuschnitt. Auf schmalen Flächen gilt weiterhin das umgebrochene Kopflayout. Nach dem Update Kachel/IPSView neu laden; Menüöffnung, Bildgrößen und Abstände müssen im echten Client noch geprüft werden.
 
 ## Version 1.10.0: Drahtfühler direkt in der Kachel ein-/ausblenden
 
