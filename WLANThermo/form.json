@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.6.2"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.7.0"
         },
         {
             "type": "ExpansionPanel",
@@ -447,9 +447,52 @@
                             "caption": "Name",
                             "width": "auto",
                             "save": false
+                        },
+                        {
+                            "name": "DisplayName",
+                            "caption": "Eigener Anzeigename (optional)",
+                            "width": "250px",
+                            "save": true,
+                            "edit": {
+                                "type": "ValidationTextBox"
+                            }
                         }
                     ],
                     "values": []
+                },
+                {
+                    "type": "List",
+                    "name": "TileCorePresets",
+                    "caption": "Kerntemperatur-Sammlung (Temperaturen in °C)",
+                    "rowCount": 5,
+                    "add": true,
+                    "delete": true,
+                    "columns": [
+                        {
+                            "name": "Name",
+                            "caption": "Vorlage / Gericht",
+                            "width": "auto",
+                            "add": "Neue Vorlage",
+                            "edit": {
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "name": "Temperature",
+                            "caption": "Kerntemperatur °C",
+                            "width": "180px",
+                            "add": 57,
+                            "edit": {
+                                "type": "NumberSpinner",
+                                "minimum": -30,
+                                "maximum": 300
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "caption": "Vorlagen in der Kachel auswählen und ausdrücklich als Obergrenze übernehmen. Beim Gerätebetrieb in °F erfolgt eine Umrechnung mit Rundung auf ganze Grad. Leere Sammlung blendet die Auswahl aus. Eigene Fühlernamen ändern nur die Visualisierung, nicht Gerätekanäle oder Variablen. Bei MEATER-Paaren wird der Anzeigename des Kernkanals als gemeinsamer Titel verwendet."
                 },
                 {
                     "type": "Label",

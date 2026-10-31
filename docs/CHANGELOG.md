@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.7.0 – 31.10.2026
+
+- Eigene Anzeigenamen pro Fühler in der Kanaltabelle, ohne Geräte-/Variablenumbenennung.
+- Im Modul bearbeitbare Kerntemperatur-Sammlung mit auswählbaren Vorlagen und ausdrücklichem Übernehmen pro Fühler.
+- Startvorlagen nach Benutzerwunsch: Rumpsteak 57 °C und Pulled Pork 94 °C. Celsius-Speicherung mit Fahrenheit-Umrechnung.
+- Grenzwert zentriert und weiter links, Sammlung rechts daneben; Gerätestatus rechtsbündig.
+- 245 PHP- und 70 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.6.2 – 31.10.2026
 
 - Größere mittige Kopftemperatur, überarbeiteter Titel-/Logobereich.

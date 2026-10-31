@@ -102,13 +102,23 @@
     const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
     form.append(max.wrapper, submit); details.append(summary, form);
     const forecast = forecastElements(ch.number);
-    el.append(head, value, label, rail, limits, forecast.el, details);
+    const presetBox = node('div', 'core-presets'), presetLabel = node('label', 'preset-field'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
+    presetLabel.append(node('span', 'preset-caption', 'Kerntemperatur'), presetSelect); presetApply.type = 'button'; presetBox.append(presetLabel, presetApply);
+    presetSelect.setAttribute('aria-label', 'Kerntemperatur-Vorlage für Kanal ' + ch.number);
+    const presetKey = item => JSON.stringify([item.name, item.temperature]);
+    const selectedPreset = () => (state.config?.corePresets || []).find(item => presetKey(item) === presetSelect.value);
+    presetSelect.addEventListener('change', () => { presetApply.disabled = Boolean(pending) || !state.canWrite || !selectedPreset(); });
+    presetApply.addEventListener('click', () => {
+      const item = selectedPreset();
+      if (item && !presetApply.disabled && state.canWrite && state.config?.controls) send('channel', {number:ch.number, max:item.temperature});
+    });
+    el.append(head, value, label, rail, limits, forecast.el, details, presetBox);
     summary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
     const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
     form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
-    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit};
+    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -149,7 +159,7 @@
     $('empty-state').hidden = !active || channels.length > 0;
     $('empty-state').textContent = state.online ? 'Keine gültigen Fühlerwerte verfügbar. Nicht angeschlossene Fühler werden automatisch ausgeblendet.' : 'Keine aktuellen Fühlerwerte – Gerät nicht erreichbar oder noch kein erfolgreicher Abruf.';
     $('hero-channel').textContent = main ? 'KANAL ' + main.number + (main.wireless ? ' · BLUETOOTH' : ' · FÜHLER') : 'TEMPERATUR';
-    $('hero-name').textContent = main?.sensorRole ? main.probeName + ' · ' + (main.sensorRole === 'core' ? 'Kerntemperatur' : 'Garraumtemperatur') : main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte');
+    $('hero-name').textContent = main?.displayName || (main?.sensorRole ? main.probeName + ' · ' + (main.sensorRole === 'core' ? 'Kerntemperatur' : 'Garraumtemperatur') : main?.name || (state.online ? 'Keine Fühler ausgewählt' : 'Noch keine Messwerte'));
     $('hero-temperature').textContent = fmt(main?.valid ? main.temperature : null); $('hero-unit').textContent = state.unit || '°C';
     const mainAmbient = main?.sensorRole === 'ambient';
     $('hero-state').textContent = !active ? 'Kachel in der Instanz deaktiviert.' : mainAmbient ? 'Garraumtemperatur · Messwert' : main ? describe(main) : 'Auf einen erfolgreichen Datenabruf warten.';
@@ -178,8 +188,8 @@
       let ui = probes.get(ch.number); if (!ui) { ui = probe(ch); probes.set(ch.number, ui); $('channels').append(ui.el); }
       ui.el.tabIndex = cfg.hero && !cfg.primary ? 0 : -1;
       ui.el.className = 'probe' + (ambient ? ' paired-probe' : '') + (cfg.hero && !cfg.primary ? ' choose' : '') + (cfg.hero && (main?.number === ch.number || (ambient && main?.number === ambient.number)) ? ' selected' : '') + (!ch.valid ? ' invalid' : !ambientOnly && aboveMaximum(ch) ? ' warning' : '');
-      ui.name.textContent = ch.probeName || ch.name;
-      ui.el.setAttribute('aria-label', (ch.probeName || ch.name) + ', Kanal ' + ch.number + (ambient ? ' und ' + ambient.number : ''));
+      ui.name.textContent = ch.displayName || ch.probeName || ch.name;
+      ui.el.setAttribute('aria-label', (ch.displayName || ch.probeName || ch.name) + ', Kanal ' + ch.number + (ambient ? ' und ' + ambient.number : ''));
       ui.value.classList.toggle('paired-values', Boolean(ambient));
       if (ch.sensorRole) {
         const measurement = (sensor, caption) => {
@@ -202,6 +212,20 @@
       // Offene Eingaben werden von eintreffenden Messwerten nicht überschrieben.
       if (!ui.details.open) { ui.max.value = ch.max ?? ''; }
       ui.max.disabled = ui.submit.disabled = !editable;
+      const presets = cfg.corePresets || [];
+      const presetSignature = JSON.stringify(presets);
+      if (ui.presetSignature !== presetSignature) {
+        const choice = ui.presetSelect.value;
+        const placeholder = node('option', '', 'Vorlage wählen …'); placeholder.value = '';
+        ui.presetSelect.replaceChildren(placeholder);
+        for (const item of presets) { const option = node('option', '', item.name + ' · ' + fmt(item.temperature) + ' ' + state.unit); option.value = ui.presetKey(item); ui.presetSelect.append(option); }
+        ui.presetSelect.value = presets.some(item => ui.presetKey(item) === choice) ? choice : '';
+        ui.presetSignature = presetSignature;
+      }
+      ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
+      ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
+      ui.presetSelect.disabled = !editable;
+      ui.presetApply.disabled = !editable || !ui.selectedPreset();
     });
     $('channels-section').hidden = cards.length === 0;
     const pms = active ? state.pitmasters || [] : [];

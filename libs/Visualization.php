@@ -24,6 +24,7 @@ trait WLTVisualization
         $this->RegisterPropertyInteger('TilePrimary', 0);
         $this->RegisterPropertyString('TileChannels', '[]');
         $this->RegisterPropertyString('TileMeaterPairs', '[]');
+        $this->RegisterPropertyString('TileCorePresets', '[{"Name":"Rumpsteak","Temperature":57},{"Name":"Pulled Pork","Temperature":94}]');
         $this->RegisterPropertyBoolean('ForecastEnabled', true);
         $this->RegisterPropertyBoolean('ForecastChart', true);
         $this->RegisterPropertyInteger('ForecastWindow', 10);
@@ -43,6 +44,35 @@ trait WLTVisualization
         WLTApi::integer($this->ReadPropertyInteger('ForecastWindow'), 5, 60);
         $this->tileChannelSelection();
         $this->meaterPairSelection();
+        $this->tileChannelNames();
+        $this->corePresets('C');
+    }
+
+    /** Vorlagen werden in Celsius gespeichert; Anzeige und Schreibwert folgen der Geräteeinheit. */
+    private function corePresets(string $unit): array
+    {
+        $rows = json_decode($this->ReadPropertyString('TileCorePresets'), true, 64, JSON_THROW_ON_ERROR);
+        if (!is_array($rows) || !array_is_list($rows) || count($rows) > 100) { throw new InvalidArgumentException('Kerntemperatur-Sammlung: höchstens 100 Einträge als Liste.'); }
+        $result = [];
+        foreach ($rows as $row) {
+            if (!is_array($row) || !is_string($row['Name'] ?? null) || trim($row['Name']) === '' || strlen($row['Name']) > 240) { throw new InvalidArgumentException('Kerntemperatur-Vorlage benötigt einen Namen mit höchstens 240 Bytes.'); }
+            $value = WLTApi::integer($row['Temperature'] ?? null, -30, 300);
+            $result[] = ['name' => trim($row['Name']), 'temperature' => $unit === 'F' ? (int) round($value * 9 / 5 + 32) : $value];
+        }
+        return $result;
+    }
+
+    private function tileChannelNames(): array
+    {
+        $this->tileChannelSelection();
+        $rows = json_decode($this->ReadPropertyString('TileChannels'), true, 64, JSON_THROW_ON_ERROR);
+        $result = [];
+        foreach ($rows as $row) {
+            $name = $row['DisplayName'] ?? '';
+            if (!is_string($name) || strlen($name) > 240) { throw new InvalidArgumentException('Fühler-Anzeigenamen dürfen höchstens 240 Bytes lang sein.'); }
+            if (trim($name) !== '') { $result[$row['Number']] = trim($name); }
+        }
+        return $result;
     }
 
     private function meaterPairSelection(): array
@@ -124,11 +154,12 @@ trait WLTVisualization
     private function tileChannelRows(): array
     {
         $choices = $this->tileChannelSelection();
+        $displayNames = $this->tileChannelNames();
         $names = [];
         foreach ($this->cached('Data')['channel'] ?? [] as $ch) { $names[$ch['number']] = $ch['name']; }
         $rows = [];
         foreach (array_unique(array_merge(array_keys($names), array_keys($choices))) as $number) {
-            $rows[] = ['Number' => $number, 'Name' => $names[$number] ?? 'Zeitweise nicht vorhanden', 'Enabled' => $choices[$number] ?? true];
+            $rows[] = ['Number' => $number, 'Name' => $names[$number] ?? 'Zeitweise nicht vorhanden', 'Enabled' => $choices[$number] ?? true, 'DisplayName' => $displayNames[$number] ?? ''];
         }
         return $rows;
     }
@@ -172,12 +203,14 @@ trait WLTVisualization
         $channels = [];
         try { $meater = $this->meaterMetadata($data, $settings); }
         catch (Throwable $e) { $meater = []; $online = false; }
+        try { $names = $this->tileChannelNames(); $presets = $this->corePresets($data['system']['unit'] ?? 'C'); }
+        catch (Throwable $e) { $names = []; $presets = []; $online = false; }
         foreach ($data['channel'] ?? [] as $ch) {
             if (!($choices[$ch['number']] ?? true)) { continue; }
             $wireless = $this->channelIsWireless($ch, $settings);
             $valid = $online && $this->channelHasValidTemperature($ch, $settings);
             if (!$valid) { continue; }
-            $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'temperature' => $valid ? (float) $ch['temp'] : null,
+            $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'displayName' => $names[$ch['number']] ?? '', 'temperature' => $valid ? (float) $ch['temp'] : null,
                 'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null,
                 'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
                 'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']] + ($meater[$ch['number']] ?? []);
@@ -195,7 +228,7 @@ trait WLTVisualization
             'rssi' => $this->ReadPropertyBoolean('TileDetails') ? ($data['system']['rssi'] ?? null) : null,
             'canRefresh' => $this->ReadPropertyBoolean('Active'),
             'canWrite' => $online && $this->ReadPropertyBoolean('TileControls') && $this->ReadPropertyBoolean('AllowWrite'),
-            'config' => ['title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
+            'config' => ['corePresets' => $presets, 'title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
                 'headerEnabled' => $this->ReadPropertyBoolean('TileHeaderEnabled'), 'headerChannel' => $this->ReadPropertyInteger('TileHeaderChannel'),
                 'headerName' => trim($this->ReadPropertyString('TileHeaderName')) ?: 'Grilltemperatur',
                 'theme' => in_array($this->ReadPropertyString('TileTheme'), ['auto', 'light', 'dark'], true) ? $this->ReadPropertyString('TileTheme') : 'auto',

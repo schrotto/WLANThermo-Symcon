@@ -1,6 +1,14 @@
-# Prüfbericht 1.6.2 – 31. Oktober 2026
+# Prüfbericht 1.7.0 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.7.0
+
+245 PHP- und 70 JavaScript-Vertragsprüfungen erfolgreich. PHP prüft Startvorlagen, gespeicherten Anzeigenamen und erneutes Laden in der dynamischen Tabelle, unveränderte Originalnamen/MEATER-Zuordnung, Celsius/Fahrenheit-Umrechnung, bestätigtes Schreiben der umgerechneten Temperatur, leere Sammlung ohne Hilfsvariablen sowie ungültige Vorlagen-/Aliaswerte.
+
+JavaScript prüft Darstellung der Vorlagen mit Einheit, Auswahl ohne Schreibauftrag, Erhalt der Auswahl bei Live-Daten, Übernahme auf den richtigen Kernkanal, Zurücksetzen geänderter/entfernter Vorlagen, Schreibschutz, leere Sammlung, Ausschluss der MEATER-Garraumrolle und sichere Anzeigenamen mit erhaltener Paarung.
+
+Die Sammlung verwendet denselben validierten Kanal-Schreibpfad wie das manuelle Grenzformular. Es gibt keinen automatischen Gerätezugriff durch bloße Auswahl oder Konfigurationsänderung. Native Auswahl und Übernahme bleiben bei Schreibschutz gesperrt. Die Startwerte stammen aus dem Benutzerwunsch. DOM-Vertragstests bestätigen keine Browsergeometrie, Touch-Darstellung oder echte Gerätekommunikation. Reale IPSView-Prüfung bleibt offen.
 
 ## Änderungen und Nachweise 1.6.2
 

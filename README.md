@@ -2,6 +2,16 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.7.0: Eigene Fühlernamen und Kerntemperatur-Sammlung
+
+In **Fühler in der Kachel → Eigener Anzeigename** kannst du jeden Fühler für die Visualisierung benennen. Das Original bleibt in der Tabelle sichtbar. Leere Anzeigenamen verwenden den bisherigen Namen. Bei einer gemeinsamen MEATER-Kachel bestimmt der eigene Anzeigename des Kernkanals den Titel. Die automatische MEATER-Zuordnung verwendet weiterhin die Originalnamen; Gerätekanäle, Variablen und IDs werden nicht umbenannt.
+
+Unter **Kerntemperatur-Sammlung** lassen sich Vorlagen mit Name und Temperatur hinzufügen, ändern und entfernen. Als gewünschte Startwerte sind „Rumpsteak · 57 °C“ und „Pulled Pork · 94 °C“ hinterlegt. Die Werte werden in Celsius gespeichert; bei Fahrenheit am Gerät werden Anzeige und Schreibwert umgerechnet und auf ganze Grad gerundet. Zulässig sind bis zu 100 Einträge, ganze Temperaturen von -30 bis 300 °C und Namen bis 240 Bytes. Eine leere Sammlung blendet die Auswahl aus.
+
+In jeder bedienbaren Fühlerkachel steht rechts eine kleine Sammlungsauswahl. Auswahl allein schreibt nichts. **Übernehmen** setzt die gewählte Temperatur als Obergrenze genau dieses Kanals über den bestehenden Schreib-/Rücklesepfad. Schreibschutz, ausgeblendete/ungültige Fühler und automatische Min-Anpassung bleiben berücksichtigt. MEATER-Garraummessstellen erhalten keine Kerntemperatur-Sammlung. Auswahl bleibt bei Live-Daten bestehen; entfernte oder veränderte Vorlagen werden zurückgesetzt und nicht nach Listenposition ersetzt.
+
+Geräteinfos stehen rechtsbündig im Kopfbereich. Die Obergrenzenanzeige ist in ihrer kleinen Fläche zentriert und neben der Sammlung weiter nach links gerückt. Auf schmalen Flächen wird die Sammlung unter den Messwerten angeordnet. Nach dem Update Kachel/IPSView neu laden. Die echte Clientdarstellung bleibt zu prüfen.
+
 ## Version 1.6.2: Aufgeräumter Kopfbereich und direkt sichtbare Grenzen
 
 Die Kopftemperatur steht auf breiten Flächen größer und mittig zwischen Titel und Gerätestatus. Das zusätzliche WLANTHERMO-Label, die Kanaltexte in Kopf- und Fühlerkacheln sowie das Obergrenzen-Bearbeitungsfeld der Kopfkachel wurden entfernt. Die Kopfkachel ist jetzt eine reine Temperaturanzeige. Geräteinformationen, Akku/WLAN, Bluetooth und Aktualisierungszeit stehen kompakt oben rechts bei der Verbindungsanzeige. Die Einstellung für zusätzliche Gerätedetails blendet diese Informationen weiterhin aus.

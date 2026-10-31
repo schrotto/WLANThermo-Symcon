@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.6.2
+# Lieferumfang A–I – WLANThermo 1.7.0
 
 ## A. Modulbeschreibung
 
@@ -91,3 +91,5 @@ Version 1.6.0: gemeinsame MEATER-Kachel für Kerntemperatur/Garraumtemperatur. N
 Version 1.6.1: frei einstellbarer Titel und kompakte Kopftemperatur mit wählbarem Kanal/Anzeigenamen. Oben angezeigter Kanal entfällt unten; Obergrenzenbedienung und MEATER-Garraum-Anzeigerolle bleiben erhalten. Aktuell 236 PHP-/61 JavaScript-Vertragsprüfungen erfolgreich, reale IPSView-Prüfung offen.
 
 Version 1.6.2: größere mittige Kopftemperatur als reine Anzeige, bereinigte Zusatztexte, Gerätestatus oben rechts. Fühlergrenzen oben stets sichtbar mit ausschließlich aufklappbarer Eingabe. 236 PHP-/60 JavaScript-Vertragsprüfungen erfolgreich; echte Clientprüfung offen.
+
+Version 1.7.0 ergänzt eigene Anzeigenamen pro Fühler und eine im Modul editierbare Kerntemperatur-Sammlung. Auswahl schreibt erst nach Übernehmen. Startvorlagen nach Benutzerwunsch, Celsius-/Fahrenheit-Umrechnung, Schreibschutz und MEATER-Rollen berücksichtigt. 245 PHP-/70 JavaScript-Vertragsprüfungen erfolgreich; echte Clientprüfung offen.
