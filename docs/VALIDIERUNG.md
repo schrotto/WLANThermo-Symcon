@@ -1,6 +1,16 @@
-# Prüfbericht 1.7.0 – 31. Oktober 2026
+# Prüfbericht 1.8.0 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.8.0
+
+258 PHP- und 78 JavaScript-Vertragsprüfungen erfolgreich. PHP prüft bestätigte Vorlagenspeicherung, weiteren Abruf und Wiederherstellung in einer neuen Test-Modullaufzeit, Ablehnung widersprüchlicher Vorlage/Grenze vor dem POST, keine veraltete Bestätigung bei externer Grenzänderung/anderer Quelle/entfernter Sammlung. Upload-Prüfung mit kleinen PNG-Daten: zwei Bilder, Einzel-Ausblendung ohne Löschen, Auslassen unveränderter Bilder bei einem geänderten Live-Messwert, vollständige Initialdaten unabhängig vom Versandpuffer sowie Ablehnung ungeeigneter bzw. zu großer Daten.
+
+JavaScript prüft geschlossene Vorlagen-Wertkachel mit bestätigtem Namen und Temperatur, Erhalt bei Live-Aktualisierung, Entfernen alter Bestätigung, Bildanordnung vor/hinter dem Titel bzw. untereinander, Erhalt bei Updates ohne Bildpayload, Rückkehr zur Flamme und entfernte Fühlerzählung. Weiterhin geprüft sind Auswahl ohne POST, ausdrückliche Übernahme, Schreibschutz und MEATER-Rollen.
+
+Der Upload ist über das offiziell dokumentierte SelectFile-Formularelement angebunden. Getestet wurden dessen gespeicherte Base64-Werte und ihre Verarbeitung; kein tatsächlicher Datei-Dialog in einer laufenden Symcon-Konsole. Bildprüfung über getimagesizefromstring und MIME-Positivliste; 256 KiB/2048 Pixel je Seite als Grenzen. Nur Hashes der Bildpayloads werden als Versandpuffer gespeichert. Initiale Kachel enthält Bilder immer, Folgeupdates nur bei Änderungen. Keine externen URLs oder neuen Statusvariablen.
+
+Offen am Zielsystem: echte Uploads/Ersetzen/Ausblenden, PNG/JPEG/GIF/WebP im Client, beide Layouts bei schmaler Kachel, bestätigte Vorlagenwahl nach Browser-Neuladen und Symcon-Neustart. DOM-Verträge bestätigen kein gerendertes IPSView-Layout.
 
 ## Änderungen und Nachweise 1.7.0
 

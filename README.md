@@ -2,6 +2,16 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.8.0: Vorlagen als Wertkachel und eigene Titelbilder
+
+Die Kerntemperatur-Sammlung verwendet jetzt denselben kompakten, aufklappbaren Wertblock wie die Obergrenze. Geschlossen bleiben Temperatur und Name der ausgewählten Vorlage sichtbar. Auswahl und Übernehmen stehen im aufgeklappten Bereich. Erst ein bestätigter Schreib-/Rücklesevorgang speichert die Vorlage pro Fühler in einem Instanzattribut. Danach bleibt sie auch nach erneutem Laden der Kachel bzw. der Modullaufzeit sichtbar. Eine manuelle Grenzänderung, eine nicht mehr passende Obergrenze, eine geänderte Messquelle oder eine entfernte/geänderte Vorlage wird nicht als alte bestätigte Auswahl dargestellt. Eine noch nicht übernommene Auswahl ist nur lokal sichtbar und wird bei einem Neuladen nicht gespeichert.
+
+Im Visualisierungsbereich der Instanz lassen sich **Titelbild 1** und optional **Titelbild 2** hochladen und jeweils ein-/ausblenden. Die Anordnung wählt zwischen einem Bild vor und einem hinter dem Titel oder beiden Bildern untereinander vor dem Titel. Ohne eingeblendete Bilder erscheint die bisherige Flamme. Bilder werden proportional und ohne Zuschnitt dargestellt. PNG, JPEG, GIF und WebP bis 256 KiB und 2048 × 2048 Pixel pro Bild sind zulässig. Die Bilder bleiben in der Instanz gespeichert; externe Bildserver und zusätzliche Statusvariablen werden nicht benötigt. Ausblenden löscht den Upload nicht.
+
+Der Upload verwendet das offizielle Symcon-Formularelement [SelectFile](https://www.symcon.de/en/service/documentation/developer-area/sdk-tools/sdk-php/configuration-forms/selectfile/), das Dateiinhalt als Base64-Eigenschaft speichert. Die Kachel erhält geprüfte Bilddaten direkt. Vollständiges Laden enthält beide Bilder; unveränderte Bilder werden bei anschließenden Live-Updates ausgespart und im Client erhalten.
+
+Die Fühler-/Messwertzählung rechts über der Übersicht wurde entfernt. Geräte-/Variablennamen und IDs bleiben erhalten. Nach dem Update Kachel/IPSView neu laden. Reale Upload-Bedienung und Bilddarstellung im Zielclient sind noch zu prüfen.
+
 ## Version 1.7.0: Eigene Fühlernamen und Kerntemperatur-Sammlung
 
 In **Fühler in der Kachel → Eigener Anzeigename** kannst du jeden Fühler für die Visualisierung benennen. Das Original bleibt in der Tabelle sichtbar. Leere Anzeigenamen verwenden den bisherigen Namen. Bei einer gemeinsamen MEATER-Kachel bestimmt der eigene Anzeigename des Kernkanals den Titel. Die automatische MEATER-Zuordnung verwendet weiterhin die Originalnamen; Gerätekanäle, Variablen und IDs werden nicht umbenannt.

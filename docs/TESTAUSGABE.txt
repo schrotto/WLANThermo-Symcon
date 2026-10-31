@@ -212,38 +212,51 @@ OK 211: Leere Sammlung benötigt keine Variablen und überträgt keine Vorlagen
 OK 212: Vorlage ohne Namen wird als Konfigurationsfehler abgefangen
 OK 213: Nicht ganzzahlige Vorlagentemperatur wird vor Gerätezugriff abgefangen
 OK 214: Ungültiger Anzeigename wird abgefangen
-OK 215: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
-OK 216: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
-OK 217: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
-OK 218: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
-OK 219: Fehlende Obergrenze erzeugt keine Restzeit
-OK 220: Vor drei Minuten wird keine Restzeit ausgegeben
-OK 221: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
-OK 222: Abkühlung erzeugt keine negative Restzeit
-OK 223: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
-OK 224: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
-OK 225: Veraltete Messhistorie wird nicht zur Prognose verwendet
-OK 226: Fühlerwechsel setzt Verlauf und Startpunkt zurück
-OK 227: Längere Unterbrechung startet den Verlauf neu
-OK 228: Großer abrupter Temperatursprung startet einen neuen Verlauf
-OK 229: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
-OK 230: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
-OK 231: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
-OK 232: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
-OK 233: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
-OK 234: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
-OK 235: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
-OK 236: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
-OK 237: Reset erzeugt keine künstliche Messung aus alten Cachewerten
-OK 238: Erst der nächste echte Abruf startet die neue Messreihe
-OK 239: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
-OK 240: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
-OK 241: Ungültiger Fühler verwirft seinen Messverlauf
-OK 242: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
-OK 243: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
-OK 244: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
-OK 245: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
-245 assertions passed.
+OK 215: Bestätigte Vorlage wird je Fühler gespeichert und in der Antwort angezeigt
+OK 216: Gespeicherte Vorlage bleibt beim nächsten Geräteabruf erhalten
+OK 217: Neue Modullaufzeit stellt bestätigte Auswahl aus persistentem Attribut wieder her
+OK 218: Widersprüchliche Vorlage und Obergrenze lösen keinen Schreibauftrag aus
+OK 219: Extern veränderte Obergrenze wird nicht weiter als alte Vorlage angezeigt
+OK 220: Geänderte Messquelle übernimmt keine alte gespeicherte Vorlage
+OK 221: Entfernte Sammlung hebt gespeicherte Vorlagenanzeige auf
+OK 222: Zwei lokale Bild-Uploads werden als geprüfte PNG-Daten eingebunden
+OK 223: Ausblenden erhält das hochgeladene Bild in der Instanz
+OK 224: Unveränderte Bilder werden nicht bei jedem Live-Update erneut übertragen
+OK 225: Neues Laden der Kachel erhält Bilder unabhängig vom Versandpuffer
+OK 226: Nicht unterstützte Bilddaten werden als Konfigurationsfehler abgefangen
+OK 227: Überdimensionierter Upload wird vor der Bilddekodierung abgefangen
+OK 228: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
+OK 229: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
+OK 230: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
+OK 231: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
+OK 232: Fehlende Obergrenze erzeugt keine Restzeit
+OK 233: Vor drei Minuten wird keine Restzeit ausgegeben
+OK 234: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
+OK 235: Abkühlung erzeugt keine negative Restzeit
+OK 236: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
+OK 237: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
+OK 238: Veraltete Messhistorie wird nicht zur Prognose verwendet
+OK 239: Fühlerwechsel setzt Verlauf und Startpunkt zurück
+OK 240: Längere Unterbrechung startet den Verlauf neu
+OK 241: Großer abrupter Temperatursprung startet einen neuen Verlauf
+OK 242: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
+OK 243: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
+OK 244: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
+OK 245: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
+OK 246: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
+OK 247: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
+OK 248: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
+OK 249: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
+OK 250: Reset erzeugt keine künstliche Messung aus alten Cachewerten
+OK 251: Erst der nächste echte Abruf startet die neue Messreihe
+OK 252: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
+OK 253: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
+OK 254: Ungültiger Fühler verwirft seinen Messverlauf
+OK 255: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
+OK 256: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
+OK 257: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
+OK 258: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
+258 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert
@@ -314,5 +327,13 @@ UI OK 66: Gesperrte Vorlage sendet auch bei ausgelöstem Ereignis keinen Auftrag
 UI OK 67: Leere Sammlung blendet alle Vorlagenflächen aus
 UI OK 68: MEATER-Garraummessstelle erhält keine Kerntemperatur-Sammlung
 UI OK 69: Eigener Anzeigename bleibt sicherer Text und erhält die MEATER-Paarung
-UI OK 70: Deaktivierung sperrt die bereits geöffnete Kachel
-70 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 70: Gespeicherte Vorlage erscheint in geschlossener Wertkachel ohne sichtbare Auswahlfelder
+UI OK 71: Live-Aktualisierung erhält bestätigten Vorlagennamen
+UI OK 72: Nicht mehr bestätigte Vorlage verschwindet aus der Zusammenfassung
+UI OK 73: Zwei Titelbilder erscheinen vor und hinter dem Namen statt der Flamme
+UI OK 74: Bilder lassen sich untereinander vor dem Titel anordnen
+UI OK 75: Update ohne erneut übertragene Bilddaten erhält die Bilder
+UI OK 76: Ausblenden beider Bilder stellt die Standardflamme wieder her
+UI OK 77: Gelb markierte Fühler-/Messwertzählung ist aus der Kachel entfernt
+UI OK 78: Deaktivierung sperrt die bereits geöffnete Kachel
+78 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

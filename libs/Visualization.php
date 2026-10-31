@@ -25,6 +25,12 @@ trait WLTVisualization
         $this->RegisterPropertyString('TileChannels', '[]');
         $this->RegisterPropertyString('TileMeaterPairs', '[]');
         $this->RegisterPropertyString('TileCorePresets', '[{"Name":"Rumpsteak","Temperature":57},{"Name":"Pulled Pork","Temperature":94}]');
+        $this->RegisterAttributeString('TilePresetChoices', '{}');
+        $this->RegisterPropertyString('TileBrandImage1', '');
+        $this->RegisterPropertyString('TileBrandImage2', '');
+        $this->RegisterPropertyBoolean('TileBrandImage1Visible', true);
+        $this->RegisterPropertyBoolean('TileBrandImage2Visible', true);
+        $this->RegisterPropertyString('TileBrandLayout', 'split');
         $this->RegisterPropertyBoolean('ForecastEnabled', true);
         $this->RegisterPropertyBoolean('ForecastChart', true);
         $this->RegisterPropertyInteger('ForecastWindow', 10);
@@ -46,6 +52,44 @@ trait WLTVisualization
         $this->meaterPairSelection();
         $this->tileChannelNames();
         $this->corePresets('C');
+        $this->brandImages();
+        if (!in_array($this->ReadPropertyString('TileBrandLayout'), ['split','stacked'], true)) { throw new InvalidArgumentException('Ungültige Bildanordnung.'); }
+    }
+
+    private function brandImages(): array
+    {
+        $result = [];
+        foreach ([1,2] as $slot) {
+            $encoded = $this->ReadPropertyString('TileBrandImage' . $slot);
+            if ($encoded === '') { $result[] = ''; continue; }
+            if (strlen($encoded) > 350000) { throw new InvalidArgumentException('Titelbilder dürfen höchstens 256 KiB groß sein.'); }
+            $raw = base64_decode($encoded, true);
+            $info = $raw === false ? false : @getimagesizefromstring($raw);
+            if (!$info || strlen($raw) > 262144 || !in_array($info['mime'] ?? '', ['image/png','image/jpeg','image/gif','image/webp'], true) || $info[0] > 2048 || $info[1] > 2048) {
+                throw new InvalidArgumentException('Titelbild: PNG/JPEG/GIF/WebP, maximal 256 KiB und 2048 × 2048 Pixel.');
+            }
+            $result[] = $this->ReadPropertyBoolean('TileBrandImage' . $slot . 'Visible') ? 'data:' . $info['mime'] . ';base64,' . base64_encode($raw) : '';
+        }
+        return $result;
+    }
+
+    private function presetSource(array $channel): string
+    {
+        return hash('sha256', WLTApi::encode([$this->ReadPropertyString('Host'), $channel['name'] ?? '', $channel['typ'] ?? null, $channel['fixed'] ?? null]));
+    }
+
+    private function rememberedPreset(array $channel, string $unit): ?array
+    {
+        $choices = json_decode($this->ReadAttributeString('TilePresetChoices'), true) ?: [];
+        $choice = $choices[$channel['number']] ?? null;
+        if (!$choice || ($choice['source'] ?? '') !== $this->presetSource($channel)) { return null; }
+        foreach ($this->corePresets('C') as $preset) {
+            if ($preset['name'] === $choice['name'] && $preset['temperature'] === $choice['celsius']) {
+                $value = $unit === 'F' ? (int) round($choice['celsius'] * 9 / 5 + 32) : $choice['celsius'];
+                return isset($channel['max']) && (float) $channel['max'] === (float) $value ? ['name'=>$choice['name'], 'temperature'=>$value] : null;
+            }
+        }
+        return null;
     }
 
     /** Vorlagen werden in Celsius gespeichert; Anzeige und Schreibwert folgen der Geräteeinheit. */
@@ -203,15 +247,15 @@ trait WLTVisualization
         $channels = [];
         try { $meater = $this->meaterMetadata($data, $settings); }
         catch (Throwable $e) { $meater = []; $online = false; }
-        try { $names = $this->tileChannelNames(); $presets = $this->corePresets($data['system']['unit'] ?? 'C'); }
-        catch (Throwable $e) { $names = []; $presets = []; $online = false; }
+        try { $names = $this->tileChannelNames(); $presets = $this->corePresets($data['system']['unit'] ?? 'C'); $images = $this->brandImages(); }
+        catch (Throwable $e) { $names = []; $presets = []; $images = ['','']; $online = false; }
         foreach ($data['channel'] ?? [] as $ch) {
             if (!($choices[$ch['number']] ?? true)) { continue; }
             $wireless = $this->channelIsWireless($ch, $settings);
             $valid = $online && $this->channelHasValidTemperature($ch, $settings);
             if (!$valid) { continue; }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'displayName' => $names[$ch['number']] ?? '', 'temperature' => $valid ? (float) $ch['temp'] : null,
-                'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null,
+                'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null, 'selectedPreset' => $this->rememberedPreset($ch, $data['system']['unit'] ?? 'C'),
                 'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
                 'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']] + ($meater[$ch['number']] ?? []);
         }
@@ -228,7 +272,7 @@ trait WLTVisualization
             'rssi' => $this->ReadPropertyBoolean('TileDetails') ? ($data['system']['rssi'] ?? null) : null,
             'canRefresh' => $this->ReadPropertyBoolean('Active'),
             'canWrite' => $online && $this->ReadPropertyBoolean('TileControls') && $this->ReadPropertyBoolean('AllowWrite'),
-            'config' => ['corePresets' => $presets, 'title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
+            'config' => ['brandImages' => $images, 'brandLayout' => $this->ReadPropertyString('TileBrandLayout'), 'corePresets' => $presets, 'title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
                 'headerEnabled' => $this->ReadPropertyBoolean('TileHeaderEnabled'), 'headerChannel' => $this->ReadPropertyInteger('TileHeaderChannel'),
                 'headerName' => trim($this->ReadPropertyString('TileHeaderName')) ?: 'Grilltemperatur',
                 'theme' => in_array($this->ReadPropertyString('TileTheme'), ['auto', 'light', 'dark'], true) ? $this->ReadPropertyString('TileTheme') : 'auto',
@@ -262,9 +306,12 @@ trait WLTVisualization
         $encoded = WLTApi::encode($data);
         $signature = hash('sha256', $encoded);
         if ($response !== null || $signature !== $this->GetBuffer('VisualizationLast')) {
+            $imageSignature = hash('sha256', WLTApi::encode($data['config']['brandImages']));
+            if ($imageSignature === $this->GetBuffer('VisualizationImages')) { unset($data['config']['brandImages']); }
             // Native Symcon-Werte unterstützen keine PHP-Arrays: JSON-Text übertragen.
-            if ($this->UpdateVisualizationValue($encoded)) {
+            if ($this->UpdateVisualizationValue(WLTApi::encode($data))) {
                 $this->SetBuffer('VisualizationLast', $signature);
+                $this->SetBuffer('VisualizationImages', $imageSignature);
             }
         }
     }
@@ -287,7 +334,7 @@ trait WLTVisualization
             $allowed = match ($action) {
                 'refresh' => ['requestId', 'action'],
                 'forecastReset' => ['requestId', 'action', 'number'],
-                'channel' => ['requestId', 'action', 'number', 'max'],
+                'channel' => ['requestId', 'action', 'number', 'max', 'preset'],
                 'pitmaster' => ['requestId', 'action', 'id', 'mode', 'target', 'output'],
                 'bluetooth' => ['requestId', 'action', 'enabled'],
                 default => throw new InvalidArgumentException('Unbekannte Kachelaktion.')
@@ -314,7 +361,24 @@ trait WLTVisualization
                 if (($this->meaterMetadata($this->cached('Data'), $this->cached('Settings'))[$number]['sensorRole'] ?? '') === 'ambient') {
                     throw new InvalidArgumentException('Die MEATER-Garraumtemperatur ist in der Kachel eine reine Messwertanzeige.');
                 }
+                $chosen = null;
+                if (array_key_exists('preset', $request)) {
+                    $selection = $request['preset'];
+                    if (!is_array($selection) || count($selection) !== 2 || !is_string($selection['name'] ?? null) || !is_int($selection['temperature'] ?? null)) { throw new InvalidArgumentException('Ungültige Vorlagenauswahl.'); }
+                    foreach ($this->corePresets($this->cached('Data')['system']['unit'] ?? 'C') as $index => $preset) {
+                        if ($selection['name'] === $preset['name'] && $selection['temperature'] === $preset['temperature'] && ($request['max'] ?? null) === $preset['temperature']) { $chosen = $this->corePresets('C')[$index]; break; }
+                    }
+                    if ($chosen === null) { throw new InvalidArgumentException('Vorlage wurde geändert oder passt nicht zur Obergrenze.'); }
+                }
                 [$ok, $adjusted] = $this->setVisualizationUpperLimit($number, $request['max'] ?? null);
+                if ($ok) {
+                    $choices = json_decode($this->ReadAttributeString('TilePresetChoices'), true) ?: [];
+                    if ($chosen) {
+                        $confirmed = WLTApi::item($this->cached('Data')['channel'] ?? [], 'number', $number);
+                        $choices[$number] = ['name'=>$chosen['name'],'celsius'=>$chosen['temperature'],'source'=>$this->presetSource($confirmed)];
+                    } else { unset($choices[$number]); }
+                    $this->WriteAttributeString('TilePresetChoices', WLTApi::encode($choices));
+                }
             } elseif ($action === 'pitmaster') {
                 if (!$this->ReadPropertyBoolean('TilePitmaster')) { throw new InvalidArgumentException('Pitmaster ist in der Kachel ausgeblendet.'); }
                 $id = WLTApi::integer($request['id'] ?? null, 0, 255);

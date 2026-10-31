@@ -102,15 +102,18 @@
     const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
     form.append(max.wrapper, submit); details.append(summary, form);
     const forecast = forecastElements(ch.number);
-    const presetBox = node('div', 'core-presets'), presetLabel = node('label', 'preset-field'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
-    presetLabel.append(node('span', 'preset-caption', 'Kerntemperatur'), presetSelect); presetApply.type = 'button'; presetBox.append(presetLabel, presetApply);
+    const presetBox = node('details', 'core-presets'), presetSummary = node('summary', 'preset-summary'), presetValue = node('strong', 'preset-value', 'Wählen …'), presetName = node('span', 'preset-name'), presetChevron = node('span', 'preset-chevron', '⌄');
+    presetChevron.setAttribute('aria-hidden', 'true'); presetSummary.append(node('span', 'preset-caption', 'Kerntemperatur'), presetValue, presetName, presetChevron);
+    const presetEditor = node('div', 'preset-editor'), presetLabel = node('label', 'preset-field'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
+    presetLabel.append(node('span', 'preset-input-label', 'Vorlage auswählen'), presetSelect); presetApply.type = 'button'; presetEditor.append(presetLabel, presetApply); presetBox.append(presetSummary, presetEditor);
+    presetSummary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
     presetSelect.setAttribute('aria-label', 'Kerntemperatur-Vorlage für Kanal ' + ch.number);
     const presetKey = item => JSON.stringify([item.name, item.temperature]);
     const selectedPreset = () => (state.config?.corePresets || []).find(item => presetKey(item) === presetSelect.value);
-    presetSelect.addEventListener('change', () => { presetApply.disabled = Boolean(pending) || !state.canWrite || !selectedPreset(); });
+    presetSelect.addEventListener('change', () => { const ui = probes.get(ch.number); if (ui) ui.presetDirty = true; render(); });
     presetApply.addEventListener('click', () => {
       const item = selectedPreset();
-      if (item && !presetApply.disabled && state.canWrite && state.config?.controls) send('channel', {number:ch.number, max:item.temperature});
+      if (item && !presetApply.disabled && state.canWrite && state.config?.controls) send('channel', {number:ch.number, max:item.temperature, preset:item});
     });
     el.append(head, value, label, rail, limits, forecast.el, details, presetBox);
     summary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
@@ -118,7 +121,7 @@
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
     form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
-    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null};
+    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null, presetValue, presetName, presetEditor, presetDirty:false};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -143,6 +146,12 @@
     $('connection').classList.toggle('online', Boolean(active && state.online));
     const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
     $('tile-title').textContent = cfg.title || 'Grillstation';
+    const images = cfg.brandImages || ['',''], stacked = cfg.brandLayout === 'stacked';
+    const showImage = (id, source) => { const image = $(id); image.hidden = !source; if (source) { if (image.src !== source) image.src = source; } else image.removeAttribute('src'); };
+    showImage('brand-image-1', images[0]); showImage('brand-image-2-stack', stacked ? images[1] : ''); showImage('brand-image-2-after', stacked ? '' : images[1]);
+    $('brand-images').hidden = !images[0] && !(stacked && images[1]);
+    $('brand-default').hidden = Boolean(images[0] || images[1]);
+
     $('grill').setAttribute('aria-label', 'WLANThermo · ' + (cfg.title || 'Grillstation'));
     const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
     const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
@@ -180,7 +189,6 @@
     const cores = new Map(overview.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
     const ambientSensors = new Map(overview.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
     const cards = overview.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
-    $('probe-count').textContent = cards.length + ' Fühler · ' + overview.length + (overview.length === 1 ? ' Messwert' : ' Messwerte');
     for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     cards.forEach(ch => {
       const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
@@ -222,6 +230,15 @@
         ui.presetSelect.value = presets.some(item => ui.presetKey(item) === choice) ? choice : '';
         ui.presetSignature = presetSignature;
       }
+      if (!ui.presetDirty) { ui.presetSelect.value = ch.selectedPreset && presets.some(item => ui.presetKey(item) === ui.presetKey(ch.selectedPreset)) ? ui.presetKey(ch.selectedPreset) : ''; }
+      const displayedPreset = ui.selectedPreset();
+      ui.presetValue.textContent = displayedPreset ? fmt(displayedPreset.temperature) + ' ' + state.unit : 'Wählen …';
+      ui.presetName.textContent = displayedPreset?.name || ''; ui.presetName.hidden = !displayedPreset;
+      ui.presetBox.classList.toggle('has-selection', Boolean(displayedPreset));
+      ui.presetBox.classList.toggle('read-only', !editable);
+      ui.presetBox.children[0].setAttribute('aria-disabled', String(!editable));
+      ui.presetEditor.hidden = !editable;
+      if (!editable) ui.presetBox.open = false;
       ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
       ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
       ui.presetSelect.disabled = !editable;
@@ -247,11 +264,12 @@
     try { if (typeof data === 'string') data = JSON.parse(data); if (!data || typeof data !== 'object' || Array.isArray(data)) return;
       if (data.enabled === false) { state = {...state, enabled:false}; if (data.response?.requestId === pending) announce(data.response.message, !data.response.ok); clearTimeout(timeout); pending = null; render(); return; }
       if (data.version !== 1) return;
+      if (data.config && !Object.prototype.hasOwnProperty.call(data.config, 'brandImages')) data.config.brandImages = state.config?.brandImages || ['',''];
       if (data.config?.primary !== state.config?.primary) selected = data.config?.primary || 0;
       state = data;
       if (data.response && data.response.requestId === pending) {
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
+        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetBox.open = false; ui.presetDirty = false; } }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }

@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.8.0 – 31.10.2026
+
+- Vorlagenauswahl als aufklappbare Wertkachel analog zur Obergrenze, mit dauerhaft sichtbarem Vorlagennamen/Temperatur.
+- Bestätigte Vorlagenwahl pro Fühler persistent gespeichert und nach Neuladen wiederhergestellt.
+- Zwei optionale Titelbild-Uploads mit eigener Sichtbarkeit und Anordnung vor/hinter dem Titel oder untereinander.
+- Geprüfte lokale Rasterbilder; unveränderte Bilddaten werden bei Live-Updates nicht erneut versendet.
+- Gelb markierte Fühler-/Messwertzählung entfernt.
+- 258 PHP- und 78 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.7.0 – 31.10.2026
 
 - Eigene Anzeigenamen pro Fühler in der Kanaltabelle, ohne Geräte-/Variablenumbenennung.

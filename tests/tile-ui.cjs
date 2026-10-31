@@ -11,6 +11,7 @@ class Element {
   get textContent() { return this._text + this.children.map(child => child.textContent).join(''); }
   get firstChild() { return this.children[0]; }
   setAttribute(key, value) { this.attrs[key] = value; }
+  removeAttribute(key) { delete this.attrs[key]; if (key === 'src') this.src = ''; }
   addEventListener(name, handler) { this.events[name] = handler; }
   dispatch(name, extra={}) { return this.events[name]?.({target:this, preventDefault(){}, ...extra}); }
   reportValidity() { return true; }
@@ -136,7 +137,7 @@ data = clone(); delete data.channels[1].pairKey; delete data.channels[2].pairKey
 check(elements.channels.children.length === 3, 'Ohne eindeutige Paarzuordnung werden keine benachbarten Kanäle zusammengefasst');
 data = clone(); data.config.headerEnabled = true; data.config.headerChannel = 1; data.config.headerName = 'Räucherkammertemperatur'; data.config.title = 'Mein Smoker'; window.handleMessage(data);
 check(elements['tile-title'].textContent === 'Mein Smoker' && elements['header-temperature-name'].textContent === 'Räucherkammertemperatur' && elements['header-temperature-value'].textContent === '110,5', 'Freier Titel und beschriftete Kopfkachel zeigen den gewählten Temperaturkanal');
-check(!elements['header-temperature'].hidden && elements.channels.children.length === 1 && !elements.channels.children.some(el => el.attrs['aria-label']?.includes('Kanal 1 ')) && elements['probe-count'].textContent === '1 Fühler · 2 Messwerte', 'Kopfkanal entfällt unten und die Fühlerzählung beschreibt nur die Übersicht');
+check(!elements['header-temperature'].hidden && elements.channels.children.length === 1 && !elements.channels.children.some(el => el.attrs['aria-label']?.includes('Kanal 1 ')), 'Kopfkanal entfällt unten und die Fühlerzählung beschreibt nur die Übersicht');
 data.config.headerEnabled = false; window.handleMessage(data);
 check(elements['header-temperature'].hidden && elements.channels.children.length === 2, 'Abschalten der Kopfkachel bringt den Kanal ohne Datenverlust in die Übersicht zurück');
 data.config.headerEnabled = true; data.config.headerChannel = 99; window.handleMessage(data);
@@ -160,7 +161,7 @@ data.canWrite = false; window.handleMessage(data);
 check(!limit.hidden && !limit.open && limit.children[1].hidden && limit.children[0].textContent.includes('Obergrenze'), 'Schreibschutz erhält den sichtbaren Grenzwert und verbirgt ausschließlich den Editor');
 data = clone(); data.config.headerEnabled = false; data.canWrite = true; window.handleMessage(data);
 let coreCard = elements.channels.children.find(el => el.attrs['aria-label']?.startsWith('Meater,'));
-let collection = coreCard.children[7], select = collection.children[0].children[1], apply = collection.children[1];
+let collection = coreCard.children[7], select = collection.children[1].children[0].children[1], apply = collection.children[1].children[1];
 check(!collection.hidden && select.children.some(option => option.textContent === 'Rumpsteak · 57 °C') && select.children.some(option => option.textContent === 'Pulled Pork · 94 °C'), 'Sammlung zeigt die konfigurierten Vorlagen mit Temperatur');
 let beforePresetRequests = requested.length; select.value = select.children[1].value; select.dispatch('change');
 check(requested.length === beforePresetRequests && !apply.disabled, 'Vorlagenauswahl allein schreibt nichts am Gerät');
@@ -168,6 +169,7 @@ window.handleMessage(data);
 check(select.value === select.children[1].value, 'Gewählte Vorlage bleibt bei Live-Messwerten erhalten');
 apply.dispatch('click');
 check(requested.at(-1).action === 'channel' && requested.at(-1).number === 13 && requested.at(-1).max === 57, 'Übernehmen schreibt die gewählte Temperatur auf den zugehörigen Kernkanal');
+data.channels[1].selectedPreset = {name:'Rumpsteak',temperature:57}; data.channels[1].max = 57;
 data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Bestätigt'}; window.handleMessage(data);
 data.config.corePresets = [{name:'Eigene Vorlage',temperature:88}]; window.handleMessage(data);
 check(select.value === '' && apply.disabled && select.children[1].textContent === 'Eigene Vorlage · 88 °C', 'Entfernte Vorlage wird nicht durch einen geänderten Listenindex unbemerkt ersetzt');
@@ -181,6 +183,22 @@ check(elements.channels.children[0].children[7].hidden, 'MEATER-Garraummessstell
 data = clone(); data.channels[1].displayName = '<b>Braten</b>'; window.handleMessage(data);
 coreCard = elements.channels.children.find(el => el.children[0].children[0].children[0].textContent === '<b>Braten</b>');
 check(Boolean(coreCard) && coreCard.children[1].textContent.includes('Garraumtemperatur') && elements['hero-name'].textContent === '<b>Braten</b>', 'Eigener Anzeigename bleibt sicherer Text und erhält die MEATER-Paarung');
+data = clone(); data.config.headerEnabled = false; data.channels[1].max = 57; data.channels[1].selectedPreset = {name:'Rumpsteak',temperature:57}; window.handleMessage(data);
+coreCard = elements.channels.children.find(el => el.attrs['aria-label']?.startsWith('Meater,')); collection = coreCard.children[7];
+check(collection.tagName === 'details' && collection.open === false && collection.children[0].textContent.includes('57 °C') && collection.children[0].textContent.includes('Rumpsteak'), 'Gespeicherte Vorlage erscheint in geschlossener Wertkachel ohne sichtbare Auswahlfelder');
+window.handleMessage(data);
+check(collection.children[0].textContent.includes('Rumpsteak'), 'Live-Aktualisierung erhält bestätigten Vorlagennamen');
+data.channels[1].selectedPreset = null; data.channels[1].max = 88; window.handleMessage(data);
+check(!collection.children[0].textContent.includes('Rumpsteak'), 'Nicht mehr bestätigte Vorlage verschwindet aus der Zusammenfassung');
+data = clone(); data.config.brandImages = ['data:image/png;base64,AAA','data:image/jpeg;base64,BBB']; data.config.brandLayout = 'split'; window.handleMessage(data);
+check(!elements['brand-image-1'].hidden && !elements['brand-image-2-after'].hidden && elements['brand-image-2-stack'].hidden && elements['brand-default'].hidden, 'Zwei Titelbilder erscheinen vor und hinter dem Namen statt der Flamme');
+data.config.brandLayout = 'stacked'; window.handleMessage(data);
+check(!elements['brand-image-2-stack'].hidden && elements['brand-image-2-after'].hidden, 'Bilder lassen sich untereinander vor dem Titel anordnen');
+data = clone(); delete data.config.brandImages; window.handleMessage(data);
+check(!elements['brand-image-1'].hidden, 'Update ohne erneut übertragene Bilddaten erhält die Bilder');
+data.config.brandImages = ['','']; window.handleMessage(data);
+check(elements['brand-image-1'].hidden && elements['brand-image-2-after'].hidden && elements['brand-images'].hidden && !elements['brand-default'].hidden, 'Ausblenden beider Bilder stellt die Standardflamme wieder her');
+check(!ids.includes('probe-count'), 'Gelb markierte Fühler-/Messwertzählung ist aus der Kachel entfernt');
 window.handleMessage({enabled:false});
 check(elements.refresh.disabled && elements.connection.textContent === 'Kachel deaktiviert', 'Deaktivierung sperrt die bereits geöffnete Kachel');
 console.log(count + ' UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.');

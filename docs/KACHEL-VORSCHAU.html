@@ -30,13 +30,15 @@
 /* Grenzwert und Sammlung bilden zwei ruhige Bedienflächen neben dem Messwert. */
 .header-status footer{width:100%;justify-content:flex-end}.header-status #telemetry{flex-basis:100%;text-align:right}.header-status #device{margin-left:auto}.header-status #bluetooth{margin-left:0}.probe.has-presets{grid-template-columns:minmax(0,1fr) minmax(95px,115px) minmax(130px,160px);column-gap:12px}.limit-summary{justify-content:center;text-align:center}.limit-caption{text-align:center}.core-presets{grid-column:3;grid-row:2;align-self:start;display:grid;gap:7px;padding:9px 10px;background:var(--raised);border-radius:10px;margin:7px 0 10px;min-width:0}.preset-field{display:grid;gap:6px;min-width:0}.preset-caption{text-align:center;font-size:10px;line-height:1.4;color:var(--muted)}.preset-field select{min-width:0;width:100%;min-height:34px;padding:5px 7px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;font-size:11px}.core-presets>button{min-height:30px;padding:5px 7px;font-size:11px;background:var(--surface);border-radius:7px}.probe.has-presets.paired-probe>.paired-values{grid-column:1/3}.probe.has-presets.paired-probe>.core-presets{grid-row:2/4}.probe.has-presets>.probe-limit{width:100%}.probe-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr))}@media(max-width:520px){.probe.has-presets{grid-template-columns:minmax(0,1fr) minmax(115px,140px)}.probe.has-presets>.core-presets,.probe.has-presets.paired-probe>.core-presets{grid-column:1/-1;grid-row:4;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;margin:8px 0;padding:10px}.probe.has-presets>.rail,.probe.has-presets.paired-probe>.rail{grid-row:5}.probe.has-presets>.forecast{grid-row:6}.probe.has-presets.paired-probe>.paired-values{grid-column:1/-1}.preset-field select{font-size:13px}.core-presets>button{min-height:36px}.preset-caption{text-align:left}}@media(pointer:coarse){.preset-field select,.core-presets>button{min-height:44px}}
 .header-status footer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;text-align:right}.header-status #device{grid-column:1;grid-row:1;margin:0;align-self:center;justify-self:end}.header-status #bluetooth{grid-column:2;grid-row:1;margin:0;justify-self:end}.header-status #telemetry{grid-column:1/-1;grid-row:2;text-align:right}.header-status #updated{grid-column:1/-1;grid-row:3;text-align:right}
+/* Sammlung: gleicher ruhiger Wertblock wie die Obergrenze, Bedienung nur aufgeklappt. */
+.core-presets{display:block;padding:0;border:0;background:none}.preset-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;gap:3px 5px;min-height:61px;padding:8px 10px;background:var(--raised);border-radius:10px;text-align:center;list-style:none}.preset-summary::-webkit-details-marker{display:none}.preset-summary .preset-caption{grid-column:1/-1;font-size:10px}.preset-value{grid-column:1;font-size:13px;font-weight:550;line-height:1.4;overflow-wrap:anywhere;color:var(--text)}.has-selection .preset-value{font-size:18px;font-variant-numeric:tabular-nums}.preset-name{grid-column:1/-1;grid-row:3;font-size:10px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}.preset-chevron{grid-column:2;grid-row:2;font-size:12px;color:var(--muted)}.core-presets[open] .preset-chevron{transform:rotate(180deg)}.core-presets.read-only .preset-chevron{display:none}.core-presets.read-only summary{cursor:default}.preset-editor{display:grid;gap:7px;margin-top:8px}.core-presets:not([open]) .preset-editor{display:none}.preset-input-label{font-size:10px;color:var(--muted)}.preset-editor>button{min-height:34px;padding:6px;font-size:11px}.preset-field select{font-size:11px}.brand-images{display:flex;flex-direction:column;gap:7px;flex-shrink:0}.brand-image{width:56px;height:62px;max-width:100%;object-fit:contain;flex-shrink:0}.brand-title{min-width:0}@media(max-width:520px){.probe.has-presets>.core-presets,.probe.has-presets.paired-probe>.core-presets{display:block;padding:0;background:none}.preset-summary{min-height:56px}.brand{flex-wrap:wrap}.brand-image{width:40px;height:46px}}@media(pointer:coarse){.preset-editor>button{min-height:44px}}
 </style>
 </head>
 <body>
 <p style="padding:12px 24px;margin:0;font:12px system-ui;color:var(--muted)">Designvorschau · synthetische Testdaten · ohne Geräteverbindung</p>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div class="brand"><span class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div><h1 id="tile-title">Grillstation</h1></div></div>
+    <div class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div>
     <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></section>
     <div class="header-status"><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
   </header>
@@ -45,13 +47,13 @@
     <div id="gauge" class="gauge" aria-label="Temperatur im Verhältnis zur Obergrenze"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">OBERGRENZE</span><strong id="gauge-range">—</strong></div></div>
   </section>
   <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
-  <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title"><h2>Fühlerübersicht</h2><span id="probe-count"></span></div><div id="channels" class="probe-grid"></div></section>
+  <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title"><h2>Fühlerübersicht</h2></div><div id="channels" class="probe-grid"></div></section>
   <section id="pitmasters-section" aria-label="Pitmaster"><div class="section-title"><h2>Pitmaster</h2><span class="subtle">Regelung am Mini V3</span></div><div id="pitmasters" class="pitmaster-grid"></div></section>
 
   <p id="notice" role="status" aria-live="polite" hidden></p>
   <p id="device-error" role="status" hidden></p>
 </main>
-<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793438060,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","displayName":"","temperature":110.5,"valid":true,"wireless":false,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":110.5,"startedAt":1793437459,"points":[[1793437459,110.5],[1793437489,110.5],[1793437519,110.5],[1793437549,110.5],[1793437579,110.5],[1793437609,110.5],[1793437639,110.5],[1793437669,110.5],[1793437699,110.5],[1793437729,110.5],[1793437759,110.5],[1793437789,110.5],[1793437819,110.5],[1793437849,110.5],[1793437879,110.5],[1793437909,110.5],[1793437939,110.5],[1793437969,110.5],[1793437999,110.5],[1793438029,110.5],[1793438059,110.5]]},"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","displayName":"","temperature":60.3,"valid":true,"wireless":true,"max":75,"forecast":{"status":"estimated","seconds":2940,"eta":1793440999,"rate":0.3000000000000001,"progress":0.16949152542372878,"start":57.3,"startedAt":1793437459,"points":[[1793437459,57.3],[1793437489,57.449999999999996],[1793437519,57.599999999999994],[1793437549,57.75],[1793437579,57.9],[1793437609,58.05],[1793437639,58.199999999999996],[1793437669,58.349999999999994],[1793437699,58.5],[1793437729,58.65],[1793437759,58.8],[1793437789,58.949999999999996],[1793437819,59.099999999999994],[1793437849,59.25],[1793437879,59.4],[1793437909,59.55],[1793437939,59.699999999999996],[1793437969,59.849999999999994],[1793437999,60],[1793438029,60.15],[1793438059,60.3]]},"alarm":0,"outOfRange":false,"sensorRole":"core","probeName":"Meater","pairKey":"meater_13"},{"number":14,"name":"MeaterGT","displayName":"","temperature":118.4,"valid":true,"wireless":true,"max":150,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":118.4,"startedAt":1793437459,"points":[[1793437459,118.4],[1793437489,118.4],[1793437519,118.4],[1793437549,118.4],[1793437579,118.4],[1793437609,118.4],[1793437639,118.4],[1793437669,118.4],[1793437699,118.4],[1793437729,118.4],[1793437759,118.4],[1793437789,118.4],[1793437819,118.4],[1793437849,118.4],[1793437879,118.4],[1793437909,118.4],[1793437939,118.4],[1793437969,118.4],[1793437999,118.4],[1793438029,118.4],[1793438059,118.4]]},"alarm":0,"outOfRange":false,"sensorRole":"ambient","probeName":"Meater","pairKey":"meater_13"}],"pitmasters":[{"id":0,"channel":1,"value":0,"set":120,"typ":"off"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"corePresets":[{"name":"Rumpsteak","temperature":57},{"name":"Pulled Pork","temperature":94}],"title":"Grillstation","headerEnabled":true,"headerChannel":1,"headerName":"Grilltemperatur","theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"hero":false,"forecast":true,"forecastChart":true,"controls":true,"primary":13}}</script>
+<script id="initial-state" type="application/json">{"version":1,"enabled":true,"online":true,"active":true,"status":102,"lastUpdate":1793439901,"error":"","bluetoothError":"","unit":"°C","channels":[{"number":1,"name":"Garraum","displayName":"","temperature":110.5,"valid":true,"wireless":false,"max":150,"selectedPreset":null,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":110.5,"startedAt":1793439300,"points":[[1793439300,110.5],[1793439330,110.5],[1793439360,110.5],[1793439390,110.5],[1793439420,110.5],[1793439450,110.5],[1793439480,110.5],[1793439510,110.5],[1793439540,110.5],[1793439570,110.5],[1793439600,110.5],[1793439630,110.5],[1793439660,110.5],[1793439690,110.5],[1793439720,110.5],[1793439750,110.5],[1793439780,110.5],[1793439810,110.5],[1793439840,110.5],[1793439870,110.5],[1793439900,110.5]]},"alarm":0,"outOfRange":false},{"number":13,"name":"MeaterKT","displayName":"","temperature":60.3,"valid":true,"wireless":true,"max":75,"selectedPreset":null,"forecast":{"status":"estimated","seconds":2940,"eta":1793442840,"rate":0.3000000000000001,"progress":0.16949152542372878,"start":57.3,"startedAt":1793439300,"points":[[1793439300,57.3],[1793439330,57.449999999999996],[1793439360,57.599999999999994],[1793439390,57.75],[1793439420,57.9],[1793439450,58.05],[1793439480,58.199999999999996],[1793439510,58.349999999999994],[1793439540,58.5],[1793439570,58.65],[1793439600,58.8],[1793439630,58.949999999999996],[1793439660,59.099999999999994],[1793439690,59.25],[1793439720,59.4],[1793439750,59.55],[1793439780,59.699999999999996],[1793439810,59.849999999999994],[1793439840,60],[1793439870,60.15],[1793439900,60.3]]},"alarm":0,"outOfRange":false,"sensorRole":"core","probeName":"Meater","pairKey":"meater_13"},{"number":14,"name":"MeaterGT","displayName":"","temperature":118.4,"valid":true,"wireless":true,"max":150,"selectedPreset":null,"forecast":{"status":"stalled","seconds":null,"eta":null,"rate":0,"progress":0,"start":118.4,"startedAt":1793439300,"points":[[1793439300,118.4],[1793439330,118.4],[1793439360,118.4],[1793439390,118.4],[1793439420,118.4],[1793439450,118.4],[1793439480,118.4],[1793439510,118.4],[1793439540,118.4],[1793439570,118.4],[1793439600,118.4],[1793439630,118.4],[1793439660,118.4],[1793439690,118.4],[1793439720,118.4],[1793439750,118.4],[1793439780,118.4],[1793439810,118.4],[1793439840,118.4],[1793439870,118.4],[1793439900,118.4]]},"alarm":0,"outOfRange":false,"sensorRole":"ambient","probeName":"Meater","pairKey":"meater_13"}],"pitmasters":[{"id":0,"channel":1,"value":0,"set":120,"typ":"off"},{"id":1,"channel":1,"value":0,"set":120,"typ":"off"}],"bluetooth":true,"device":"MINI-V3","battery":80,"rssi":-45,"canRefresh":true,"canWrite":true,"config":{"brandImages":["",""],"brandLayout":"split","corePresets":[{"name":"Rumpsteak","temperature":57},{"name":"Pulled Pork","temperature":94}],"title":"Grillstation","headerEnabled":true,"headerChannel":1,"headerName":"Grilltemperatur","theme":"dark","accent":"#f48841","compact":false,"details":true,"icons":true,"animations":true,"actionTimeout":37000,"hero":false,"forecast":true,"forecastChart":true,"controls":true,"primary":13}}</script>
 <script>'use strict';
 (() => {
   const $ = id => document.getElementById(id);
@@ -156,15 +158,18 @@
     const max = field('Obergrenze', 'number', -30, 999), submit = node('button', '', 'Obergrenze übernehmen'); submit.type = 'submit';
     form.append(max.wrapper, submit); details.append(summary, form);
     const forecast = forecastElements(ch.number);
-    const presetBox = node('div', 'core-presets'), presetLabel = node('label', 'preset-field'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
-    presetLabel.append(node('span', 'preset-caption', 'Kerntemperatur'), presetSelect); presetApply.type = 'button'; presetBox.append(presetLabel, presetApply);
+    const presetBox = node('details', 'core-presets'), presetSummary = node('summary', 'preset-summary'), presetValue = node('strong', 'preset-value', 'Wählen …'), presetName = node('span', 'preset-name'), presetChevron = node('span', 'preset-chevron', '⌄');
+    presetChevron.setAttribute('aria-hidden', 'true'); presetSummary.append(node('span', 'preset-caption', 'Kerntemperatur'), presetValue, presetName, presetChevron);
+    const presetEditor = node('div', 'preset-editor'), presetLabel = node('label', 'preset-field'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
+    presetLabel.append(node('span', 'preset-input-label', 'Vorlage auswählen'), presetSelect); presetApply.type = 'button'; presetEditor.append(presetLabel, presetApply); presetBox.append(presetSummary, presetEditor);
+    presetSummary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
     presetSelect.setAttribute('aria-label', 'Kerntemperatur-Vorlage für Kanal ' + ch.number);
     const presetKey = item => JSON.stringify([item.name, item.temperature]);
     const selectedPreset = () => (state.config?.corePresets || []).find(item => presetKey(item) === presetSelect.value);
-    presetSelect.addEventListener('change', () => { presetApply.disabled = Boolean(pending) || !state.canWrite || !selectedPreset(); });
+    presetSelect.addEventListener('change', () => { const ui = probes.get(ch.number); if (ui) ui.presetDirty = true; render(); });
     presetApply.addEventListener('click', () => {
       const item = selectedPreset();
-      if (item && !presetApply.disabled && state.canWrite && state.config?.controls) send('channel', {number:ch.number, max:item.temperature});
+      if (item && !presetApply.disabled && state.canWrite && state.config?.controls) send('channel', {number:ch.number, max:item.temperature, preset:item});
     });
     el.append(head, value, label, rail, limits, forecast.el, details, presetBox);
     summary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
@@ -172,7 +177,7 @@
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
     form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
-    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null};
+    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null, presetValue, presetName, presetEditor, presetDirty:false};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -197,6 +202,12 @@
     $('connection').classList.toggle('online', Boolean(active && state.online));
     const channels = active && state.online ? (state.channels || []).filter(ch => ch.valid === true && Number.isFinite(ch.temperature) && ch.temperature !== 999) : [];
     $('tile-title').textContent = cfg.title || 'Grillstation';
+    const images = cfg.brandImages || ['',''], stacked = cfg.brandLayout === 'stacked';
+    const showImage = (id, source) => { const image = $(id); image.hidden = !source; if (source) { if (image.src !== source) image.src = source; } else image.removeAttribute('src'); };
+    showImage('brand-image-1', images[0]); showImage('brand-image-2-stack', stacked ? images[1] : ''); showImage('brand-image-2-after', stacked ? '' : images[1]);
+    $('brand-images').hidden = !images[0] && !(stacked && images[1]);
+    $('brand-default').hidden = Boolean(images[0] || images[1]);
+
     $('grill').setAttribute('aria-label', 'WLANThermo · ' + (cfg.title || 'Grillstation'));
     const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
     const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
@@ -234,7 +245,6 @@
     const cores = new Map(overview.filter(ch => ch.sensorRole === 'core' && ch.pairKey).map(ch => [ch.pairKey, ch]));
     const ambientSensors = new Map(overview.filter(ch => ch.sensorRole === 'ambient' && ch.pairKey).map(ch => [ch.pairKey, ch]));
     const cards = overview.filter(ch => !(ch.sensorRole === 'ambient' && ch.pairKey && cores.has(ch.pairKey)));
-    $('probe-count').textContent = cards.length + ' Fühler · ' + overview.length + (overview.length === 1 ? ' Messwert' : ' Messwerte');
     for (const [number, ui] of probes) if (!cards.some(ch => ch.number === number)) { ui.el.remove(); probes.delete(number); }
     cards.forEach(ch => {
       const ambient = ch.sensorRole === 'core' && ch.pairKey ? ambientSensors.get(ch.pairKey) : null;
@@ -276,6 +286,15 @@
         ui.presetSelect.value = presets.some(item => ui.presetKey(item) === choice) ? choice : '';
         ui.presetSignature = presetSignature;
       }
+      if (!ui.presetDirty) { ui.presetSelect.value = ch.selectedPreset && presets.some(item => ui.presetKey(item) === ui.presetKey(ch.selectedPreset)) ? ui.presetKey(ch.selectedPreset) : ''; }
+      const displayedPreset = ui.selectedPreset();
+      ui.presetValue.textContent = displayedPreset ? fmt(displayedPreset.temperature) + ' ' + state.unit : 'Wählen …';
+      ui.presetName.textContent = displayedPreset?.name || ''; ui.presetName.hidden = !displayedPreset;
+      ui.presetBox.classList.toggle('has-selection', Boolean(displayedPreset));
+      ui.presetBox.classList.toggle('read-only', !editable);
+      ui.presetBox.children[0].setAttribute('aria-disabled', String(!editable));
+      ui.presetEditor.hidden = !editable;
+      if (!editable) ui.presetBox.open = false;
       ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
       ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
       ui.presetSelect.disabled = !editable;
@@ -301,11 +320,12 @@
     try { if (typeof data === 'string') data = JSON.parse(data); if (!data || typeof data !== 'object' || Array.isArray(data)) return;
       if (data.enabled === false) { state = {...state, enabled:false}; if (data.response?.requestId === pending) announce(data.response.message, !data.response.ok); clearTimeout(timeout); pending = null; render(); return; }
       if (data.version !== 1) return;
+      if (data.config && !Object.prototype.hasOwnProperty.call(data.config, 'brandImages')) data.config.brandImages = state.config?.brandImages || ['',''];
       if (data.config?.primary !== state.config?.primary) selected = data.config?.primary || 0;
       state = data;
       if (data.response && data.response.requestId === pending) {
         clearTimeout(timeout); pending = null; announce(data.response.message, !data.response.ok);
-        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) ui.details.open = false; }
+        if (data.response.ok) { for (const ui of pitmasters.values()) delete ui.form.dataset.dirty; for (const ui of probes.values()) { ui.details.open = false; ui.presetBox.open = false; ui.presetDirty = false; } }
       }
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }

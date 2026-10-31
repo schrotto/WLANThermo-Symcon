@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.7.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.8.0"
         },
         {
             "type": "ExpansionPanel",
@@ -335,6 +335,47 @@
                     "type": "ValidationTextBox",
                     "name": "TileTitle",
                     "caption": "Titel der Kachel (z. B. Grillstation)"
+                },
+                {
+                    "type": "SelectFile",
+                    "name": "TileBrandImage1",
+                    "caption": "Titelbild 1 hochladen (PNG/JPEG/GIF/WebP)",
+                    "extensions": ".png,.jpg,.jpeg,.gif,.webp"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileBrandImage1Visible",
+                    "caption": "Titelbild 1 anzeigen"
+                },
+                {
+                    "type": "SelectFile",
+                    "name": "TileBrandImage2",
+                    "caption": "Titelbild 2 hochladen (optional)",
+                    "extensions": ".png,.jpg,.jpeg,.gif,.webp"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TileBrandImage2Visible",
+                    "caption": "Titelbild 2 anzeigen"
+                },
+                {
+                    "type": "Select",
+                    "name": "TileBrandLayout",
+                    "caption": "Anordnung der Titelbilder",
+                    "options": [
+                        {
+                            "caption": "Ein Bild vor und ein Bild hinter dem Titel",
+                            "value": "split"
+                        },
+                        {
+                            "caption": "Beide Bilder untereinander vor dem Titel",
+                            "value": "stacked"
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "caption": "Maximal 256 KiB und 2048 × 2048 Pixel pro Bild. Die Bilder werden in der Instanz gespeichert und direkt in der Kachel angezeigt. Ohne eingeblendete Bilder erscheint das Flammensymbol."
                 },
                 {
                     "type": "CheckBox",

@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.7.0
+# Veröffentlichung – WLANThermo 1.8.0
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -46,3 +46,5 @@ Version 1.6.1: frei einstellbarer Titel und kompakte Kopftemperatur mit wählbar
 Version 1.6.2: größere mittige Kopftemperatur als reine Anzeige, bereinigte Zusatztexte, Gerätestatus oben rechts. Fühlergrenzen oben stets sichtbar mit ausschließlich aufklappbarer Eingabe. 236 PHP-/60 JavaScript-Vertragsprüfungen erfolgreich; echte Clientprüfung offen.
 
 Version 1.7.0 ergänzt eigene Anzeigenamen pro Fühler und eine im Modul editierbare Kerntemperatur-Sammlung. Auswahl schreibt erst nach Übernehmen. Startvorlagen nach Benutzerwunsch, Celsius-/Fahrenheit-Umrechnung, Schreibschutz und MEATER-Rollen berücksichtigt. 245 PHP-/70 JavaScript-Vertragsprüfungen erfolgreich; echte Clientprüfung offen.
+
+Version 1.8.0: persistente bestätigte Vorlagenwahl als geschlossene Wertkachel, zwei optionale lokale Titelbilder mit Anordnung/Sichtbarkeit, entfernte Fühlerzählung. 258 PHP-/78 JavaScript-Vertragsprüfungen erfolgreich. Reale Upload-/IPSView-Prüfung offen.
