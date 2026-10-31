@@ -2,6 +2,26 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.9.0: Zielwarnung und optionale Pushover-Nachrichten
+
+Die Temperatur wird standardmäßig **1 °C vor der Obergrenze rot** und bleibt ab Zielerreichung rot. Im Modul sind **0,5 / 1 / 2 °C Vorlauf** oder ausschließlich Zielerreichung wählbar. Bei Fahrenheit entspricht der Vorlauf derselben Temperaturdifferenz, z. B. 1 °C = 1,8 °F. Optional kann der Wert sanft pulsieren. Animationen aus und reduzierte Bewegung unterdrücken das Pulsieren. Bei MEATER wird nur der Kernwert rot, nicht der Garraummesswert. Ausgeschlossene/ungültige Kanäle, Kopfkanal und MEATER-Garraum gehören nicht zu den Kern-Zielwarnungen.
+
+### Pushover einrichten
+
+1. **Pushover App-/API-Token** und **User-/Gruppenschlüssel** im Modul eintragen. Optional einen einzelnen Pushover-Gerätenamen angeben; leer bedeutet alle Geräte des Empfängers.
+2. **Pushover-Benachrichtigungen aktivieren** einschalten. Vorwarnung und Meldung beim Erreichen sind getrennt wählbar. Der gewählte Vorlauf gilt auch für die Vorwarnung. Pushover ist standardmäßig aus.
+3. In **Fühler in der Kachel** bestimmt der Schalter **Pushover**, welche eingeblendeten Kern-/Einzelfühler melden. Kopfkanal und MEATER-Garraum bleiben ausgenommen. Ein deaktivierter visueller Farbeffekt schaltet den separat aktivierten Nachrichtenversand nicht ab.
+
+Eine Nachricht enthält den eigenen Fühlernamen sowie Ist- und Zielwert, z. B. „Rumpsteak links: Kerntemperatur fast erreicht. Ist 69,5 °C, Ziel 70,0 °C.“ Der Versand erfolgt serverseitig beim erfolgreichen Geräteabruf und benötigt keine geöffnete Visualisierung oder Geräte-Schreibfreigabe. Das Aktivieren kann bereits beim nächsten Abruf eine Meldung auslösen, wenn die Schwelle schon erreicht ist. Es wird kein gesonderter Test-Push beim Speichern gesendet.
+
+Pro Schwelle wird nach bestätigter Annahme nur einmal gemeldet. Der Meldezustand bleibt über Neustarts erhalten. Kurzzeitiges Pendeln löst keine erneuten Meldungen aus. Ein neues Ziel/eine neue Messquelle startet einen neuen Zyklus; alternativ werden die Schwellen nach fünf Minuten durchgehend beobachteter Abkühlung mindestens 2 °C unter den Vorwarnbereich neu freigegeben. Lange Datenlücken unterbrechen diese Abkühlzeit. Wird der Vorwarnbereich zwischen zwei Abrufen übersprungen, folgt direkt die Zielmeldung. Bei mehreren Fühlern erfolgt höchstens ein Versandversuch pro Abruf.
+
+Temporäre Netz-/Serverfehler führen frühestens nach 60 Sekunden zum nächsten Versuch. Eine unklare Antwort kann trotz dieser Begrenzung eine doppelte Zustellung verursachen. Bei API-Ablehnung (4xx oder Status ungleich 1) stoppt die Wiederholung. Schlüssel/Empfänger/Kontingent prüfen und danach **Pushover-Fehler zurücksetzen** verwenden; Änderungen der relevanten Einstellungen erlauben ebenfalls einen neuen Versuch. Der Hinweis steht im Modul und in der Kachel. Versandfehler unterbrechen die Thermometerabfrage nicht. Pushover-Bestätigung bedeutet Annahme durch den Dienst, keine nachgewiesene Handy-Zustellung.
+
+Die optionale Integration sendet Titel, Fühlername und Temperaturwerte über HTTPS an Pushover. Schlüssel bleiben serverseitig und erscheinen nicht in Kacheldaten oder Gerätesnapshot. Transport mit TLS-Prüfung, ohne Weiterleitungen und mit fünf Sekunden Gesamtlaufzeit; normale Priorität. Grundlage ist die [offizielle Pushover-API](https://pushover.net/api). Keine neue Statusvariable notwendig. Echter Versand mit deinem Konto und Clientdarstellung sind noch zu prüfen.
+
+Der Sammlungsblock heißt jetzt **Vorgaben**. Die MEATER-Obergrenze steht rechts unter dem Vorgabenblock. Nach dem Update Kachel/IPSView neu laden.
+
 ## Version 1.8.0: Vorlagen als Wertkachel und eigene Titelbilder
 
 Die Kerntemperatur-Sammlung verwendet jetzt denselben kompakten, aufklappbaren Wertblock wie die Obergrenze. Geschlossen bleiben Temperatur und Name der ausgewählten Vorlage sichtbar. Auswahl und Übernehmen stehen im aufgeklappten Bereich. Erst ein bestätigter Schreib-/Rücklesevorgang speichert die Vorlage pro Fühler in einem Instanzattribut. Danach bleibt sie auch nach erneutem Laden der Kachel bzw. der Modullaufzeit sichtbar. Eine manuelle Grenzänderung, eine nicht mehr passende Obergrenze, eine geänderte Messquelle oder eine entfernte/geänderte Vorlage wird nicht als alte bestätigte Auswahl dargestellt. Eine noch nicht übernommene Auswahl ist nur lokal sichtbar und wird bei einem Neuladen nicht gespeichert.
@@ -174,7 +194,7 @@ Die Kachel passt das Layout per Breite und Höhe an. Kleine Kacheln zeigen vor a
 
 ### Datenfluss und Sicherheit
 
-`GetVisualizationTile()` liefert initial HTML mit eingebettetem CSS, JavaScript und sicher kodiertem JSON. `UpdateVisualizationValue()` sendet anschließend aktuelle, auf die Kachel beschränkte Daten als JSON-Text. `handleMessage()` aktualisiert bestehende Elemente. Es gibt keine JavaScript-Abfrageintervalle und keine externen Schriften, Bibliotheken, Cloud-Dienste oder Webhooks.
+`GetVisualizationTile()` liefert initial HTML mit eingebettetem CSS, JavaScript und sicher kodiertem JSON. `UpdateVisualizationValue()` sendet anschließend aktuelle, auf die Kachel beschränkte Daten als JSON-Text. `handleMessage()` aktualisiert bestehende Elemente. Es gibt keine JavaScript-Abfrageintervalle und keine externen Schriften, Bibliotheken oder Webhooks. Optionale Pushover-Nachrichten ab 1.9.0 verwenden den externen Pushover-Dienst.
 
 `requestAction('TileAction', ...)` sendet strukturierte Aktionen. PHP prüft Aktivierung, Kachelbedienfreigabe, globalen Schreibschutz, sichtbare Kanäle/Pitmaster, Aktion und Parameter. Die vorhandenen geprüften Gerätefunktionen validieren die Werte und lesen Änderungen zurück. Eine Anfragekennung verbindet Rückmeldung und Bedienung; ausstehende Aktionen sind gesperrt. Der einmalige Rückmelde-Timeout folgt dem konfigurierten HTTP-Timeout. Ein Timeout bestätigt oder verwirft keine Geräteänderung: danach zuerst aktualisieren. Allein die Kachelberechtigung erweitert niemals den globalen Schreibzugriff.
 

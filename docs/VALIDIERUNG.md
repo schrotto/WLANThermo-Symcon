@@ -1,6 +1,16 @@
-# Prüfbericht 1.8.0 – 31. Oktober 2026
+# Prüfbericht 1.9.0 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.9.0
+
+284 PHP- und 83 JavaScript-Vertragsprüfungen erfolgreich. Neue Tests in tests/notifications.php verwenden eine kontrollierte Uhr und einen simulierten Pushover-Transport; es wurde keine echte Nachricht versendet. Geprüft sind Vorlauf 1/0,5 °C, exakte Zielerreichung, MEATER-Garraum-Ausschluss, abschaltbarer Farbeffekt, eigener Fühlername/Ist/Ziel, einmalige Vorwarnung und separate Zielmeldung, Pendeln, persistente Zustände, fünf Minuten Abkühlung, Zielwechsel, geheime Schlüssel außerhalb von Snapshot/Visu, Kanalabwahl, versteckte Kanäle, Versandfehler bei weiterhin aktiver Instanz, Pause/Wiederholung, Fahrenheit-Vorlauf und fehlende Schlüssel. Ergänzend: Stopp bei API-Ablehnung und explizites Rücksetzen, globale Netzfehlerpause für andere Fühler sowie getrennte Vorwarnungs-/Zielmeldungsschalter.
+
+JavaScript prüft rote/pulsierende Zustandsklassen, optionale Hauptanzeige, abschaltbares Pulsieren bei verbleibendem Farbeffekt, Wegfall des Alarmzustands, Beschriftung Vorgaben und Versandfehler in der Kachel. Die Farbe/Animation und die nach rechts verschobene MEATER-Grenze sind nicht mit einem echten Browser/IPSView geprüft. Bestehende reduzierte Bewegungs- und Animationsregeln bleiben wirksam.
+
+Native HTTPS-Implementierung anhand der offiziellen Pushover-API geprüft: fester Endpunkt, POST/Formulardaten, TLS-Verifikation, keine Redirects, 3 Sekunden Verbindung/5 Sekunden gesamt. HTTP 4xx und Status != 1 stoppen Wiederholungen bis Korrektur/Rücksetzen. Temporäre Fehler frühestens nach 60 Sekunden erneut; maximal ein Versuch pro Poll. Annahme durch Pushover ist keine Handy-Zustellbestätigung. Bei Antwortverlust ist doppelte Annahme nicht vollständig auszuschließen. Keine Zugangsdaten in Fehler-/Debugtext oder Kachelpayload. Keine neuen Statusvariablen.
+
+Echte Zielprüfung bleibt erforderlich: App-Token und User-Key konfigurieren, eigene Kanalwahl prüfen, Temperatur über beide Schwellen führen, Neustart/Pendeln und geändertes Ziel prüfen, Netzverlust/API-Ablehnung behandeln, Handy-Eingang sowie rote Anzeige/Puls/Bewegung aus am Zielclient kontrollieren.
 
 ## Änderungen und Nachweise 1.8.0
 

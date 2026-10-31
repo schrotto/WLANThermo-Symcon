@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.8.0
+# Vollständiger Quellcode – WLANThermo 1.9.0
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.8.0",
-    "build": 17,
+    "version": "1.9.0",
+    "build": 18,
     "date": 1793404800
 }
 ````
@@ -49,12 +49,14 @@ require_once __DIR__ . '/../libs/Api.php';
 require_once __DIR__ . '/../libs/VariableManagement.php';
 require_once __DIR__ . '/../libs/Visualization.php';
 require_once __DIR__ . '/../libs/Forecast.php';
+require_once __DIR__ . '/../libs/Notifications.php';
 
 class WLANThermo extends IPSModuleStrict
 {
     use WLTVariableManagement;
     use WLTVisualization;
     use WLTForecastSupport;
+    use WLTNotifications;
     public function Create(): void
     {
         parent::Create();
@@ -73,6 +75,7 @@ class WLANThermo extends IPSModuleStrict
         $this->RegisterPropertyString('VariableMode', 'automatic');
         $this->RegisterAttributeString('VariableDefaults', '');
         $this->registerVisualization();
+        $this->registerNotifications();
         foreach (['ShowSystem', 'ShowSettings', 'ShowBluetoothDetails', 'ShowChannelDetails', 'ShowPitmaster', 'ShowDevice'] as $property) {
             $this->RegisterPropertyBoolean($property, true);
         }
@@ -96,6 +99,7 @@ class WLANThermo extends IPSModuleStrict
             ($this->ReadPropertyBoolean('TileFullscreen') && defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN') ? INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN : INSTANCE_VISUALIZATION_TYPE_HTML) : INSTANCE_VISUALIZATION_TYPE_NONE);
         try {
             $this->validateVisualization();
+            $this->validateNotifications();
             $this->selectionOverrides();
             $this->synchronizeReferences();
         } catch (Throwable $e) {
@@ -529,6 +533,7 @@ class WLANThermo extends IPSModuleStrict
         $this->safeSet('Online', true);
         $this->safeSet('LastUpdate', time());
         $this->SetStatus(102);
+        $this->processTargetNotifications($data, $settings);
     }
 
     private function readData(): array
@@ -1001,7 +1006,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.8.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.9.0"
         },
         {
             "type": "ExpansionPanel",
@@ -1496,6 +1501,15 @@ class WLANThermo extends IPSModuleStrict
                             "edit": {
                                 "type": "ValidationTextBox"
                             }
+                        },
+                        {
+                            "name": "Notify",
+                            "caption": "Pushover",
+                            "width": "90px",
+                            "save": true,
+                            "edit": {
+                                "type": "CheckBox"
+                            }
                         }
                     ],
                     "values": []
@@ -1529,6 +1543,83 @@ class WLANThermo extends IPSModuleStrict
                             }
                         }
                     ]
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TargetWarningEnabled",
+                    "caption": "Temperatur kurz vor dem Ziel und ab Zielerreichung rot anzeigen"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TargetWarningBlink",
+                    "caption": "Rote Temperatur zusätzlich sanft pulsieren lassen (abschaltbar über Animationen)"
+                },
+                {
+                    "type": "Select",
+                    "name": "TargetWarningLeadTenths",
+                    "caption": "Vorlauf für rote Anzeige und Vorwarnung (in °C Differenz)",
+                    "options": [
+                        {
+                            "caption": "Nur bei Zielerreichung",
+                            "value": 0
+                        },
+                        {
+                            "caption": "0,5 °C vorher",
+                            "value": 5
+                        },
+                        {
+                            "caption": "1 °C vorher",
+                            "value": 10
+                        },
+                        {
+                            "caption": "2 °C vorher",
+                            "value": 20
+                        }
+                    ]
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "PushoverEnabled",
+                    "caption": "Pushover-Benachrichtigungen aktivieren (Versand an den Pushover-Dienst)"
+                },
+                {
+                    "type": "PasswordTextBox",
+                    "name": "PushoverToken",
+                    "caption": "Pushover App-/API-Token"
+                },
+                {
+                    "type": "PasswordTextBox",
+                    "name": "PushoverUser",
+                    "caption": "Pushover User-/Gruppenschlüssel"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "PushoverDevice",
+                    "caption": "Pushover Gerätename (leer = alle Geräte des Empfängers)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "PushoverNear",
+                    "caption": "Nachricht kurz vor Erreichen der Obergrenze"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "PushoverReached",
+                    "caption": "Nachricht beim Erreichen der Obergrenze"
+                },
+                {
+                    "type": "Label",
+                    "name": "PushoverState",
+                    "caption": "Pushover: ausgeschaltet."
+                },
+                {
+                    "type": "Button",
+                    "caption": "Pushover-Fehler zurücksetzen (erneut beim nächsten Abruf versuchen)",
+                    "onClick": "echo WLT_RetryPushover($id) ? \"Versandsperre zurückgesetzt.\" : \"Instanz ist beschäftigt oder deaktiviert.\";"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Meldungen gelten für gültige, eingeblendete Kern-/Einzelfühler mit aktiviertem Pushover-Schalter in der Kanaltabelle. Kopfkanal und MEATER-Garraum sind ausgeschlossen. Pro Schwelle eine bestätigte Meldung; erneute Aktivierung nach 5 Minuten mindestens 2 °C unterhalb des Vorwarnbereichs oder bei geändertem Ziel. Fehler erscheinen in der Kachel; kein Testversand beim Speichern."
                 },
                 {
                     "type": "Label",
@@ -1803,6 +1894,7 @@ class WLANThermo extends IPSModuleStrict
 .header-status footer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;text-align:right}.header-status #device{grid-column:1;grid-row:1;margin:0;align-self:center;justify-self:end}.header-status #bluetooth{grid-column:2;grid-row:1;margin:0;justify-self:end}.header-status #telemetry{grid-column:1/-1;grid-row:2;text-align:right}.header-status #updated{grid-column:1/-1;grid-row:3;text-align:right}
 /* Sammlung: gleicher ruhiger Wertblock wie die Obergrenze, Bedienung nur aufgeklappt. */
 .core-presets{display:block;padding:0;border:0;background:none}.preset-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;gap:3px 5px;min-height:61px;padding:8px 10px;background:var(--raised);border-radius:10px;text-align:center;list-style:none}.preset-summary::-webkit-details-marker{display:none}.preset-summary .preset-caption{grid-column:1/-1;font-size:10px}.preset-value{grid-column:1;font-size:13px;font-weight:550;line-height:1.4;overflow-wrap:anywhere;color:var(--text)}.has-selection .preset-value{font-size:18px;font-variant-numeric:tabular-nums}.preset-name{grid-column:1/-1;grid-row:3;font-size:10px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}.preset-chevron{grid-column:2;grid-row:2;font-size:12px;color:var(--muted)}.core-presets[open] .preset-chevron{transform:rotate(180deg)}.core-presets.read-only .preset-chevron{display:none}.core-presets.read-only summary{cursor:default}.preset-editor{display:grid;gap:7px;margin-top:8px}.core-presets:not([open]) .preset-editor{display:none}.preset-input-label{font-size:10px;color:var(--muted)}.preset-editor>button{min-height:34px;padding:6px;font-size:11px}.preset-field select{font-size:11px}.brand-images{display:flex;flex-direction:column;gap:7px;flex-shrink:0}.brand-image{width:56px;height:62px;max-width:100%;object-fit:contain;flex-shrink:0}.brand-title{min-width:0}@media(max-width:520px){.probe.has-presets>.core-presets,.probe.has-presets.paired-probe>.core-presets{display:block;padding:0;background:none}.preset-summary{min-height:56px}.brand{flex-wrap:wrap}.brand-image{width:40px;height:46px}}@media(pointer:coarse){.preset-editor>button{min-height:44px}}
+:root{--target-alert:#ff625b}:root[data-theme="light"]{--target-alert:#bf2525}@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--target-alert:#bf2525}}.probe.target-alert:not(.paired-probe)>.probe-value,.probe.target-alert.paired-probe .measurement:first-child .measurement-reading,.hero.target-alert #hero-temperature{color:var(--target-alert)}.probe.target-blink:not(.paired-probe)>.probe-value,.probe.target-blink.paired-probe .measurement:first-child .measurement-reading,.hero.target-blink #hero-temperature{animation:wlt-target-pulse 2s ease-in-out infinite}@keyframes wlt-target-pulse{0%,100%{opacity:1}50%{opacity:.6}}@media(prefers-reduced-motion:reduce){.probe.target-blink>.probe-value,.probe.target-blink .measurement-reading,.hero.target-blink #hero-temperature{animation:none!important}}.probe.has-presets.paired-probe>.core-presets{grid-row:2}.probe.has-presets.paired-probe>.probe-limit{grid-row:3;grid-column:3}.probe.has-presets.paired-probe>.probe-label{grid-row:3;grid-column:1/3}@media(max-width:520px){.probe.has-presets.paired-probe>.probe-limit{grid-column:2;grid-row:3}.probe.has-presets.paired-probe>.probe-label{grid-column:1;grid-row:3}.probe.has-presets.paired-probe>.core-presets{grid-row:4}}
 ````
 
 ## WLANThermo/tile.js
@@ -1913,7 +2005,7 @@ class WLANThermo extends IPSModuleStrict
     form.append(max.wrapper, submit); details.append(summary, form);
     const forecast = forecastElements(ch.number);
     const presetBox = node('details', 'core-presets'), presetSummary = node('summary', 'preset-summary'), presetValue = node('strong', 'preset-value', 'Wählen …'), presetName = node('span', 'preset-name'), presetChevron = node('span', 'preset-chevron', '⌄');
-    presetChevron.setAttribute('aria-hidden', 'true'); presetSummary.append(node('span', 'preset-caption', 'Kerntemperatur'), presetValue, presetName, presetChevron);
+    presetChevron.setAttribute('aria-hidden', 'true'); presetSummary.append(node('span', 'preset-caption', 'Vorgaben'), presetValue, presetName, presetChevron);
     const presetEditor = node('div', 'preset-editor'), presetLabel = node('label', 'preset-field'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
     presetLabel.append(node('span', 'preset-input-label', 'Vorlage auswählen'), presetSelect); presetApply.type = 'button'; presetEditor.append(presetLabel, presetApply); presetBox.append(presetSummary, presetEditor);
     presetSummary.addEventListener('click', event => { if (pending || !state.canWrite || !state.config?.controls) event.preventDefault(); });
@@ -1974,6 +2066,8 @@ class WLANThermo extends IPSModuleStrict
     if (!channels.some(ch => ch.number === selected)) selected = cfg.primary > 0 ? (channels.some(ch => ch.number === cfg.primary) ? cfg.primary : 0) : channels[0]?.number || 0;
     const main = channels.find(ch => ch.number === (cfg.primary > 0 ? cfg.primary : selected));
     $('hero').hidden = !cfg.hero || !main;
+    $('hero').classList.toggle('target-alert', Boolean(main?.targetAlert));
+    $('hero').classList.toggle('target-blink', Boolean(main?.targetAlert && cfg.alertBlink));
     document.body.classList.toggle('has-hero', !$('hero').hidden);
     $('empty-state').hidden = !active || channels.length > 0;
     $('empty-state').textContent = state.online ? 'Keine gültigen Fühlerwerte verfügbar. Nicht angeschlossene Fühler werden automatisch ausgeblendet.' : 'Keine aktuellen Fühlerwerte – Gerät nicht erreichbar oder noch kein erfolgreicher Abruf.';
@@ -2017,6 +2111,8 @@ class WLANThermo extends IPSModuleStrict
         ui.value.replaceChildren(measurement(ch, ambientOnly ? 'Garraumtemperatur' : 'Kerntemperatur'));
         if (ambient) ui.value.append(measurement(ambient, 'Garraumtemperatur'));
       } else ui.value.replaceChildren(document.createTextNode(fmt(ch.valid ? ch.temperature : null)), node('small', '', state.unit));
+      ui.el.classList.toggle('target-alert', Boolean(ch.targetAlert));
+      ui.el.classList.toggle('target-blink', Boolean(ch.targetAlert && cfg.alertBlink));
       ui.rail.classList.toggle('is-running', forecastIsRunning(ch));
       ui.label.textContent = describe(ch); ui.bar.style.width = fraction(ch) * 100 + '%'; ui.rail.setAttribute('aria-label', Number.isFinite(ch.forecast?.progress) ? 'Temperaturfortschritt seit Start: ' + Math.round(ch.forecast.progress * 100) + ' Prozent' : 'Temperatur im Verhältnis zur Obergrenze'); ui.rail.hidden = !Number.isFinite(ch.max) || (ch.max <= 0 && !Number.isFinite(ch.forecast?.progress)); ui.high.textContent = fmt(ch.max) + ' ' + state.unit;
       renderForecast(ui.forecast, ch, cfg);
@@ -2068,7 +2164,7 @@ class WLANThermo extends IPSModuleStrict
     $('telemetry').textContent = [Number.isFinite(state.battery) ? 'Akku ' + fmt(state.battery) + ' %' : '', Number.isFinite(state.rssi) ? 'WLAN ' + fmt(state.rssi) + ' dBm' : ''].filter(Boolean).join(' · ');
     $('updated').textContent = state.lastUpdate ? 'Stand ' + new Date(state.lastUpdate * 1000).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit', second:'2-digit'}) : 'Noch kein erfolgreicher Abruf';
     $('bluetooth').hidden = typeof state.bluetooth !== 'boolean'; $('bluetooth').textContent = 'Bluetooth ' + (state.bluetooth ? 'an' : 'aus'); $('bluetooth').setAttribute('aria-pressed', String(Boolean(state.bluetooth))); $('bluetooth').disabled = !editable || Boolean(state.bluetoothError);
-    $('device-error').textContent = [state.error, cfg.details ? state.bluetoothError : ''].filter(Boolean).join(' · '); $('device-error').hidden = !$('device-error').textContent;
+    $('device-error').textContent = [state.error, state.notificationError, cfg.details ? state.bluetoothError : ''].filter(Boolean).join(' · '); $('device-error').hidden = !$('device-error').textContent;
   }
   window.handleMessage = data => {
     try { if (typeof data === 'string') data = JSON.parse(data); if (!data || typeof data !== 'object' || Array.isArray(data)) return;
@@ -2537,11 +2633,12 @@ trait WLTVisualization
     {
         $choices = $this->tileChannelSelection();
         $displayNames = $this->tileChannelNames();
+        $notify = array_column(json_decode($this->ReadPropertyString('TileChannels'), true), 'Notify', 'Number');
         $names = [];
         foreach ($this->cached('Data')['channel'] ?? [] as $ch) { $names[$ch['number']] = $ch['name']; }
         $rows = [];
         foreach (array_unique(array_merge(array_keys($names), array_keys($choices))) as $number) {
-            $rows[] = ['Number' => $number, 'Name' => $names[$number] ?? 'Zeitweise nicht vorhanden', 'Enabled' => $choices[$number] ?? true, 'DisplayName' => $displayNames[$number] ?? ''];
+            $rows[] = ['Number' => $number, 'Name' => $names[$number] ?? 'Zeitweise nicht vorhanden', 'Enabled' => $choices[$number] ?? true, 'DisplayName' => $displayNames[$number] ?? '', 'Notify' => $notify[$number] ?? true];
         }
         return $rows;
     }
@@ -2549,6 +2646,7 @@ trait WLTVisualization
     private function populatePremiumForm(array &$elements, string $counts): void
     {
         foreach ($elements as &$element) {
+            if (($element['name'] ?? '') === 'PushoverState') { $element['caption'] = 'Pushover: ' . ($this->GetNotificationError() ?: ($this->ReadPropertyBoolean('PushoverEnabled') ? 'aktiviert; Versand erfolgt bei der nächsten passenden Messung.' : 'ausgeschaltet.')); }
             if (($element['name'] ?? '') === 'VariableCounts') { $element['caption'] = $counts; }
             if (($element['name'] ?? '') === 'TileChannels') {
                 try { $element['values'] = $this->tileChannelRows(); } catch (Throwable $e) { $element['values'] = []; }
@@ -2593,14 +2691,14 @@ trait WLTVisualization
             $valid = $online && $this->channelHasValidTemperature($ch, $settings);
             if (!$valid) { continue; }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'displayName' => $names[$ch['number']] ?? '', 'temperature' => $valid ? (float) $ch['temp'] : null,
-                'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null, 'selectedPreset' => $this->rememberedPreset($ch, $data['system']['unit'] ?? 'C'),
+                'targetAlert' => $this->ReadPropertyBoolean('TargetWarningEnabled') ? $this->targetAlertLevel($ch, $data, $settings) : '', 'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null, 'selectedPreset' => $this->rememberedPreset($ch, $data['system']['unit'] ?? 'C'),
                 'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
                 'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']] + ($meater[$ch['number']] ?? []);
         }
         $bt = $this->cached('BluetoothData');
         return ['version' => 1, 'enabled' => $this->ReadPropertyBoolean('TileEnabled'), 'online' => $online,
             'active' => $this->ReadPropertyBoolean('Active'), 'status' => $this->GetStatus(), 'lastUpdate' => $this->stateValue('LastUpdate', 0),
-            'error' => $this->GetLastError(), 'bluetoothError' => $this->stateValue('BluetoothError', ''),
+            'notificationError' => $this->GetNotificationError(), 'error' => $this->GetLastError(), 'bluetoothError' => $this->stateValue('BluetoothError', ''),
             'unit' => ($data['system']['unit'] ?? 'C') === 'F' ? '°F' : '°C', 'channels' => $channels,
             'pitmasters' => $this->ReadPropertyBoolean('TilePitmaster') ? array_values(array_map(static fn(array $pm): array =>
                 array_intersect_key($pm, array_flip(['id', 'typ', 'set', 'value', 'channel'])), $data['pitmaster']['pm'] ?? [])) : [],
@@ -2610,14 +2708,14 @@ trait WLTVisualization
             'rssi' => $this->ReadPropertyBoolean('TileDetails') ? ($data['system']['rssi'] ?? null) : null,
             'canRefresh' => $this->ReadPropertyBoolean('Active'),
             'canWrite' => $online && $this->ReadPropertyBoolean('TileControls') && $this->ReadPropertyBoolean('AllowWrite'),
-            'config' => ['brandImages' => $images, 'brandLayout' => $this->ReadPropertyString('TileBrandLayout'), 'corePresets' => $presets, 'title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
+            'config' => ['alertBlink' => $this->ReadPropertyBoolean('TargetWarningBlink'), 'brandImages' => $images, 'brandLayout' => $this->ReadPropertyString('TileBrandLayout'), 'corePresets' => $presets, 'title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
                 'headerEnabled' => $this->ReadPropertyBoolean('TileHeaderEnabled'), 'headerChannel' => $this->ReadPropertyInteger('TileHeaderChannel'),
                 'headerName' => trim($this->ReadPropertyString('TileHeaderName')) ?: 'Grilltemperatur',
                 'theme' => in_array($this->ReadPropertyString('TileTheme'), ['auto', 'light', 'dark'], true) ? $this->ReadPropertyString('TileTheme') : 'auto',
                 'accent' => sprintf('#%06x', max(0, min(0xffffff, $this->ReadPropertyInteger('TileAccent')))),
                 'compact' => $this->ReadPropertyBoolean('TileCompact'), 'details' => $this->ReadPropertyBoolean('TileDetails'),
                 'icons' => $this->ReadPropertyBoolean('TileIcons'), 'animations' => $this->ReadPropertyBoolean('TileAnimations'),
-                'actionTimeout' => max(35000, $this->ReadPropertyInteger('Timeout') * 7000 + 2000),
+                'actionTimeout' => max(35000, $this->ReadPropertyInteger('Timeout') * 7000 + 2000) + ($this->ReadPropertyBoolean('PushoverEnabled') ? 6000 : 0),
                 'hero' => $this->ReadPropertyBoolean('TileHero'),
                 'forecast' => $this->ReadPropertyBoolean('ForecastEnabled'), 'forecastChart' => $this->ReadPropertyBoolean('ForecastChart'),
                 'controls' => $this->ReadPropertyBoolean('TileControls'), 'primary' => $this->ReadPropertyInteger('TilePrimary')]];
@@ -2883,12 +2981,185 @@ trait WLTForecastSupport
 }
 ````
 
+## libs/Notifications.php
+
+````php
+<?php
+
+declare(strict_types=1);
+
+final class WLTPushoverRejected extends RuntimeException {}
+
+trait WLTNotifications
+{
+    private function registerNotifications(): void
+    {
+        $this->RegisterPropertyBoolean('TargetWarningEnabled', true);
+        $this->RegisterPropertyBoolean('TargetWarningBlink', false);
+        $this->RegisterPropertyInteger('TargetWarningLeadTenths', 10);
+        $this->RegisterPropertyBoolean('PushoverEnabled', false);
+        $this->RegisterPropertyString('PushoverToken', '');
+        $this->RegisterPropertyString('PushoverUser', '');
+        $this->RegisterPropertyString('PushoverDevice', '');
+        $this->RegisterPropertyBoolean('PushoverNear', true);
+        $this->RegisterPropertyBoolean('PushoverReached', true);
+        $this->RegisterAttributeString('TargetNotificationState', '{}');
+        $this->RegisterAttributeString('PushoverBlocked', '');
+        $this->RegisterAttributeString('PushoverRetryAfter', '0');
+    }
+
+    private function validateNotifications(): void
+    {
+        $this->tileChannelSelection();
+        $this->tileChannelNames();
+        if (!in_array($this->ReadPropertyInteger('TargetWarningLeadTenths'), [0,5,10,20], true)) { throw new InvalidArgumentException('Ungültiger Temperaturvorlauf.'); }
+        if ($this->ReadPropertyBoolean('PushoverEnabled')) {
+            foreach (['PushoverToken','PushoverUser'] as $property) {
+                if (!preg_match('/^[A-Za-z0-9]{30}$/D', $this->ReadPropertyString($property))) { throw new InvalidArgumentException('Pushover: gültigen App-Token und User-/Gruppenschlüssel eintragen.'); }
+            }
+            $device = $this->ReadPropertyString('PushoverDevice');
+            if ($device !== '' && !preg_match('/^[A-Za-z0-9_-]{1,25}$/D', $device)) { throw new InvalidArgumentException('Pushover: ungültiger Gerätename.'); }
+        }
+        foreach (json_decode($this->ReadPropertyString('TileChannels'), true, 64, JSON_THROW_ON_ERROR) as $row) {
+            if (array_key_exists('Notify', $row) && !is_bool($row['Notify'])) { throw new InvalidArgumentException('Kanalauswahl für Meldungen muss ein Schalter sein.'); }
+        }
+    }
+
+    /** Ausschließlich aktuelle, freigegebene Kern-/Einzelfühler; Kopf- und MEATER-Garraum ausgeschlossen. */
+    private function targetAlertLevel(array $channel, array $data, array $settings): string
+    {
+        $number = $channel['number'];
+        if (!$this->channelHasValidTemperature($channel, $settings) || !($this->tileChannelSelection()[$number] ?? true) ||
+            ($this->ReadPropertyBoolean('TileHeaderEnabled') && $number === $this->ReadPropertyInteger('TileHeaderChannel')) ||
+            ($this->meaterMetadata($data, $settings)[$number]['sensorRole'] ?? '') === 'ambient' ||
+            !isset($channel['max']) || !is_numeric($channel['max']) || !is_finite((float) $channel['max'])) { return ''; }
+        $lead = $this->ReadPropertyInteger('TargetWarningLeadTenths') / 10 * (($data['system']['unit'] ?? 'C') === 'F' ? 1.8 : 1);
+        if ($channel['temp'] >= $channel['max']) { return 'reached'; }
+        return $lead > 0 && $channel['temp'] >= $channel['max'] - $lead ? 'near' : '';
+    }
+
+    protected function notificationTime(): int { return time(); }
+
+    public function GetNotificationError(): string { return $this->GetBuffer('PushoverError'); }
+
+    public function RetryPushover(): bool
+    {
+        return $this->locked(function (): void {
+            $this->WriteAttributeString('PushoverBlocked', '');
+            $this->WriteAttributeString('PushoverRetryAfter', '0');
+            $state = json_decode($this->ReadAttributeString('TargetNotificationState'), true) ?: [];
+            foreach ($state as &$entry) { $entry['retryAfter'] = 0; }
+            unset($entry);
+            $this->WriteAttributeString('TargetNotificationState', WLTApi::encode($state));
+            $this->SetBuffer('PushoverError', '');
+        }, false);
+    }
+
+    private function processTargetNotifications(array $data, array $settings): void
+    {
+        if (!$this->ReadPropertyBoolean('PushoverEnabled')) { $this->SetBuffer('PushoverError', ''); return; }
+        try { $this->validateNotifications(); }
+        catch (Throwable $e) { $this->SetBuffer('PushoverError', $e->getMessage()); return; }
+        $configKey = hash('sha256', WLTApi::encode([$this->ReadPropertyString('PushoverToken'),$this->ReadPropertyString('PushoverUser'),$this->ReadPropertyString('PushoverDevice'),$this->ReadPropertyString('TileTitle'),$this->ReadPropertyString('TileChannels')]));
+        if ($this->ReadAttributeString('PushoverBlocked') === $configKey) { return; }
+        $retryAfter = (int) $this->ReadAttributeString('PushoverRetryAfter');
+        if ($this->notificationTime() < $retryAfter && $retryAfter - $this->notificationTime() <= 60) { return; }
+        $state = json_decode($this->ReadAttributeString('TargetNotificationState'), true) ?: [];
+        $rows = json_decode($this->ReadPropertyString('TileChannels'), true) ?: [];
+        $notify = array_column($rows, 'Notify', 'Number');
+        $names = $this->tileChannelNames();
+        $now = $this->notificationTime(); $attempted = false;
+        $scale = ($data['system']['unit'] ?? 'C') === 'F' ? 1.8 : 1;
+        foreach ($data['channel'] ?? [] as $channel) {
+            $number = $channel['number'];
+            if (!($notify[$number] ?? true) || !$this->channelHasValidTemperature($channel, $settings) || !isset($channel['max']) || !is_numeric($channel['max']) || !is_finite((float) $channel['max'])) { continue; }
+            $level = $this->targetAlertLevel($channel, $data, $settings);
+            $fingerprint = hash('sha256', WLTApi::encode([$this->presetSource($channel),$data['system']['unit'] ?? 'C',isset($channel['max']) ? (float) $channel['max'] : null,
+                $this->ReadPropertyInteger('TargetWarningLeadTenths'),$this->ReadPropertyString('PushoverToken'),$this->ReadPropertyString('PushoverUser'),$this->ReadPropertyString('PushoverDevice')]));
+            $entry = $state[$number] ?? [];
+            if (($entry['source'] ?? '') !== $fingerprint) { $entry = ['source'=>$fingerprint,'near'=>false,'reached'=>false,'lastAttempt'=>0,'retryAfter'=>0,'coolSince'=>0,'lastSeen'=>$now]; }
+            if ($now < ($entry['lastSeen'] ?? 0)) { $entry['retryAfter'] = 0; }
+            if ($now < ($entry['lastSeen'] ?? 0) || $now - ($entry['lastSeen'] ?? 0) > max(120, $this->ReadPropertyInteger('Interval') * 3)) { $entry['coolSince'] = 0; }
+            $entry['lastSeen'] = $now;
+            $coolLimit = ($channel['max'] ?? -9999) - ($this->ReadPropertyInteger('TargetWarningLeadTenths') / 10 + 2) * $scale;
+            if ($channel['temp'] < $coolLimit) {
+                if (!$entry['coolSince']) { $entry['coolSince'] = $now; }
+                if ($now - $entry['coolSince'] >= 300) { $entry['near'] = $entry['reached'] = false; }
+            } else { $entry['coolSince'] = 0; }
+            $kind = $level === 'reached' && $this->ReadPropertyBoolean('PushoverReached') && !$entry['reached'] ? 'reached' :
+                ($level === 'near' && $this->ReadPropertyBoolean('PushoverNear') && !$entry['near'] && !$entry['reached'] ? 'near' : '');
+            $state[$number] = $entry;
+            if ($kind === '' || $attempted || $now < ($entry['retryAfter'] ?? 0)) { continue; }
+            $attempted = true; $state[$number]['lastAttempt'] = $now; $state[$number]['retryAfter'] = $now + 60;
+            // Vor dem Netzaufruf speichern: auch nach Abbruch gilt die Sendepause.
+            $this->WriteAttributeString('TargetNotificationState', WLTApi::encode($state));
+            $unit = ($data['system']['unit'] ?? 'C') === 'F' ? '°F' : '°C';
+            $format = static fn($value): string => number_format((float) $value, 1, ',', '');
+            $name = $names[$number] ?? $channel['name'];
+            $payload = ['token'=>$this->ReadPropertyString('PushoverToken'),'user'=>$this->ReadPropertyString('PushoverUser'),
+                'title'=>$this->ReadPropertyString('TileTitle') ?: 'WLANThermo',
+                'message'=>$name . ($kind === 'near' ? ': Kerntemperatur fast erreicht. ' : ': Kerntemperatur erreicht. ') .
+                    'Ist ' . $format($channel['temp']) . ' ' . $unit . ', Ziel ' . $format($channel['max']) . ' ' . $unit . '.', 'priority'=>0];
+            if ($this->ReadPropertyString('PushoverDevice') !== '') { $payload['device'] = $this->ReadPropertyString('PushoverDevice'); }
+            try {
+                $reply = $this->pushoverTransport($payload);
+                if (($reply['status'] ?? 0) !== 1) { throw new WLTPushoverRejected('Pushover hat die Nachricht abgewiesen.'); }
+                $state[$number][$kind] = true; $state[$number]['retryAfter'] = 0;
+                if ($kind === 'reached') { $state[$number]['near'] = true; }
+                $this->SetBuffer('PushoverError', '');
+                $this->WriteAttributeString('PushoverRetryAfter', '0');
+            } catch (WLTPushoverRejected $e) {
+                $this->WriteAttributeString('PushoverBlocked', $configKey);
+                $this->SetBuffer('PushoverError', 'Pushover hat den Versand abgewiesen. Schlüssel, Empfänger oder Kontingent prüfen; danach Pushover-Fehler zurücksetzen.');
+            } catch (Throwable $e) {
+                $this->WriteAttributeString('PushoverRetryAfter', (string) ($now + 60));
+                $this->SetBuffer('PushoverError', 'Pushover-Versand fehlgeschlagen; erneuter Versuch frühestens nach 60 Sekunden.');
+            }
+        }
+        $this->WriteAttributeString('TargetNotificationState', WLTApi::encode($state));
+    }
+
+    protected function pushoverTransport(array $payload): array
+    {
+        if (!extension_loaded('curl')) { throw new RuntimeException('Pushover benötigt PHP-cURL.'); }
+        $curl = curl_init('https://api.pushover.net/1/messages.json');
+        curl_setopt_array($curl, [CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query($payload),CURLOPT_RETURNTRANSFER=>true,
+            CURLOPT_HTTPHEADER=>['Content-Type: application/x-www-form-urlencoded'],CURLOPT_CONNECTTIMEOUT=>3,CURLOPT_TIMEOUT=>5,
+            CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,CURLOPT_FOLLOWLOCATION=>false,CURLOPT_PROTOCOLS=>CURLPROTO_HTTPS]);
+        $body = curl_exec($curl); $code = curl_getinfo($curl, CURLINFO_HTTP_CODE); curl_close($curl);
+        if ($code >= 400 && $code < 500) { throw new WLTPushoverRejected('Pushover hat den Versand abgewiesen.'); }
+        if ($body === false || $code < 200 || $code >= 300) { throw new RuntimeException('Pushover-Übertragung fehlgeschlagen.'); }
+        return json_decode($body, true, 32, JSON_THROW_ON_ERROR);
+    }
+}
+````
+
 ## README.md
 
 ````markdown
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.9.0: Zielwarnung und optionale Pushover-Nachrichten
+
+Die Temperatur wird standardmäßig **1 °C vor der Obergrenze rot** und bleibt ab Zielerreichung rot. Im Modul sind **0,5 / 1 / 2 °C Vorlauf** oder ausschließlich Zielerreichung wählbar. Bei Fahrenheit entspricht der Vorlauf derselben Temperaturdifferenz, z. B. 1 °C = 1,8 °F. Optional kann der Wert sanft pulsieren. Animationen aus und reduzierte Bewegung unterdrücken das Pulsieren. Bei MEATER wird nur der Kernwert rot, nicht der Garraummesswert. Ausgeschlossene/ungültige Kanäle, Kopfkanal und MEATER-Garraum gehören nicht zu den Kern-Zielwarnungen.
+
+### Pushover einrichten
+
+1. **Pushover App-/API-Token** und **User-/Gruppenschlüssel** im Modul eintragen. Optional einen einzelnen Pushover-Gerätenamen angeben; leer bedeutet alle Geräte des Empfängers.
+2. **Pushover-Benachrichtigungen aktivieren** einschalten. Vorwarnung und Meldung beim Erreichen sind getrennt wählbar. Der gewählte Vorlauf gilt auch für die Vorwarnung. Pushover ist standardmäßig aus.
+3. In **Fühler in der Kachel** bestimmt der Schalter **Pushover**, welche eingeblendeten Kern-/Einzelfühler melden. Kopfkanal und MEATER-Garraum bleiben ausgenommen. Ein deaktivierter visueller Farbeffekt schaltet den separat aktivierten Nachrichtenversand nicht ab.
+
+Eine Nachricht enthält den eigenen Fühlernamen sowie Ist- und Zielwert, z. B. „Rumpsteak links: Kerntemperatur fast erreicht. Ist 69,5 °C, Ziel 70,0 °C.“ Der Versand erfolgt serverseitig beim erfolgreichen Geräteabruf und benötigt keine geöffnete Visualisierung oder Geräte-Schreibfreigabe. Das Aktivieren kann bereits beim nächsten Abruf eine Meldung auslösen, wenn die Schwelle schon erreicht ist. Es wird kein gesonderter Test-Push beim Speichern gesendet.
+
+Pro Schwelle wird nach bestätigter Annahme nur einmal gemeldet. Der Meldezustand bleibt über Neustarts erhalten. Kurzzeitiges Pendeln löst keine erneuten Meldungen aus. Ein neues Ziel/eine neue Messquelle startet einen neuen Zyklus; alternativ werden die Schwellen nach fünf Minuten durchgehend beobachteter Abkühlung mindestens 2 °C unter den Vorwarnbereich neu freigegeben. Lange Datenlücken unterbrechen diese Abkühlzeit. Wird der Vorwarnbereich zwischen zwei Abrufen übersprungen, folgt direkt die Zielmeldung. Bei mehreren Fühlern erfolgt höchstens ein Versandversuch pro Abruf.
+
+Temporäre Netz-/Serverfehler führen frühestens nach 60 Sekunden zum nächsten Versuch. Eine unklare Antwort kann trotz dieser Begrenzung eine doppelte Zustellung verursachen. Bei API-Ablehnung (4xx oder Status ungleich 1) stoppt die Wiederholung. Schlüssel/Empfänger/Kontingent prüfen und danach **Pushover-Fehler zurücksetzen** verwenden; Änderungen der relevanten Einstellungen erlauben ebenfalls einen neuen Versuch. Der Hinweis steht im Modul und in der Kachel. Versandfehler unterbrechen die Thermometerabfrage nicht. Pushover-Bestätigung bedeutet Annahme durch den Dienst, keine nachgewiesene Handy-Zustellung.
+
+Die optionale Integration sendet Titel, Fühlername und Temperaturwerte über HTTPS an Pushover. Schlüssel bleiben serverseitig und erscheinen nicht in Kacheldaten oder Gerätesnapshot. Transport mit TLS-Prüfung, ohne Weiterleitungen und mit fünf Sekunden Gesamtlaufzeit; normale Priorität. Grundlage ist die [offizielle Pushover-API](https://pushover.net/api). Keine neue Statusvariable notwendig. Echter Versand mit deinem Konto und Clientdarstellung sind noch zu prüfen.
+
+Der Sammlungsblock heißt jetzt **Vorgaben**. Die MEATER-Obergrenze steht rechts unter dem Vorgabenblock. Nach dem Update Kachel/IPSView neu laden.
 
 ## Version 1.8.0: Vorlagen als Wertkachel und eigene Titelbilder
 
@@ -3062,7 +3333,7 @@ Die Kachel passt das Layout per Breite und Höhe an. Kleine Kacheln zeigen vor a
 
 ### Datenfluss und Sicherheit
 
-`GetVisualizationTile()` liefert initial HTML mit eingebettetem CSS, JavaScript und sicher kodiertem JSON. `UpdateVisualizationValue()` sendet anschließend aktuelle, auf die Kachel beschränkte Daten als JSON-Text. `handleMessage()` aktualisiert bestehende Elemente. Es gibt keine JavaScript-Abfrageintervalle und keine externen Schriften, Bibliotheken, Cloud-Dienste oder Webhooks.
+`GetVisualizationTile()` liefert initial HTML mit eingebettetem CSS, JavaScript und sicher kodiertem JSON. `UpdateVisualizationValue()` sendet anschließend aktuelle, auf die Kachel beschränkte Daten als JSON-Text. `handleMessage()` aktualisiert bestehende Elemente. Es gibt keine JavaScript-Abfrageintervalle und keine externen Schriften, Bibliotheken oder Webhooks. Optionale Pushover-Nachrichten ab 1.9.0 verwenden den externen Pushover-Dienst.
 
 `requestAction('TileAction', ...)` sendet strukturierte Aktionen. PHP prüft Aktivierung, Kachelbedienfreigabe, globalen Schreibschutz, sichtbare Kanäle/Pitmaster, Aktion und Parameter. Die vorhandenen geprüften Gerätefunktionen validieren die Werte und lesen Änderungen zurück. Eine Anfragekennung verbindet Rückmeldung und Bedienung; ausstehende Aktionen sind gesperrt. Der einmalige Rückmelde-Timeout folgt dem konfigurierten HTTP-Timeout. Ein Timeout bestätigt oder verwirft keine Geräteänderung: danach zuerst aktualisieren. Allein die Kachelberechtigung erweitert niemals den globalen Schreibzugriff.
 

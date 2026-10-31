@@ -225,38 +225,64 @@ OK 224: Unveränderte Bilder werden nicht bei jedem Live-Update erneut übertrag
 OK 225: Neues Laden der Kachel erhält Bilder unabhängig vom Versandpuffer
 OK 226: Nicht unterstützte Bilddaten werden als Konfigurationsfehler abgefangen
 OK 227: Überdimensionierter Upload wird vor der Bilddekodierung abgefangen
-OK 228: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
-OK 229: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
-OK 230: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
-OK 231: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
-OK 232: Fehlende Obergrenze erzeugt keine Restzeit
-OK 233: Vor drei Minuten wird keine Restzeit ausgegeben
-OK 234: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
-OK 235: Abkühlung erzeugt keine negative Restzeit
-OK 236: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
-OK 237: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
-OK 238: Veraltete Messhistorie wird nicht zur Prognose verwendet
-OK 239: Fühlerwechsel setzt Verlauf und Startpunkt zurück
-OK 240: Längere Unterbrechung startet den Verlauf neu
-OK 241: Großer abrupter Temperatursprung startet einen neuen Verlauf
-OK 242: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
-OK 243: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
-OK 244: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
-OK 245: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
-OK 246: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
-OK 247: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
-OK 248: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
-OK 249: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
-OK 250: Reset erzeugt keine künstliche Messung aus alten Cachewerten
-OK 251: Erst der nächste echte Abruf startet die neue Messreihe
-OK 252: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
-OK 253: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
-OK 254: Ungültiger Fühler verwirft seinen Messverlauf
-OK 255: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
-OK 256: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
-OK 257: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
-OK 258: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
-258 assertions passed.
+OK 228: Unterhalb des Vorwarnbereichs keine rote Anzeige; Pushover standardmäßig aus
+OK 229: Ein Grad vor dem Ziel beginnt die Warnanzeige
+OK 230: Halbgrad-Vorlauf warnt nicht bereits ein Grad vor dem Ziel
+OK 231: Halbgrad-Schwelle wird einschließlich Grenzwert erkannt
+OK 232: Zielerreichung erkannt; MEATER-Garraum bleibt von Kernwarnung ausgenommen
+OK 233: Visuelle Zielwarnung lässt sich abschalten
+OK 234: Vorwarnung enthält eigenen Fühlernamen, Istwert und Zieltemperatur
+OK 235: Wiederholtes Messen oberhalb der Vorwarnschwelle erzeugt keine Nachrichtenflut
+OK 236: Separate Zielmeldung folgt direkt bei Erreichen, ohne künstliche Sendepause nach Erfolg
+OK 237: Kurzes Pendeln um den Zielwert erzeugt keine erneute Meldung
+OK 238: Persistenter Meldezustand verhindert erneuten Versand nach Modullaufzeitwechsel
+OK 239: Nach fünf Minuten deutlicher Abkühlung wird ein neuer Aufheizvorgang wieder gemeldet
+OK 240: Geänderter Zielwert eröffnet einen neuen Meldezyklus
+OK 241: Pushover-Zugangsdaten gelangen weder in Gerätesnapshot noch Kacheldaten
+OK 242: Pushover-Schalter pro Kanal verhindert dessen Nachricht
+OK 243: Ausgeblendeter Fühler sendet keine Zielmeldung
+OK 244: Versandfehler hält Polling aktiv und zeigt nur eine bereinigte Fehlermeldung
+OK 245: Fehlgeschlagener Versand wird nicht sofort bei jedem Poll wiederholt
+OK 246: Nach Sendepause wird erneut versucht und bestätigter Erfolg löscht den Hinweis
+OK 247: Ein Grad Celsius Vorlauf entspricht bei Fahrenheit 1,8 Grad Differenz
+OK 248: Aktiviertes Pushover mit fehlenden Schlüsseln wird als Konfigurationsfehler abgefangen
+OK 249: Pushover-Ablehnung stoppt Wiederholung desselben ungültigen Auftrags auch nach der Sendepause
+OK 250: Explizites Zurücksetzen erlaubt nach behobenem Problem den nächsten regulären Versuch
+OK 251: Netzfehler-Sendepause gilt auch für gleichzeitig wartende andere Fühler
+OK 252: Vorwarnungsversand lässt sich separat abschalten
+OK 253: Zielmeldung bleibt bei abgeschalteter Vorwarnung aktiv
+OK 254: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
+OK 255: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
+OK 256: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
+OK 257: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
+OK 258: Fehlende Obergrenze erzeugt keine Restzeit
+OK 259: Vor drei Minuten wird keine Restzeit ausgegeben
+OK 260: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
+OK 261: Abkühlung erzeugt keine negative Restzeit
+OK 262: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
+OK 263: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
+OK 264: Veraltete Messhistorie wird nicht zur Prognose verwendet
+OK 265: Fühlerwechsel setzt Verlauf und Startpunkt zurück
+OK 266: Längere Unterbrechung startet den Verlauf neu
+OK 267: Großer abrupter Temperatursprung startet einen neuen Verlauf
+OK 268: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
+OK 269: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
+OK 270: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
+OK 271: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
+OK 272: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
+OK 273: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
+OK 274: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
+OK 275: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
+OK 276: Reset erzeugt keine künstliche Messung aus alten Cachewerten
+OK 277: Erst der nächste echte Abruf startet die neue Messreihe
+OK 278: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
+OK 279: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
+OK 280: Ungültiger Fühler verwirft seinen Messverlauf
+OK 281: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
+OK 282: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
+OK 283: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
+OK 284: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
+284 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert
@@ -335,5 +361,10 @@ UI OK 74: Bilder lassen sich untereinander vor dem Titel anordnen
 UI OK 75: Update ohne erneut übertragene Bilddaten erhält die Bilder
 UI OK 76: Ausblenden beider Bilder stellt die Standardflamme wieder her
 UI OK 77: Gelb markierte Fühler-/Messwertzählung ist aus der Kachel entfernt
-UI OK 78: Deaktivierung sperrt die bereits geöffnete Kachel
-78 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 78: Vorwarnstufe aktiviert rote Anzeige und optionalen Puls am Kern sowie im Hauptbereich
+UI OK 79: Sammlung trägt die gewünschte Beschriftung Vorgaben
+UI OK 80: Blinken lässt sich unabhängig von der roten Anzeige ausschalten
+UI OK 81: Rote Anzeige verschwindet bei entfallenem Alarmzustand
+UI OK 82: Pushover-Fehler wird in der Kachel sichtbar
+UI OK 83: Deaktivierung sperrt die bereits geöffnete Kachel
+83 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

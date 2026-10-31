@@ -199,11 +199,12 @@ trait WLTVisualization
     {
         $choices = $this->tileChannelSelection();
         $displayNames = $this->tileChannelNames();
+        $notify = array_column(json_decode($this->ReadPropertyString('TileChannels'), true), 'Notify', 'Number');
         $names = [];
         foreach ($this->cached('Data')['channel'] ?? [] as $ch) { $names[$ch['number']] = $ch['name']; }
         $rows = [];
         foreach (array_unique(array_merge(array_keys($names), array_keys($choices))) as $number) {
-            $rows[] = ['Number' => $number, 'Name' => $names[$number] ?? 'Zeitweise nicht vorhanden', 'Enabled' => $choices[$number] ?? true, 'DisplayName' => $displayNames[$number] ?? ''];
+            $rows[] = ['Number' => $number, 'Name' => $names[$number] ?? 'Zeitweise nicht vorhanden', 'Enabled' => $choices[$number] ?? true, 'DisplayName' => $displayNames[$number] ?? '', 'Notify' => $notify[$number] ?? true];
         }
         return $rows;
     }
@@ -211,6 +212,7 @@ trait WLTVisualization
     private function populatePremiumForm(array &$elements, string $counts): void
     {
         foreach ($elements as &$element) {
+            if (($element['name'] ?? '') === 'PushoverState') { $element['caption'] = 'Pushover: ' . ($this->GetNotificationError() ?: ($this->ReadPropertyBoolean('PushoverEnabled') ? 'aktiviert; Versand erfolgt bei der nächsten passenden Messung.' : 'ausgeschaltet.')); }
             if (($element['name'] ?? '') === 'VariableCounts') { $element['caption'] = $counts; }
             if (($element['name'] ?? '') === 'TileChannels') {
                 try { $element['values'] = $this->tileChannelRows(); } catch (Throwable $e) { $element['values'] = []; }
@@ -255,14 +257,14 @@ trait WLTVisualization
             $valid = $online && $this->channelHasValidTemperature($ch, $settings);
             if (!$valid) { continue; }
             $channels[] = ['number' => $ch['number'], 'name' => (string) $ch['name'], 'displayName' => $names[$ch['number']] ?? '', 'temperature' => $valid ? (float) $ch['temp'] : null,
-                'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null, 'selectedPreset' => $this->rememberedPreset($ch, $data['system']['unit'] ?? 'C'),
+                'targetAlert' => $this->ReadPropertyBoolean('TargetWarningEnabled') ? $this->targetAlertLevel($ch, $data, $settings) : '', 'valid' => $valid, 'wireless' => $wireless, 'max' => $ch['max'] ?? null, 'selectedPreset' => $this->rememberedPreset($ch, $data['system']['unit'] ?? 'C'),
                 'forecast' => $this->channelForecast($ch, ($data['system']['unit'] ?? 'C')),
                 'alarm' => $ch['alarm'] ?? 0, 'outOfRange' => $valid && isset($ch['max']) && $ch['temp'] > $ch['max']] + ($meater[$ch['number']] ?? []);
         }
         $bt = $this->cached('BluetoothData');
         return ['version' => 1, 'enabled' => $this->ReadPropertyBoolean('TileEnabled'), 'online' => $online,
             'active' => $this->ReadPropertyBoolean('Active'), 'status' => $this->GetStatus(), 'lastUpdate' => $this->stateValue('LastUpdate', 0),
-            'error' => $this->GetLastError(), 'bluetoothError' => $this->stateValue('BluetoothError', ''),
+            'notificationError' => $this->GetNotificationError(), 'error' => $this->GetLastError(), 'bluetoothError' => $this->stateValue('BluetoothError', ''),
             'unit' => ($data['system']['unit'] ?? 'C') === 'F' ? '°F' : '°C', 'channels' => $channels,
             'pitmasters' => $this->ReadPropertyBoolean('TilePitmaster') ? array_values(array_map(static fn(array $pm): array =>
                 array_intersect_key($pm, array_flip(['id', 'typ', 'set', 'value', 'channel'])), $data['pitmaster']['pm'] ?? [])) : [],
@@ -272,14 +274,14 @@ trait WLTVisualization
             'rssi' => $this->ReadPropertyBoolean('TileDetails') ? ($data['system']['rssi'] ?? null) : null,
             'canRefresh' => $this->ReadPropertyBoolean('Active'),
             'canWrite' => $online && $this->ReadPropertyBoolean('TileControls') && $this->ReadPropertyBoolean('AllowWrite'),
-            'config' => ['brandImages' => $images, 'brandLayout' => $this->ReadPropertyString('TileBrandLayout'), 'corePresets' => $presets, 'title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
+            'config' => ['alertBlink' => $this->ReadPropertyBoolean('TargetWarningBlink'), 'brandImages' => $images, 'brandLayout' => $this->ReadPropertyString('TileBrandLayout'), 'corePresets' => $presets, 'title' => trim($this->ReadPropertyString('TileTitle')) ?: 'Grillstation',
                 'headerEnabled' => $this->ReadPropertyBoolean('TileHeaderEnabled'), 'headerChannel' => $this->ReadPropertyInteger('TileHeaderChannel'),
                 'headerName' => trim($this->ReadPropertyString('TileHeaderName')) ?: 'Grilltemperatur',
                 'theme' => in_array($this->ReadPropertyString('TileTheme'), ['auto', 'light', 'dark'], true) ? $this->ReadPropertyString('TileTheme') : 'auto',
                 'accent' => sprintf('#%06x', max(0, min(0xffffff, $this->ReadPropertyInteger('TileAccent')))),
                 'compact' => $this->ReadPropertyBoolean('TileCompact'), 'details' => $this->ReadPropertyBoolean('TileDetails'),
                 'icons' => $this->ReadPropertyBoolean('TileIcons'), 'animations' => $this->ReadPropertyBoolean('TileAnimations'),
-                'actionTimeout' => max(35000, $this->ReadPropertyInteger('Timeout') * 7000 + 2000),
+                'actionTimeout' => max(35000, $this->ReadPropertyInteger('Timeout') * 7000 + 2000) + ($this->ReadPropertyBoolean('PushoverEnabled') ? 6000 : 0),
                 'hero' => $this->ReadPropertyBoolean('TileHero'),
                 'forecast' => $this->ReadPropertyBoolean('ForecastEnabled'), 'forecastChart' => $this->ReadPropertyBoolean('ForecastChart'),
                 'controls' => $this->ReadPropertyBoolean('TileControls'), 'primary' => $this->ReadPropertyInteger('TilePrimary')]];

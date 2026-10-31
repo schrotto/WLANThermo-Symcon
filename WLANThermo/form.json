@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.8.0"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.9.0"
         },
         {
             "type": "ExpansionPanel",
@@ -497,6 +497,15 @@
                             "edit": {
                                 "type": "ValidationTextBox"
                             }
+                        },
+                        {
+                            "name": "Notify",
+                            "caption": "Pushover",
+                            "width": "90px",
+                            "save": true,
+                            "edit": {
+                                "type": "CheckBox"
+                            }
                         }
                     ],
                     "values": []
@@ -530,6 +539,83 @@
                             }
                         }
                     ]
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TargetWarningEnabled",
+                    "caption": "Temperatur kurz vor dem Ziel und ab Zielerreichung rot anzeigen"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "TargetWarningBlink",
+                    "caption": "Rote Temperatur zusätzlich sanft pulsieren lassen (abschaltbar über Animationen)"
+                },
+                {
+                    "type": "Select",
+                    "name": "TargetWarningLeadTenths",
+                    "caption": "Vorlauf für rote Anzeige und Vorwarnung (in °C Differenz)",
+                    "options": [
+                        {
+                            "caption": "Nur bei Zielerreichung",
+                            "value": 0
+                        },
+                        {
+                            "caption": "0,5 °C vorher",
+                            "value": 5
+                        },
+                        {
+                            "caption": "1 °C vorher",
+                            "value": 10
+                        },
+                        {
+                            "caption": "2 °C vorher",
+                            "value": 20
+                        }
+                    ]
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "PushoverEnabled",
+                    "caption": "Pushover-Benachrichtigungen aktivieren (Versand an den Pushover-Dienst)"
+                },
+                {
+                    "type": "PasswordTextBox",
+                    "name": "PushoverToken",
+                    "caption": "Pushover App-/API-Token"
+                },
+                {
+                    "type": "PasswordTextBox",
+                    "name": "PushoverUser",
+                    "caption": "Pushover User-/Gruppenschlüssel"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "PushoverDevice",
+                    "caption": "Pushover Gerätename (leer = alle Geräte des Empfängers)"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "PushoverNear",
+                    "caption": "Nachricht kurz vor Erreichen der Obergrenze"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "PushoverReached",
+                    "caption": "Nachricht beim Erreichen der Obergrenze"
+                },
+                {
+                    "type": "Label",
+                    "name": "PushoverState",
+                    "caption": "Pushover: ausgeschaltet."
+                },
+                {
+                    "type": "Button",
+                    "caption": "Pushover-Fehler zurücksetzen (erneut beim nächsten Abruf versuchen)",
+                    "onClick": "echo WLT_RetryPushover($id) ? \"Versandsperre zurückgesetzt.\" : \"Instanz ist beschäftigt oder deaktiviert.\";"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Meldungen gelten für gültige, eingeblendete Kern-/Einzelfühler mit aktiviertem Pushover-Schalter in der Kanaltabelle. Kopfkanal und MEATER-Garraum sind ausgeschlossen. Pro Schwelle eine bestätigte Meldung; erneute Aktivierung nach 5 Minuten mindestens 2 °C unterhalb des Vorwarnbereichs oder bei geändertem Ziel. Fehler erscheinen in der Kachel; kein Testversand beim Speichern."
                 },
                 {
                     "type": "Label",

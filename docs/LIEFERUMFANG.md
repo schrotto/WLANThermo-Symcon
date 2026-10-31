@@ -1,4 +1,4 @@
-# Lieferumfang A–I – WLANThermo 1.8.0
+# Lieferumfang A–I – WLANThermo 1.9.0
 
 ## A. Modulbeschreibung
 
@@ -95,3 +95,5 @@ Version 1.6.2: größere mittige Kopftemperatur als reine Anzeige, bereinigte Zu
 Version 1.7.0 ergänzt eigene Anzeigenamen pro Fühler und eine im Modul editierbare Kerntemperatur-Sammlung. Auswahl schreibt erst nach Übernehmen. Startvorlagen nach Benutzerwunsch, Celsius-/Fahrenheit-Umrechnung, Schreibschutz und MEATER-Rollen berücksichtigt. 245 PHP-/70 JavaScript-Vertragsprüfungen erfolgreich; echte Clientprüfung offen.
 
 Version 1.8.0: persistente bestätigte Vorlagenwahl als geschlossene Wertkachel, zwei optionale lokale Titelbilder mit Anordnung/Sichtbarkeit, entfernte Fühlerzählung. 258 PHP-/78 JavaScript-Vertragsprüfungen erfolgreich. Reale Upload-/IPSView-Prüfung offen.
+
+Version 1.9.0: einstellbare rote Temperaturwarnung, optionaler Puls und Pushover-Nachrichten mit Namen/Ist/Ziel. Pushover standardmäßig aus, externe HTTPS-Datenübertragung nur bei expliziter Aktivierung. Persistenter Meldezustand ohne neue Variablen, Vorwarnung/Ziel getrennt. 284 PHP-/83 JavaScript-Prüfungen erfolgreich; native Pushover-Zustellung und IPSView offen.

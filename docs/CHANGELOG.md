@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.9.0 – 31.10.2026
+
+- Rote Kern-/Fühlertemperatur ab einstellbarem Vorlauf, optional mit sanftem Pulsieren.
+- Optionale Pushover-Vorwarnung/Zielmeldung mit Anzeigename, Ist- und Zielwert; Kanalschalter in der Fühlerliste.
+- Persistente Entprellung, Sendepause, Stopp bei API-Ablehnung, explizite Fehler-Rücksetzung und bereinigter Fehlerhinweis.
+- Vorgaben statt Kerntemperatur als Sammlungstitel; MEATER-Obergrenze nach rechts.
+- 284 PHP- und 83 JavaScript-Vertragsprüfungen erfolgreich; kein echter Pushover-Versand getestet.
+
 ## 1.8.0 – 31.10.2026
 
 - Vorlagenauswahl als aufklappbare Wertkachel analog zur Obergrenze, mit dauerhaft sichtbarem Vorlagennamen/Temperatur.

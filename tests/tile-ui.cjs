@@ -199,6 +199,16 @@ check(!elements['brand-image-1'].hidden, 'Update ohne erneut übertragene Bildda
 data.config.brandImages = ['','']; window.handleMessage(data);
 check(elements['brand-image-1'].hidden && elements['brand-image-2-after'].hidden && elements['brand-images'].hidden && !elements['brand-default'].hidden, 'Ausblenden beider Bilder stellt die Standardflamme wieder her');
 check(!ids.includes('probe-count'), 'Gelb markierte Fühler-/Messwertzählung ist aus der Kachel entfernt');
+data = clone(); data.config.headerEnabled = false; data.config.alertBlink = true; data.config.hero = true; data.channels[1].targetAlert = 'near'; window.handleMessage(data);
+coreCard = elements.channels.children.find(el => el.attrs['aria-label']?.startsWith('Meater,'));
+check(coreCard.className.includes('target-alert') && coreCard.className.includes('target-blink') && elements.hero.className.includes('target-alert'), 'Vorwarnstufe aktiviert rote Anzeige und optionalen Puls am Kern sowie im Hauptbereich');
+check(coreCard.children[7].children[0].textContent.includes('Vorgaben'), 'Sammlung trägt die gewünschte Beschriftung Vorgaben');
+data.config.alertBlink = false; window.handleMessage(data);
+check(coreCard.className.includes('target-alert') && !coreCard.className.includes('target-blink'), 'Blinken lässt sich unabhängig von der roten Anzeige ausschalten');
+data.channels[1].targetAlert = ''; window.handleMessage(data);
+check(!coreCard.className.includes('target-alert'), 'Rote Anzeige verschwindet bei entfallenem Alarmzustand');
+data.notificationError = 'Pushover-Versand fehlgeschlagen'; window.handleMessage(data);
+check(elements['device-error'].textContent.includes('Pushover') && !elements['device-error'].hidden, 'Pushover-Fehler wird in der Kachel sichtbar');
 window.handleMessage({enabled:false});
 check(elements.refresh.disabled && elements.connection.textContent === 'Kachel deaktiviert', 'Deaktivierung sperrt die bereits geöffnete Kachel');
 console.log(count + ' UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.');

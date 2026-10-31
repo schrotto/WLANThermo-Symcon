@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.8.0
+# Veröffentlichung – WLANThermo 1.9.0
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -22,7 +22,7 @@ Bindet den WLANThermo Mini V3 und dessen unterstützte Bluetooth-/MEATER-Fühler
 - Externe Variablen sind ausdrücklich über SelectVariable zugewiesen, typgeprüft und referenziert. Nur deren Werte werden aktualisiert. Keine Einrichtung einer Geräteaktion an externen Variablen.
 - HTML-SDK statt eigener Webhooks oder HTML-Box. Initialdaten sind gegen Script-Ausbruch kodiert; dynamische Namen werden mit textContent eingefügt.
 - Die Kachel erhält nur die benötigten Gerätedaten ohne Zugangsdaten. Jede Aktion ist serverseitig freigabe- und parametergeprüft.
-- Alle Ressourcen stammen aus dem Bibliotheksordner. Keine externen JavaScript-/CSS-Dienste oder Cloud-Konten erforderlich.
+- Alle Ressourcen stammen aus dem Bibliotheksordner. Keine externen JavaScript-/CSS-Dienste erforderlich. Optionale Pushover-Nachrichten ab 1.9.0 benötigen ein Pushover-Konto und senden Daten an diesen externen Dienst.
 - Die Benutzeroberfläche ist deutsch; weitere Store-Sprachen erst mit vollständiger Übersetzung anbieten.
 
 Offizielle Grundlage: [Einreichen und Review](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/store/einreichen/). Testergebnisse und Einschränkungen stehen in VALIDIERUNG.md.
@@ -48,3 +48,5 @@ Version 1.6.2: größere mittige Kopftemperatur als reine Anzeige, bereinigte Zu
 Version 1.7.0 ergänzt eigene Anzeigenamen pro Fühler und eine im Modul editierbare Kerntemperatur-Sammlung. Auswahl schreibt erst nach Übernehmen. Startvorlagen nach Benutzerwunsch, Celsius-/Fahrenheit-Umrechnung, Schreibschutz und MEATER-Rollen berücksichtigt. 245 PHP-/70 JavaScript-Vertragsprüfungen erfolgreich; echte Clientprüfung offen.
 
 Version 1.8.0: persistente bestätigte Vorlagenwahl als geschlossene Wertkachel, zwei optionale lokale Titelbilder mit Anordnung/Sichtbarkeit, entfernte Fühlerzählung. 258 PHP-/78 JavaScript-Vertragsprüfungen erfolgreich. Reale Upload-/IPSView-Prüfung offen.
+
+Version 1.9.0: einstellbare rote Temperaturwarnung, optionaler Puls und Pushover-Nachrichten mit Namen/Ist/Ziel. Pushover standardmäßig aus, externe HTTPS-Datenübertragung nur bei expliziter Aktivierung. Persistenter Meldezustand ohne neue Variablen, Vorwarnung/Ziel getrennt. 284 PHP-/83 JavaScript-Prüfungen erfolgreich; native Pushover-Zustellung und IPSView offen.

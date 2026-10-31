@@ -5,12 +5,14 @@ require_once __DIR__ . '/../libs/Api.php';
 require_once __DIR__ . '/../libs/VariableManagement.php';
 require_once __DIR__ . '/../libs/Visualization.php';
 require_once __DIR__ . '/../libs/Forecast.php';
+require_once __DIR__ . '/../libs/Notifications.php';
 
 class WLANThermo extends IPSModuleStrict
 {
     use WLTVariableManagement;
     use WLTVisualization;
     use WLTForecastSupport;
+    use WLTNotifications;
     public function Create(): void
     {
         parent::Create();
@@ -29,6 +31,7 @@ class WLANThermo extends IPSModuleStrict
         $this->RegisterPropertyString('VariableMode', 'automatic');
         $this->RegisterAttributeString('VariableDefaults', '');
         $this->registerVisualization();
+        $this->registerNotifications();
         foreach (['ShowSystem', 'ShowSettings', 'ShowBluetoothDetails', 'ShowChannelDetails', 'ShowPitmaster', 'ShowDevice'] as $property) {
             $this->RegisterPropertyBoolean($property, true);
         }
@@ -52,6 +55,7 @@ class WLANThermo extends IPSModuleStrict
             ($this->ReadPropertyBoolean('TileFullscreen') && defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN') ? INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN : INSTANCE_VISUALIZATION_TYPE_HTML) : INSTANCE_VISUALIZATION_TYPE_NONE);
         try {
             $this->validateVisualization();
+            $this->validateNotifications();
             $this->selectionOverrides();
             $this->synchronizeReferences();
         } catch (Throwable $e) {
@@ -485,6 +489,7 @@ class WLANThermo extends IPSModuleStrict
         $this->safeSet('Online', true);
         $this->safeSet('LastUpdate', time());
         $this->SetStatus(102);
+        $this->processTargetNotifications($data, $settings);
     }
 
     private function readData(): array
