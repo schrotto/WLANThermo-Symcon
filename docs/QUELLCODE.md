@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.11.1
+# Vollständiger Quellcode – WLANThermo 1.11.2
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.11.1",
-    "build": 23,
+    "version": "1.11.2",
+    "build": 24,
     "date": 1793404800
 }
 ````
@@ -95,8 +95,7 @@ class WLANThermo extends IPSModuleStrict
             $legacy = $this->ReadAttributeString('VariableCatalog') !== '{}' || $this->ReadAttributeString('Dynamic') !== '[]';
             $this->WriteAttributeString('VariableDefaults', $legacy ? 'all' : 'none');
         }
-        $this->SetVisualizationType($this->ReadPropertyBoolean('TileEnabled') ?
-            ($this->ReadPropertyBoolean('TileFullscreen') && defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN') ? INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN : INSTANCE_VISUALIZATION_TYPE_HTML) : INSTANCE_VISUALIZATION_TYPE_NONE);
+        $this->configureVisualizationType();
         try {
             $this->validateVisualization();
             $this->validateNotifications();
@@ -1006,7 +1005,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.1"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.2"
         },
         {
             "type": "ExpansionPanel",
@@ -2496,6 +2495,19 @@ declare(strict_types=1);
 
 trait WLTVisualization
 {
+    private function configureVisualizationType(): void
+    {
+        // Manche Laufzeiten stellen die SDK-Konstanten nicht bereit.
+        // Dokumentierte Werte: 0 = keine individuelle Darstellung, 1 = HTML-SDK.
+        $none = defined('INSTANCE_VISUALIZATION_TYPE_NONE') ? (int) constant('INSTANCE_VISUALIZATION_TYPE_NONE') : 0;
+        $html = defined('INSTANCE_VISUALIZATION_TYPE_HTML') ? (int) constant('INSTANCE_VISUALIZATION_TYPE_HTML') : 1;
+        $type = $this->ReadPropertyBoolean('TileEnabled') ? $html : $none;
+        if ($this->ReadPropertyBoolean('TileEnabled') && $this->ReadPropertyBoolean('TileFullscreen') && defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN')) {
+            $type = (int) constant('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN');
+        }
+        $this->SetVisualizationType($type);
+    }
+
     private function registerVisualization(): void
     {
         $this->RegisterPropertyBoolean('TileEnabled', true);
@@ -2829,6 +2841,8 @@ trait WLTVisualization
     {
         if (!$this->ReadPropertyBoolean('TileEnabled')) {
             $this->UpdateVisualizationValue(WLTApi::encode(['enabled' => false, 'response' => $response]));
+            $this->SetBuffer('VisualizationLast', '');
+            $this->SetBuffer('VisualizationImages', '');
             return;
         }
         $data = $this->visualizationData();
@@ -3246,6 +3260,14 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.11.2: Neuinstallation ohne SDK-Konstanten
+
+Der gemeldete Fehler `Undefined constant "INSTANCE_VISUALIZATION_TYPE_HTML"` beim Übernehmen einer neuen Instanz ist korrigiert. Die Initialisierung prüft die Verfügbarkeit der Visualisierungskonstanten. Fehlen sie, verwendet sie die [offiziell dokumentierten Werte](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setvisualizationtype/) **1 für HTML** und **0 für ausgeschaltet**, ohne globale Konstanten nachzudefinieren. Optionales Vollbild wird weiterhin nur bei vorhandener Vollbild-Konstante verwendet, sonst normales HTML.
+
+Die Testlaufzeit stellt HTML-/NONE-Konstanten jetzt absichtlich nicht bereit. Damit werden Neuinstallation, Vollbild-Rückfall, Abschalten und Wiederaktivierung unter derselben Fehlersituation geprüft. Beim Abschalten werden zusätzlich die Versand-Hashes zurückgesetzt, damit Wiederaktivierung immer vollständige Initialdaten einschließlich Bildern sendet.
+
+Das Update umfasst module.php und libs/Visualization.php; am besten das gesamte Bibliothekspaket aktualisieren. Bei direktem Dateiaustausch Symcon neu starten und anschließend die Instanzänderungen erneut übernehmen. GUIDs, Eigenschaften, Variablen und IDs bleiben erhalten. Ein erneuter Test auf deiner tatsächlichen Neuinstallation ist noch erforderlich.
 
 ## Version 1.11.1: Kopftemperatur exakt mittig
 

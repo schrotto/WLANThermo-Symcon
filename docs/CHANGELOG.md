@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.11.2 – 31.10.2026
+
+- Fatal Error bei Neuinstallation ohne INSTANCE_VISUALIZATION_TYPE_HTML/NONE behoben: geprüfte Konstanten mit dokumentierten numerischen Rückfallwerten.
+- Testlaufzeit definiert diese Konstanten nicht mehr künstlich; Neuinstallation, Vollbild-Rückfall und Abschalten geprüft.
+- Vollständige Daten nach Wiederaktivierung durch Zurücksetzen der Versand-Hashes.
+- 302 PHP- und 110 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.11.1 – 31.10.2026
 
 - Kopftemperatur durch symmetrische Außenspalten exakt zur Gesamtansicht zentriert.

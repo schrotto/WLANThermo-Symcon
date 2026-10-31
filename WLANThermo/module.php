@@ -51,8 +51,7 @@ class WLANThermo extends IPSModuleStrict
             $legacy = $this->ReadAttributeString('VariableCatalog') !== '{}' || $this->ReadAttributeString('Dynamic') !== '[]';
             $this->WriteAttributeString('VariableDefaults', $legacy ? 'all' : 'none');
         }
-        $this->SetVisualizationType($this->ReadPropertyBoolean('TileEnabled') ?
-            ($this->ReadPropertyBoolean('TileFullscreen') && defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN') ? INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN : INSTANCE_VISUALIZATION_TYPE_HTML) : INSTANCE_VISUALIZATION_TYPE_NONE);
+        $this->configureVisualizationType();
         try {
             $this->validateVisualization();
             $this->validateNotifications();

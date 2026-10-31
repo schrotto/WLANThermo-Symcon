@@ -2,6 +2,14 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.2: Neuinstallation ohne SDK-Konstanten
+
+Der gemeldete Fehler `Undefined constant "INSTANCE_VISUALIZATION_TYPE_HTML"` beim Übernehmen einer neuen Instanz ist korrigiert. Die Initialisierung prüft die Verfügbarkeit der Visualisierungskonstanten. Fehlen sie, verwendet sie die [offiziell dokumentierten Werte](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/module/setvisualizationtype/) **1 für HTML** und **0 für ausgeschaltet**, ohne globale Konstanten nachzudefinieren. Optionales Vollbild wird weiterhin nur bei vorhandener Vollbild-Konstante verwendet, sonst normales HTML.
+
+Die Testlaufzeit stellt HTML-/NONE-Konstanten jetzt absichtlich nicht bereit. Damit werden Neuinstallation, Vollbild-Rückfall, Abschalten und Wiederaktivierung unter derselben Fehlersituation geprüft. Beim Abschalten werden zusätzlich die Versand-Hashes zurückgesetzt, damit Wiederaktivierung immer vollständige Initialdaten einschließlich Bildern sendet.
+
+Das Update umfasst module.php und libs/Visualization.php; am besten das gesamte Bibliothekspaket aktualisieren. Bei direktem Dateiaustausch Symcon neu starten und anschließend die Instanzänderungen erneut übernehmen. GUIDs, Eigenschaften, Variablen und IDs bleiben erhalten. Ein erneuter Test auf deiner tatsächlichen Neuinstallation ist noch erforderlich.
+
 ## Version 1.11.1: Kopftemperatur exakt mittig
 
 Die obere Temperaturkachel ist auf breiten Ansichten zur gesamten Visualisierung zentriert. Gleich breite äußere Kopfspalten ersetzen die zuvor asymmetrische Aufteilung. Auf schmalen Ansichten bleibt die eigene, zentrierte Zeile erhalten. Nach dem Update Kachel/IPSView neu laden.

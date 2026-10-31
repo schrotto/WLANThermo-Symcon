@@ -123,180 +123,184 @@ OK 122: Polling does not overwrite later manual name or position changes
 OK 123: Manual refresh handles malformed saved selection without uncaught exception
 OK 124: Reject duplicate channel numbers
 OK 125: Neuinstallation sammelt Daten ohne eine einzige Statusvariable
-OK 126: Symcon 9.0 verwendet den unterstützten HTML-Typ
-OK 127: Kachel erhält echte Daten ohne Statusvariablen
-OK 128: Kachelkonfiguration und Daten enthalten keine Zugangsdaten
-OK 129: Empfohlene Auswahl wird nur vorbereitet: Online plus Temperatur und Gültigkeit pro Kanal
-OK 130: Übernehmen legt ausschließlich die sieben empfohlenen Variablen an
-OK 131: Abwahl erhält alte Variablen ausgeblendet
-OK 132: Löschfunktion verweigert Entfernen ohne ausdrückliche Bestätigung
-OK 133: Bestätigte Bereinigung entfernt nur ungenutzte eigene Variablen; Polling bleibt aktiv
-OK 134: Bereinigte deaktivierte Variablen werden beim Polling nicht erneut angelegt
-OK 135: Empfohlener Standard gilt auch für neu erkannte Felder
-OK 136: Update bewahrt den bisherigen Variablenumfang und alle IDs
-OK 137: Vorhandene Float-Zielvariable erhält Daten ohne doppelte Modulvariable
-OK 138: Vorhandene Zielvariable wird als Referenz registriert
-OK 139: Falscher Datentyp einer vorhandenen Variable wird abgewiesen
-OK 140: Schreibgeschützte Variablen anderer Module werden abgewiesen
-OK 141: Doppelte aktive Zielzuordnung wird abgewiesen
-OK 142: Nicht vorhandene Zielvariable wird abgewiesen
-OK 143: Entfernte Zuordnung löst die Referenz
-OK 144: Kachel ändert die Obergrenze mit Rücklesebestätigung ohne Statusvariablen
-OK 145: Kachel wechselt Pitmaster-Modus und Sollwert gemeinsam
-OK 146: Kachel stellt manuellen Stellwert ein
-OK 147: Kachel schaltet Bluetooth mit tatsächlichem Rücklesen
-OK 148: Manipulierte Kachelanfrage umgeht den globalen Schreibschutz nicht
-OK 149: Manuelles Aktualisieren funktioniert auch im Lesemodus
-OK 150: Deaktivierte Kachelbedienung wird serverseitig erzwungen
-OK 151: Ausgeblendete Kachelkanäle werden weder übertragen noch über die Kachel bedient
-OK 152: Kachelparameter durchlaufen dieselbe serverseitige Ganzgradvalidierung
-OK 153: Unbekannte Kachelparameter werden zurückgewiesen
-OK 154: Offline-Kachel zeigt ungültige Messwerte und gesperrte Bedienung
-OK 155: Live-Aktualisierung erholt sich automatisch ohne Kachelneuladen
-OK 156: Initiale Gerätedaten sind sicher gegen Script-Ausbruch kodiert
-OK 157: Deaktivierte Kachel liefert kein HTML und nimmt keine Aktionen an
-OK 158: Standardtyp bleibt auch auf neueren Laufzeiten für IPSView TileHtml geeignet
-OK 159: Laufzeit mit dem dokumentierten Vollbildtyp verwendet dieselbe responsive HTML-Kachel
-OK 160: Vollständig bedienbare Vorschaukachel benötigt null zusätzliche Variablen
-OK 161: Alle Live-Kachelnachrichten werden als JSON-Text an die native SDK-Grenze übergeben
-OK 162: Auch Deaktivierung und Fehlerquittierung verwenden JSON-Text
-OK 163: Instanz lässt sich ohne Host und ohne Statusvariablen fehlerfrei initialisieren
-OK 164: Unkonfigurierte Instanz überträgt den Diagnosezustand als JSON-Text
-OK 165: Deaktivierte Instanz initialisiert sich ebenfalls ohne Wertkonvertierungsfehler
-OK 166: Große Hauptanzeige ist standardmäßig ausgeschaltet
-OK 167: Fehlerwert 999 und getrennter Bluetooth-Fühler werden nicht an die Visu übertragen
-OK 168: Ausblenden verändert keine bestehenden Variablen-IDs oder Gültigkeitsmerkmale
-OK 169: Ungültiger Fühler wird auch bei direkter Kachelanfrage nicht bedient
-OK 170: Wieder angeschlossene Fühler kehren zurück; kabelgebundener Nullgradwert bleibt gültig
-OK 171: Optionale Hauptanzeige und fester Garraumkanal werden gespeichert und übertragen
-OK 172: Bei Geräteausfall werden alle ungültigen Fühler aus der Visu entfernt
-OK 173: Fühleranzeige erholt sich nach Geräteausfall automatisch
-OK 174: Obergrenzenänderung über die Kachel erhält die Untergrenze am Gerät
-OK 175: Kachel schreibt ausschließlich die Obergrenze
-OK 176: Kacheldaten enthalten keinen Min-Wert mehr
-OK 177: Veraltete Kachelanfrage kann keinen Min-Wert verändern
-OK 178: Untergrenzenalarm wird in der Visu nicht als Obergrenzenüberschreitung angezeigt
-OK 179: Frisch gelesene kollidierende Untergrenze wird automatisch auf neue Obergrenze minus ein Grad gesetzt
-OK 180: Beide Grenzen werden gemeinsam im selben Gerätezugriff geschrieben
-OK 181: Kachel bestätigt die automatische Untergrenzenanpassung verständlich
-OK 182: Am unteren API-Limit wird die Untergrenze gleich der Obergrenze statt auf ungültige minus 31 Grad gesetzt
-OK 183: Bereits gleiche Grenzen lösen keine unnötige automatische Anpassung aus
-OK 184: Automatische Untergrenzenanpassung umgeht keinen Schreibschutz
-OK 185: Allgemeine Skriptfunktion bleibt strikt und ändert die Untergrenze nicht stillschweigend
-OK 186: Ungültige Dezimalwerte werden vor einer automatischen Anpassung abgewiesen
-OK 187: Nicht übernommene Grenzanpassung wird durch das Rücklesen erkannt und nicht als Erfolg bestätigt
-OK 188: MeaterKT/MeaterGT erhalten gemeinsame Paar-ID und eindeutige Messstellenrollen
-OK 189: Manipulierte Kachelanfrage kann MEATER-Garraumgrenze nicht schreiben
-OK 190: Visu-Beschriftung benennt Gerätekanäle nicht ungefragt um
-OK 191: Unterschiedliche MEATER-Namen werden nicht automatisch gepaart
-OK 192: Anonyme Bluetooth-Kanäle werden nicht anhand von Nummern oder Nachbarschaft erraten
-OK 193: Explizite Zuordnung gruppiert auch frei benannte Bluetooth-Kanäle
-OK 194: Ausgeblendeter MEATER-Garraum bleibt auch in der gemeinsamen Kachel unsichtbar
-OK 195: Ungültiger Kern lässt gültigen Garraumsensor mit richtiger Rolle erhalten
-OK 196: Doppelte Zuordnung eines MEATER-Kanals wird als Konfigurationsfehler abgewiesen
-OK 197: Ein Kanal kann nicht zugleich Kern und Garraum sein
-OK 198: Leerer MEATER-Anzeigename wird abgefangen
-OK 199: Doppelte Kerntemperaturnamen verhindern eine mehrdeutige automatische Paarung
-OK 200: Neue Kopfanzeige verwendet frei einstellbaren Titel und Kanal 1 als Standard
-OK 201: Titel, Beschriftung und gewählter Kopfkanal werden aus der Instanzkonfiguration übertragen
-OK 202: Kopfanzeige erhält keinen in der Kanalauswahl gesperrten Messwert
-OK 203: Ungültiger Kopfkanal wird als Konfigurationsfehler abgefangen
-OK 204: Überlanger Kacheltitel wird abgefangen
-OK 205: Leere Namen verwenden Standardbeschriftungen ohne zusätzliche Statusvariablen
-OK 206: Kerntemperatur-Sammlung übernimmt die gewünschten Startvorlagen
-OK 207: Eigener Anzeigename erhält Gerätenamen und eindeutige MEATER-Paarung
-OK 208: Dynamische Kanaltabelle lädt den gespeicherten Anzeigenamen erneut
-OK 209: Celsius-Sammlung wird in Fahrenheit umgerechnet
-OK 210: Umgerechnete Vorlage wird über den geprüften Kanalpfad geschrieben und bestätigt
-OK 211: Leere Sammlung benötigt keine Variablen und überträgt keine Vorlagen
-OK 212: Vorlage ohne Namen wird als Konfigurationsfehler abgefangen
-OK 213: Nicht ganzzahlige Vorlagentemperatur wird vor Gerätezugriff abgefangen
-OK 214: Ungültiger Anzeigename wird abgefangen
-OK 215: Bestätigte Vorlage wird je Fühler gespeichert und in der Antwort angezeigt
-OK 216: Gespeicherte Vorlage bleibt beim nächsten Geräteabruf erhalten
-OK 217: Neue Modullaufzeit stellt bestätigte Auswahl aus persistentem Attribut wieder her
-OK 218: Widersprüchliche Vorlage und Obergrenze lösen keinen Schreibauftrag aus
-OK 219: Extern veränderte Obergrenze wird nicht weiter als alte Vorlage angezeigt
-OK 220: Geänderte Messquelle übernimmt keine alte gespeicherte Vorlage
-OK 221: Entfernte Sammlung hebt gespeicherte Vorlagenanzeige auf
-OK 222: Zwei lokale Bild-Uploads werden als geprüfte PNG-Daten eingebunden
-OK 223: Ausblenden erhält das hochgeladene Bild in der Instanz
-OK 224: Unveränderte Bilder werden nicht bei jedem Live-Update erneut übertragen
-OK 225: Neues Laden der Kachel erhält Bilder unabhängig vom Versandpuffer
-OK 226: Nicht unterstützte Bilddaten werden als Konfigurationsfehler abgefangen
-OK 227: Überdimensionierter Upload wird vor der Bilddekodierung abgefangen
-OK 228: Unterhalb des Vorwarnbereichs keine rote Anzeige; Pushover standardmäßig aus
-OK 229: Ein Grad vor dem Ziel beginnt die Warnanzeige
-OK 230: Halbgrad-Vorlauf warnt nicht bereits ein Grad vor dem Ziel
-OK 231: Halbgrad-Schwelle wird einschließlich Grenzwert erkannt
-OK 232: Zielerreichung erkannt; MEATER-Garraum bleibt von Kernwarnung ausgenommen
-OK 233: Visuelle Zielwarnung lässt sich abschalten
-OK 234: Vorwarnung enthält eigenen Fühlernamen, Istwert und Zieltemperatur
-OK 235: Wiederholtes Messen oberhalb der Vorwarnschwelle erzeugt keine Nachrichtenflut
-OK 236: Separate Zielmeldung folgt direkt bei Erreichen, ohne künstliche Sendepause nach Erfolg
-OK 237: Kurzes Pendeln um den Zielwert erzeugt keine erneute Meldung
-OK 238: Persistenter Meldezustand verhindert erneuten Versand nach Modullaufzeitwechsel
-OK 239: Nach fünf Minuten deutlicher Abkühlung wird ein neuer Aufheizvorgang wieder gemeldet
-OK 240: Geänderter Zielwert eröffnet einen neuen Meldezyklus
-OK 241: Pushover-Zugangsdaten gelangen weder in Gerätesnapshot noch Kacheldaten
-OK 242: Pushover-Schalter pro Kanal verhindert dessen Nachricht
-OK 243: Ausgeblendeter Fühler sendet keine Zielmeldung
-OK 244: Versandfehler hält Polling aktiv und zeigt nur eine bereinigte Fehlermeldung
-OK 245: Fehlgeschlagener Versand wird nicht sofort bei jedem Poll wiederholt
-OK 246: Nach Sendepause wird erneut versucht und bestätigter Erfolg löscht den Hinweis
-OK 247: Ein Grad Celsius Vorlauf entspricht bei Fahrenheit 1,8 Grad Differenz
-OK 248: Aktiviertes Pushover mit fehlenden Schlüsseln wird als Konfigurationsfehler abgefangen
-OK 249: Pushover-Ablehnung stoppt Wiederholung desselben ungültigen Auftrags auch nach der Sendepause
-OK 250: Explizites Zurücksetzen erlaubt nach behobenem Problem den nächsten regulären Versuch
-OK 251: Netzfehler-Sendepause gilt auch für gleichzeitig wartende andere Fühler
-OK 252: Vorwarnungsversand lässt sich separat abschalten
-OK 253: Zielmeldung bleibt bei abgeschalteter Vorwarnung aktiv
-OK 254: Leiste enthält ausschließlich gültige kabelgebundene Fühler ohne separat angezeigten Kopfkanal
-OK 255: Ausblenden funktioniert im Geräte-Schreibschutz ohne HTTP-Abruf oder Geräteänderung
-OK 256: Verborgene Kachel entfällt aus Daten, ihr Button bleibt zum Einblenden erhalten
-OK 257: Gespeicherte Auswahl bleibt nach erneutem Laden der Modullaufzeit erhalten
-OK 258: Versteckter Fühler kann nicht über eine veraltete Kachelanfrage verstellt werden
-OK 259: Wiedereinblenden stellt die ursprüngliche Kachel wieder her
-OK 260: Bluetooth-Kanäle können durch die Drahtfühlerleiste nicht versteckt werden
-OK 261: Kopfkanal bleibt unabhängig von der unteren Fühlerleiste
-OK 262: Im Modul gesperrter Kanal wird durch die Leiste nicht wieder freigegeben
-OK 263: Ungültiger Sichtbarkeitstyp wird abgewiesen
-OK 264: Ansichtsschalter nimmt keine zusätzlichen Geräteparameter an
-OK 265: Auswahl eines anderen Geräts übernimmt nicht die alte Ausblendung
-OK 266: Als Kopftemperatur gewählter Fühler wird trotz früherer Ausblendung wieder angezeigt
-OK 267: Nicht benötigter ausgeblendeter Drahtfühler erzeugt keine Pushover-Zielnachricht
-OK 268: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
-OK 269: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
-OK 270: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
-OK 271: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
-OK 272: Fehlende Obergrenze erzeugt keine Restzeit
-OK 273: Vor drei Minuten wird keine Restzeit ausgegeben
-OK 274: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
-OK 275: Abkühlung erzeugt keine negative Restzeit
-OK 276: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
-OK 277: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
-OK 278: Veraltete Messhistorie wird nicht zur Prognose verwendet
-OK 279: Fühlerwechsel setzt Verlauf und Startpunkt zurück
-OK 280: Längere Unterbrechung startet den Verlauf neu
-OK 281: Großer abrupter Temperatursprung startet einen neuen Verlauf
-OK 282: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
-OK 283: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
-OK 284: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
-OK 285: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
-OK 286: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
-OK 287: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
-OK 288: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
-OK 289: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
-OK 290: Reset erzeugt keine künstliche Messung aus alten Cachewerten
-OK 291: Erst der nächste echte Abruf startet die neue Messreihe
-OK 292: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
-OK 293: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
-OK 294: Ungültiger Fühler verwirft seinen Messverlauf
-OK 295: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
-OK 296: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
-OK 297: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
-OK 298: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
-298 assertions passed.
+OK 126: Symcon verwendet den dokumentierten HTML-Typ auch ohne benannte SDK-Konstante
+OK 127: Neuinstallation wird ohne künstlich bereitgestellte SDK-Konstanten geprüft
+OK 128: Optionales Vollbild fällt ohne Vollbildkonstante auf HTML zurück
+OK 129: Deaktivieren funktioniert auch ohne NONE-Konstante
+OK 130: Wiederaktivierung sendet vollständige Kacheldaten statt eines alten Deaktivierungszustands
+OK 131: Kachel erhält echte Daten ohne Statusvariablen
+OK 132: Kachelkonfiguration und Daten enthalten keine Zugangsdaten
+OK 133: Empfohlene Auswahl wird nur vorbereitet: Online plus Temperatur und Gültigkeit pro Kanal
+OK 134: Übernehmen legt ausschließlich die sieben empfohlenen Variablen an
+OK 135: Abwahl erhält alte Variablen ausgeblendet
+OK 136: Löschfunktion verweigert Entfernen ohne ausdrückliche Bestätigung
+OK 137: Bestätigte Bereinigung entfernt nur ungenutzte eigene Variablen; Polling bleibt aktiv
+OK 138: Bereinigte deaktivierte Variablen werden beim Polling nicht erneut angelegt
+OK 139: Empfohlener Standard gilt auch für neu erkannte Felder
+OK 140: Update bewahrt den bisherigen Variablenumfang und alle IDs
+OK 141: Vorhandene Float-Zielvariable erhält Daten ohne doppelte Modulvariable
+OK 142: Vorhandene Zielvariable wird als Referenz registriert
+OK 143: Falscher Datentyp einer vorhandenen Variable wird abgewiesen
+OK 144: Schreibgeschützte Variablen anderer Module werden abgewiesen
+OK 145: Doppelte aktive Zielzuordnung wird abgewiesen
+OK 146: Nicht vorhandene Zielvariable wird abgewiesen
+OK 147: Entfernte Zuordnung löst die Referenz
+OK 148: Kachel ändert die Obergrenze mit Rücklesebestätigung ohne Statusvariablen
+OK 149: Kachel wechselt Pitmaster-Modus und Sollwert gemeinsam
+OK 150: Kachel stellt manuellen Stellwert ein
+OK 151: Kachel schaltet Bluetooth mit tatsächlichem Rücklesen
+OK 152: Manipulierte Kachelanfrage umgeht den globalen Schreibschutz nicht
+OK 153: Manuelles Aktualisieren funktioniert auch im Lesemodus
+OK 154: Deaktivierte Kachelbedienung wird serverseitig erzwungen
+OK 155: Ausgeblendete Kachelkanäle werden weder übertragen noch über die Kachel bedient
+OK 156: Kachelparameter durchlaufen dieselbe serverseitige Ganzgradvalidierung
+OK 157: Unbekannte Kachelparameter werden zurückgewiesen
+OK 158: Offline-Kachel zeigt ungültige Messwerte und gesperrte Bedienung
+OK 159: Live-Aktualisierung erholt sich automatisch ohne Kachelneuladen
+OK 160: Initiale Gerätedaten sind sicher gegen Script-Ausbruch kodiert
+OK 161: Deaktivierte Kachel liefert kein HTML und nimmt keine Aktionen an
+OK 162: Standardtyp bleibt auch auf neueren Laufzeiten für IPSView TileHtml geeignet
+OK 163: Laufzeit mit dem dokumentierten Vollbildtyp verwendet dieselbe responsive HTML-Kachel
+OK 164: Vollständig bedienbare Vorschaukachel benötigt null zusätzliche Variablen
+OK 165: Alle Live-Kachelnachrichten werden als JSON-Text an die native SDK-Grenze übergeben
+OK 166: Auch Deaktivierung und Fehlerquittierung verwenden JSON-Text
+OK 167: Instanz lässt sich ohne Host und ohne Statusvariablen fehlerfrei initialisieren
+OK 168: Unkonfigurierte Instanz überträgt den Diagnosezustand als JSON-Text
+OK 169: Deaktivierte Instanz initialisiert sich ebenfalls ohne Wertkonvertierungsfehler
+OK 170: Große Hauptanzeige ist standardmäßig ausgeschaltet
+OK 171: Fehlerwert 999 und getrennter Bluetooth-Fühler werden nicht an die Visu übertragen
+OK 172: Ausblenden verändert keine bestehenden Variablen-IDs oder Gültigkeitsmerkmale
+OK 173: Ungültiger Fühler wird auch bei direkter Kachelanfrage nicht bedient
+OK 174: Wieder angeschlossene Fühler kehren zurück; kabelgebundener Nullgradwert bleibt gültig
+OK 175: Optionale Hauptanzeige und fester Garraumkanal werden gespeichert und übertragen
+OK 176: Bei Geräteausfall werden alle ungültigen Fühler aus der Visu entfernt
+OK 177: Fühleranzeige erholt sich nach Geräteausfall automatisch
+OK 178: Obergrenzenänderung über die Kachel erhält die Untergrenze am Gerät
+OK 179: Kachel schreibt ausschließlich die Obergrenze
+OK 180: Kacheldaten enthalten keinen Min-Wert mehr
+OK 181: Veraltete Kachelanfrage kann keinen Min-Wert verändern
+OK 182: Untergrenzenalarm wird in der Visu nicht als Obergrenzenüberschreitung angezeigt
+OK 183: Frisch gelesene kollidierende Untergrenze wird automatisch auf neue Obergrenze minus ein Grad gesetzt
+OK 184: Beide Grenzen werden gemeinsam im selben Gerätezugriff geschrieben
+OK 185: Kachel bestätigt die automatische Untergrenzenanpassung verständlich
+OK 186: Am unteren API-Limit wird die Untergrenze gleich der Obergrenze statt auf ungültige minus 31 Grad gesetzt
+OK 187: Bereits gleiche Grenzen lösen keine unnötige automatische Anpassung aus
+OK 188: Automatische Untergrenzenanpassung umgeht keinen Schreibschutz
+OK 189: Allgemeine Skriptfunktion bleibt strikt und ändert die Untergrenze nicht stillschweigend
+OK 190: Ungültige Dezimalwerte werden vor einer automatischen Anpassung abgewiesen
+OK 191: Nicht übernommene Grenzanpassung wird durch das Rücklesen erkannt und nicht als Erfolg bestätigt
+OK 192: MeaterKT/MeaterGT erhalten gemeinsame Paar-ID und eindeutige Messstellenrollen
+OK 193: Manipulierte Kachelanfrage kann MEATER-Garraumgrenze nicht schreiben
+OK 194: Visu-Beschriftung benennt Gerätekanäle nicht ungefragt um
+OK 195: Unterschiedliche MEATER-Namen werden nicht automatisch gepaart
+OK 196: Anonyme Bluetooth-Kanäle werden nicht anhand von Nummern oder Nachbarschaft erraten
+OK 197: Explizite Zuordnung gruppiert auch frei benannte Bluetooth-Kanäle
+OK 198: Ausgeblendeter MEATER-Garraum bleibt auch in der gemeinsamen Kachel unsichtbar
+OK 199: Ungültiger Kern lässt gültigen Garraumsensor mit richtiger Rolle erhalten
+OK 200: Doppelte Zuordnung eines MEATER-Kanals wird als Konfigurationsfehler abgewiesen
+OK 201: Ein Kanal kann nicht zugleich Kern und Garraum sein
+OK 202: Leerer MEATER-Anzeigename wird abgefangen
+OK 203: Doppelte Kerntemperaturnamen verhindern eine mehrdeutige automatische Paarung
+OK 204: Neue Kopfanzeige verwendet frei einstellbaren Titel und Kanal 1 als Standard
+OK 205: Titel, Beschriftung und gewählter Kopfkanal werden aus der Instanzkonfiguration übertragen
+OK 206: Kopfanzeige erhält keinen in der Kanalauswahl gesperrten Messwert
+OK 207: Ungültiger Kopfkanal wird als Konfigurationsfehler abgefangen
+OK 208: Überlanger Kacheltitel wird abgefangen
+OK 209: Leere Namen verwenden Standardbeschriftungen ohne zusätzliche Statusvariablen
+OK 210: Kerntemperatur-Sammlung übernimmt die gewünschten Startvorlagen
+OK 211: Eigener Anzeigename erhält Gerätenamen und eindeutige MEATER-Paarung
+OK 212: Dynamische Kanaltabelle lädt den gespeicherten Anzeigenamen erneut
+OK 213: Celsius-Sammlung wird in Fahrenheit umgerechnet
+OK 214: Umgerechnete Vorlage wird über den geprüften Kanalpfad geschrieben und bestätigt
+OK 215: Leere Sammlung benötigt keine Variablen und überträgt keine Vorlagen
+OK 216: Vorlage ohne Namen wird als Konfigurationsfehler abgefangen
+OK 217: Nicht ganzzahlige Vorlagentemperatur wird vor Gerätezugriff abgefangen
+OK 218: Ungültiger Anzeigename wird abgefangen
+OK 219: Bestätigte Vorlage wird je Fühler gespeichert und in der Antwort angezeigt
+OK 220: Gespeicherte Vorlage bleibt beim nächsten Geräteabruf erhalten
+OK 221: Neue Modullaufzeit stellt bestätigte Auswahl aus persistentem Attribut wieder her
+OK 222: Widersprüchliche Vorlage und Obergrenze lösen keinen Schreibauftrag aus
+OK 223: Extern veränderte Obergrenze wird nicht weiter als alte Vorlage angezeigt
+OK 224: Geänderte Messquelle übernimmt keine alte gespeicherte Vorlage
+OK 225: Entfernte Sammlung hebt gespeicherte Vorlagenanzeige auf
+OK 226: Zwei lokale Bild-Uploads werden als geprüfte PNG-Daten eingebunden
+OK 227: Ausblenden erhält das hochgeladene Bild in der Instanz
+OK 228: Unveränderte Bilder werden nicht bei jedem Live-Update erneut übertragen
+OK 229: Neues Laden der Kachel erhält Bilder unabhängig vom Versandpuffer
+OK 230: Nicht unterstützte Bilddaten werden als Konfigurationsfehler abgefangen
+OK 231: Überdimensionierter Upload wird vor der Bilddekodierung abgefangen
+OK 232: Unterhalb des Vorwarnbereichs keine rote Anzeige; Pushover standardmäßig aus
+OK 233: Ein Grad vor dem Ziel beginnt die Warnanzeige
+OK 234: Halbgrad-Vorlauf warnt nicht bereits ein Grad vor dem Ziel
+OK 235: Halbgrad-Schwelle wird einschließlich Grenzwert erkannt
+OK 236: Zielerreichung erkannt; MEATER-Garraum bleibt von Kernwarnung ausgenommen
+OK 237: Visuelle Zielwarnung lässt sich abschalten
+OK 238: Vorwarnung enthält eigenen Fühlernamen, Istwert und Zieltemperatur
+OK 239: Wiederholtes Messen oberhalb der Vorwarnschwelle erzeugt keine Nachrichtenflut
+OK 240: Separate Zielmeldung folgt direkt bei Erreichen, ohne künstliche Sendepause nach Erfolg
+OK 241: Kurzes Pendeln um den Zielwert erzeugt keine erneute Meldung
+OK 242: Persistenter Meldezustand verhindert erneuten Versand nach Modullaufzeitwechsel
+OK 243: Nach fünf Minuten deutlicher Abkühlung wird ein neuer Aufheizvorgang wieder gemeldet
+OK 244: Geänderter Zielwert eröffnet einen neuen Meldezyklus
+OK 245: Pushover-Zugangsdaten gelangen weder in Gerätesnapshot noch Kacheldaten
+OK 246: Pushover-Schalter pro Kanal verhindert dessen Nachricht
+OK 247: Ausgeblendeter Fühler sendet keine Zielmeldung
+OK 248: Versandfehler hält Polling aktiv und zeigt nur eine bereinigte Fehlermeldung
+OK 249: Fehlgeschlagener Versand wird nicht sofort bei jedem Poll wiederholt
+OK 250: Nach Sendepause wird erneut versucht und bestätigter Erfolg löscht den Hinweis
+OK 251: Ein Grad Celsius Vorlauf entspricht bei Fahrenheit 1,8 Grad Differenz
+OK 252: Aktiviertes Pushover mit fehlenden Schlüsseln wird als Konfigurationsfehler abgefangen
+OK 253: Pushover-Ablehnung stoppt Wiederholung desselben ungültigen Auftrags auch nach der Sendepause
+OK 254: Explizites Zurücksetzen erlaubt nach behobenem Problem den nächsten regulären Versuch
+OK 255: Netzfehler-Sendepause gilt auch für gleichzeitig wartende andere Fühler
+OK 256: Vorwarnungsversand lässt sich separat abschalten
+OK 257: Zielmeldung bleibt bei abgeschalteter Vorwarnung aktiv
+OK 258: Leiste enthält ausschließlich gültige kabelgebundene Fühler ohne separat angezeigten Kopfkanal
+OK 259: Ausblenden funktioniert im Geräte-Schreibschutz ohne HTTP-Abruf oder Geräteänderung
+OK 260: Verborgene Kachel entfällt aus Daten, ihr Button bleibt zum Einblenden erhalten
+OK 261: Gespeicherte Auswahl bleibt nach erneutem Laden der Modullaufzeit erhalten
+OK 262: Versteckter Fühler kann nicht über eine veraltete Kachelanfrage verstellt werden
+OK 263: Wiedereinblenden stellt die ursprüngliche Kachel wieder her
+OK 264: Bluetooth-Kanäle können durch die Drahtfühlerleiste nicht versteckt werden
+OK 265: Kopfkanal bleibt unabhängig von der unteren Fühlerleiste
+OK 266: Im Modul gesperrter Kanal wird durch die Leiste nicht wieder freigegeben
+OK 267: Ungültiger Sichtbarkeitstyp wird abgewiesen
+OK 268: Ansichtsschalter nimmt keine zusätzlichen Geräteparameter an
+OK 269: Auswahl eines anderen Geräts übernimmt nicht die alte Ausblendung
+OK 270: Als Kopftemperatur gewählter Fühler wird trotz früherer Ausblendung wieder angezeigt
+OK 271: Nicht benötigter ausgeblendeter Drahtfühler erzeugt keine Pushover-Zielnachricht
+OK 272: Linearer Anstieg von 72 auf 75 °C in zehn Minuten ergibt etwa 23 Minuten 20 Sekunden bis 82 °C
+OK 273: Trend und Temperaturfortschritt beziehen sich auf den gemessenen Startwert
+OK 274: Fahrenheit liefert für denselben Verlauf dieselbe Restzeit
+OK 275: Erreichte Obergrenze benötigt keine Lernphase oder weitere Zeitprognose
+OK 276: Fehlende Obergrenze erzeugt keine Restzeit
+OK 277: Vor drei Minuten wird keine Restzeit ausgegeben
+OK 278: Plateau unterdrückt eine Restzeit statt unendlich langer Zahl
+OK 279: Abkühlung erzeugt keine negative Restzeit
+OK 280: Ein neues Plateau wird trotz vorherigen Temperaturanstiegs erkannt
+OK 281: Unruhiger Verlauf wird nicht mit einer scheinbar genauen Restzeit versehen
+OK 282: Veraltete Messhistorie wird nicht zur Prognose verwendet
+OK 283: Fühlerwechsel setzt Verlauf und Startpunkt zurück
+OK 284: Längere Unterbrechung startet den Verlauf neu
+OK 285: Großer abrupter Temperatursprung startet einen neuen Verlauf
+OK 286: Zurückgestellte Uhr erzeugt keinen negativen Zeitverlauf
+OK 287: Schnelle manuelle Abrufe erzeugen keine überzähligen Trendpunkte
+OK 288: Mehr als zwölf Stunden entfernte lineare Prognose wird nicht als belastbar ausgegeben
+OK 289: Verlauf und Diagrammdaten sind begrenzt und bleiben unter den Symcon-Puffergrenzen
+OK 290: Begrenzte Diagrammübertragung enthält den letzten echten Messpunkt
+OK 291: Echter Modulabruf liefert Restzeit direkt an die Kachel ohne Statusvariablen
+OK 292: Geänderte Obergrenze berechnet die Restzeit neu und erhält den Temperaturverlauf
+OK 293: Verlauf kann ohne Geräteschreibzugriff zurückgesetzt werden
+OK 294: Reset erzeugt keine künstliche Messung aus alten Cachewerten
+OK 295: Erst der nächste echte Abruf startet die neue Messreihe
+OK 296: Gesperrte Kachelbedienung verhindert auch den Verlauf-Reset
+OK 297: Ausgeschaltetes Diagramm überträgt keine Verlaufspunkte
+OK 298: Ungültiger Fühler verwirft seinen Messverlauf
+OK 299: Wieder angeschlossener Fühler beginnt mit frischem Verlauf
+OK 300: Deaktivierte Prognose verwirft interne Messreihen und liefert keine Berechnung
+OK 301: Ungültiges Trendfenster wird als Konfigurationsfehler abgefangen
+OK 302: Kachelvorschau enthält einen tatsächlich berechneten Trend aus Testdaten ohne Hilfsvariablen
+302 assertions passed.
 
 UI OK 1: Initiale Haupttemperatur nutzt den konfigurierten Kanal
 UI OK 2: Fühler und Pitmaster werden ohne Variablen gerendert

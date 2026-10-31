@@ -4,6 +4,19 @@ declare(strict_types=1);
 
 trait WLTVisualization
 {
+    private function configureVisualizationType(): void
+    {
+        // Manche Laufzeiten stellen die SDK-Konstanten nicht bereit.
+        // Dokumentierte Werte: 0 = keine individuelle Darstellung, 1 = HTML-SDK.
+        $none = defined('INSTANCE_VISUALIZATION_TYPE_NONE') ? (int) constant('INSTANCE_VISUALIZATION_TYPE_NONE') : 0;
+        $html = defined('INSTANCE_VISUALIZATION_TYPE_HTML') ? (int) constant('INSTANCE_VISUALIZATION_TYPE_HTML') : 1;
+        $type = $this->ReadPropertyBoolean('TileEnabled') ? $html : $none;
+        if ($this->ReadPropertyBoolean('TileEnabled') && $this->ReadPropertyBoolean('TileFullscreen') && defined('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN')) {
+            $type = (int) constant('INSTANCE_VISUALIZATION_TYPE_HTML_FULLSCREEN');
+        }
+        $this->SetVisualizationType($type);
+    }
+
     private function registerVisualization(): void
     {
         $this->RegisterPropertyBoolean('TileEnabled', true);
@@ -337,6 +350,8 @@ trait WLTVisualization
     {
         if (!$this->ReadPropertyBoolean('TileEnabled')) {
             $this->UpdateVisualizationValue(WLTApi::encode(['enabled' => false, 'response' => $response]));
+            $this->SetBuffer('VisualizationLast', '');
+            $this->SetBuffer('VisualizationImages', '');
             return;
         }
         $data = $this->visualizationData();

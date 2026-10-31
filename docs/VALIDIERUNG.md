@@ -1,6 +1,14 @@
-# Prüfbericht 1.11.1 – 31. Oktober 2026
+# Prüfbericht 1.11.2 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.2
+
+302 PHP- und 110 JavaScript-Vertragsprüfungen erfolgreich. Die Fehlerursache aus dem Screenshot wurde im Test nachgestellt, indem die bislang im Runtime-Stub selbst definierten HTML-/NONE-Konstanten entfernt wurden. Alle Neuinstanzen des Modulvertrags laufen nun ohne diese Konstanten. Zusätzlich geprüft: deaktivierte Kachel ohne NONE-Konstante, Vollbildwunsch ohne Vollbildkonstante (HTML-Rückfall), dokumentierter Vollbildtyp bei später definierter Konstante und vollständige Initialdaten nach Wiederaktivierung. Kein globales Nachdefinieren von Konstanten im Modul.
+
+SetVisualizationType verwendet die offiziell dokumentierten Zahlen 0/1 nur als Rückfall für fehlende NONE-/HTML-Konstanten. Der Vollbildtyp bleibt an vorhandene SDK-Unterstützung gebunden. Der Screenshot belegt die fehlende HTML-Konstante, nicht die tatsächliche Symcon-Versionsnummer. Ein echtes Neuanlegen auf der betroffenen Installation wurde hier nicht durchgeführt.
+
+Der Test deckte zusätzlich einen alten Deaktivierungspayload nach schnellem Wiederaktivieren auf. Zurücksetzen der Versand-Hashes beim Abschalten erzwingt korrekte Wiederaktivierungsdaten. Bestehende Variablen-/Bild-/Aktionsverträge bleiben erfolgreich.
 
 ## Änderungen und Nachweise 1.11.1
 

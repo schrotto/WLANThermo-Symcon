@@ -6,8 +6,7 @@ $GLOBALS['profiles'] = [];
 $GLOBALS['profileSettings'] = [];
 $GLOBALS['instances'] = [];
 $GLOBALS['externalVariables'] = [];
-define('INSTANCE_VISUALIZATION_TYPE_NONE', 0);
-define('INSTANCE_VISUALIZATION_TYPE_HTML', 1);
+// SDK-Konstanten absichtlich nicht nachbilden: einige reale Laufzeiten liefern sie nicht.
 function IPS_SetProperty(int $id, string $name, mixed $value): void { throw new RuntimeException('Module must not change properties itself.'); }
 function IPS_ApplyChanges(int $id): void { throw new RuntimeException('Module must not apply properties itself.'); }
 function IPS_SemaphoreEnter(string $name, int $wait): bool { return true; }
