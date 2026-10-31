@@ -2,6 +2,17 @@
 (() => {
   const $ = id => document.getElementById(id);
   let state = {}, selected = 0, pending = null, pendingAction = '', timeout = null;
+  const narrowLayout = window.matchMedia ? window.matchMedia('(max-width: 940px)') : null;
+  const touchInput = Boolean(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  function arrangeDeviceInfo() {
+    const host = narrowLayout?.matches ? $('mobile-device-info') : $('header-status');
+    for (const id of ['details', 'header-device-line']) {
+      if (narrowLayout?.matches) host.append($(id));
+      else host.insertBefore($(id), $('wired-selector'));
+    }
+  }
+  if (narrowLayout?.addEventListener) narrowLayout.addEventListener('change', arrangeDeviceInfo);
+  arrangeDeviceInfo();
   const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
@@ -93,10 +104,41 @@
     try { window.requestAction('TileAction', JSON.stringify({requestId, action, ...values})); }
     catch (error) { clearTimeout(timeout); pending = null; pendingAction = ''; announce('Anfrage konnte nicht gesendet werden.', true); render(); }
   }
+  function validNumber(input) {
+    const value = String(input.value).trim(), number = Number(value);
+    const valid = value !== '' && Number.isInteger(number) && number >= Number(input.min) && number <= Number(input.max);
+    if (!valid) announce('Bitte eine ganze Zahl zwischen ' + input.min + ' und ' + input.max + ' eingeben.', true);
+    return valid;
+  }
   function field(label, type, min, max) {
     const wrapper = node('label', 'field'); wrapper.append(node('span', '', label));
     const input = node('input'); input.type = type; input.step = '1'; input.min = String(min); input.max = String(max); input.required = true;
-    wrapper.append(input); return {wrapper, input};
+    wrapper.append(input);
+    if (touchInput && type === 'number') {
+      input.readOnly = true; input.inputMode = 'none';
+      const keypad = node('div', 'touch-keypad'); keypad.hidden = true;
+      let replace = true;
+      const toggle = () => { if (!input.disabled) { keypad.hidden = !keypad.hidden; replace = true; } };
+      input.addEventListener('click', toggle);
+      input.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); } if (event.key === 'Escape') keypad.hidden = true; });
+      for (const key of ['1','2','3','4','5','6','7','8','9','±','0','⌫','−1','Fertig','+1']) {
+        const button = node('button', '', key); button.type = 'button';
+        button.setAttribute('aria-label', key === '⌫' ? 'Letzte Ziffer löschen' : key === '±' ? 'Vorzeichen wechseln' : key);
+        button.addEventListener('click', event => {
+          event.preventDefault(); if (input.disabled) return;
+          if (key === 'Fertig') { keypad.hidden = true; return; }
+          let value = String(input.value);
+          if (key === '⌫') value = value.slice(0,-1);
+          else if (key === '±') value = value.startsWith('-') ? value.slice(1) : '-' + value;
+          else if (key === '−1' || key === '+1') value = String(Math.min(Number(input.max), Math.max(Number(input.min), (Number(value) || 0) + (key === '+1' ? 1 : -1))));
+          else value = (replace ? '' : value) + key;
+          input.value = value; replace = false;
+          input.dispatchEvent(new Event('input', {bubbles:true}));
+        }); keypad.append(button);
+      }
+      wrapper.append(keypad);
+    }
+    return {wrapper, input};
   }
   function probe(ch) {
     const el = node('article', 'probe'); el.tabIndex = 0; el.setAttribute('aria-label', 'Kanal ' + ch.number);
@@ -114,6 +156,11 @@
     const presetEditor = node('div', 'preset-editor'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
     presetSelect.className = 'preset-direct-select'; presetSummary.append(presetSelect); presetApply.type = 'button'; presetEditor.append(presetApply); presetBox.append(presetSummary, presetEditor);
     presetSelect.setAttribute('aria-label', 'Kerntemperatur-Vorlage für Kanal ' + ch.number);
+    const touchPresetToggle = node('button', 'touch-preset-toggle'); touchPresetToggle.type = 'button';
+    touchPresetToggle.hidden = !touchInput; touchPresetToggle.setAttribute('aria-label', 'Vorgaben auswählen'); touchPresetToggle.setAttribute('aria-expanded', 'false');
+    const touchPresetList = node('div', 'touch-preset-list'); touchPresetList.hidden = true;
+    if (touchInput) { presetSelect.hidden = true; presetSummary.append(touchPresetToggle); presetBox.append(touchPresetList); }
+    touchPresetToggle.addEventListener('click', event => { event.preventDefault(); if (!touchPresetToggle.disabled) { touchPresetList.hidden = !touchPresetList.hidden; touchPresetToggle.setAttribute('aria-expanded', String(!touchPresetList.hidden)); } });
     const presetKey = item => JSON.stringify([item.name, item.temperature]);
     const selectedPreset = () => (state.config?.corePresets || []).find(item => presetKey(item) === presetSelect.value);
     presetSelect.addEventListener('change', () => { const ui = probes.get(ch.number); if (ui) ui.presetDirty = true; render(); });
@@ -126,8 +173,8 @@
     const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
-    form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
-    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null, presetValue, presetName, presetEditor, presetDirty:false};
+    form.addEventListener('submit', event => { event.preventDefault(); if (validNumber(max.input) && form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
+    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null, presetValue, presetName, presetEditor, touchPresetToggle, touchPresetList, presetDirty:false};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -139,7 +186,7 @@
     const sync = () => { target.wrapper.hidden = mode.value !== 'auto'; output.wrapper.hidden = mode.value !== 'manual'; target.input.disabled = mode.disabled || mode.value !== 'auto'; output.input.disabled = mode.disabled || mode.value !== 'manual'; };
     mode.addEventListener('change', () => { form.dataset.dirty = 'true'; sync(); });
     form.addEventListener('input', () => { form.dataset.dirty = 'true'; });
-    form.addEventListener('submit', event => { event.preventDefault(); if (!form.reportValidity()) return; const values = {id:pm.id, mode:mode.value}; if (mode.value === 'auto') values.target = Number(target.input.value); if (mode.value === 'manual') values.output = Number(output.input.value); send('pitmaster', values); });
+    form.addEventListener('submit', event => { event.preventDefault(); if (!form.reportValidity() || (mode.value === 'auto' && !validNumber(target.input)) || (mode.value === 'manual' && !validNumber(output.input))) return; const values = {id:pm.id, mode:mode.value}; if (mode.value === 'auto') values.target = Number(target.input.value); if (mode.value === 'manual') values.output = Number(output.input.value); send('pitmaster', values); });
     return {el, meta, form, mode, target:target.input, targetLabel:target.wrapper.firstChild, output:output.input, submit, sync};
   }
   function render() {
@@ -280,6 +327,14 @@
         ui.presetSelect.replaceChildren(placeholder);
         for (const item of presets) { const option = node('option', '', item.name + ' · ' + fmt(item.temperature) + ' ' + state.unit); option.value = ui.presetKey(item); ui.presetSelect.append(option); }
         ui.presetSelect.value = presets.some(item => ui.presetKey(item) === choice) ? choice : '';
+        ui.touchPresetList.replaceChildren();
+        if (touchInput) for (const item of presets) {
+          const option = node('button', '', item.name + ' · ' + fmt(item.temperature) + ' ' + state.unit); option.type = 'button';
+          option.addEventListener('click', () => {
+            if (ui.presetSelect.disabled) return;
+            ui.presetSelect.value = ui.presetKey(item); ui.presetDirty = true; ui.touchPresetList.hidden = true; ui.touchPresetToggle.setAttribute('aria-expanded', 'false'); render();
+          }); ui.touchPresetList.append(option);
+        }
         ui.presetSignature = presetSignature;
       }
       if (!ui.presetDirty) { ui.presetSelect.value = ch.selectedPreset && presets.some(item => ui.presetKey(item) === ui.presetKey(ch.selectedPreset)) ? ui.presetKey(ch.selectedPreset) : ''; }
@@ -292,7 +347,8 @@
       ui.presetEditor.hidden = (!editable && !preservingVisibility) || !ui.presetDirty || !displayedPreset;
       ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
       ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
-      ui.presetSelect.disabled = !editable;
+      ui.presetSelect.disabled = ui.touchPresetToggle.disabled = !editable;
+      if (!editable) { ui.touchPresetList.hidden = true; ui.touchPresetToggle.setAttribute('aria-expanded', 'false'); }
       ui.presetApply.disabled = !editable || !ui.selectedPreset();
     });
     $('channels-section').hidden = cards.length === 0 && wired.length === 0;

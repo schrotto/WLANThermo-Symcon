@@ -2,6 +2,14 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.7: Schmale Ansicht und Touch-Eingabe
+
+Bis 940 px stehen Titel, Verbindung und Kopftemperatur kompakter oben; Akku/WLAN/Zeit und Gerätekennung/Bluetooth werden in einen eigenen Bereich unter den Fühlern verschoben. Bei größerer Breite kehren sie in die bestätigte Desktop-Anordnung zurück. Bis 400 px steht die Kopftemperatur für ausreichende Lesbarkeit in einer eigenen Zeile. Die Fühlerauswahl bleibt oben erreichbar.
+
+Auf Geräten mit primärer Touch-Bedienung öffnen Zahlenfelder einen eigenen Ziffernblock (Ziffern, Löschen, Vorzeichen, ±1). „Fertig“ schließt die Eingabe; erst „Übernehmen“ sendet die Änderung. Die Zahlenfelder sind schreibgeschützt und verwenden `inputmode=none`; leere, nicht ganzzahlige oder außerhalb der Feldgrenzen liegende Werte werden zusätzlich ausdrücklich geprüft. Auch die Temperaturvorlagen verwenden auf Touch-Geräten eine eigene Liste statt eines System-Auswahldialogs. Maus-/Tastaturgeräte behalten die bisherige Eingabe.
+
+Damit entfällt die Systemtastatur als möglicher Auslöser der Android-Navigationsleiste. Das Modul kann den Vollbildzustand der umgebenden Symcon-App oder die Android-Systemleisten nicht garantieren. Keine erzwungenen Vollbildwechsel. Prüfung auf dem betroffenen Tablet und im Symcon-Raster steht aus; die Ursache der bisherigen Android-Reaktion ist nicht nachgewiesen. Grundlage: [HTML-Standard zu Eingabemodalitäten](https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute).
+
 ## Version 1.11.6: Markierte Bereiche tatsächlich im Aufbau tauschen
 
 Der rechte Kopfbereich besteht jetzt aus drei im HTML fest aufeinanderfolgenden Gruppen: oben Akku/WLAN und Aktualisierungszeit, darunter Gerätekennung/Bluetooth, zuletzt die Fühlerauswahl. Die bisherige CSS-Grid-Umsortierung im Footer entfällt zugunsten separater normaler Blöcke. Die Kopfspalte verwendet eine feste vertikale Flex-Reihenfolge. Ohne Gerätedetails bleiben nur die Fühlerbuttons sichtbar.

@@ -1,6 +1,12 @@
-# Prüfbericht 1.11.6 – 31. Oktober 2026
+# Prüfbericht 1.11.7 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.7
+
+302 PHP- und 130 JavaScript-Vertragsprüfungen erfolgreich. Neue Fälle prüfen die physische Verschiebung der Geräteinfos bei Start in schmaler Ansicht, beide Richtungen des Breitenwechsels, Readonly/Inputmode der Touch-Eingabe, Ziffernblock ohne sofortiges Senden, getrenntes Fertig/Übernehmen, leere/zu große Werte sowie Touch-Vorlagenauswahl ohne Systemdialog.
+
+Der DOM-Vertrag ist kein Browser-Rendering. Schmale Breiten 320/400/500/940 px sowie breite Ansicht, lange Namen, ein/zwei Bilder, mehrere Fühler und Ein-/Ausblenden sind im echten Symcon-Browser zu prüfen. Auf dem betroffenen Android-Tablet Obergrenze und Vorlagen im Vollbild mehrfach bedienen und prüfen, ob die Systemnavigation verborgen bleibt. Die bisherige Ursache ist nicht reproduziert; die eigene Eingabe vermeidet den vermuteten Tastatur-/Dialogauslöser, steuert aber weder Android-Systemleisten noch den Vollbildzustand der Host-App.
 
 ## Änderungen und Nachweise 1.11.6
 

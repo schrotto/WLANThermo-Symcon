@@ -1,6 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.11.6
-
-Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
+# Quellcode – WLANThermo 1.11.7
 
 ## library.json
 
@@ -13,8 +11,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.11.6",
-    "build": 28,
+    "version": "1.11.7",
+    "build": 29,
     "date": 1793404800
 }
 ````
@@ -1005,7 +1003,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.6"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.7"
         },
         {
             "type": "ExpansionPanel",
@@ -1841,9 +1839,9 @@ class WLANThermo extends IPSModuleStrict
 <body>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div class="header-brand-column"><div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div></div>
+    <div id="header-brand-column" class="header-brand-column"><div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div></div>
     <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div id="header-image-left" class="header-image-slot"></div><div class="header-temperature-main"><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></div><div id="header-image-right" class="header-image-slot"></div></section>
-    <div class="header-status"><div id="details" class="header-info-only"><span id="telemetry"></span><span id="updated"></span></div><div class="header-device-line"><span id="device"></span><button id="bluetooth" type="button" class="text-button"></button></div><div id="wired-selector" class="wired-selector" hidden><button type="button" aria-expanded="false" aria-controls="wired-toolbar" id="wired-selector-toggle" class="wired-selector-toggle" hidden>Fühler auswählen <span aria-hidden="true">⌄</span></button><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></div></div>
+    <div id="header-status" class="header-status"><div id="details" class="header-info-only"><span id="telemetry"></span><span id="updated"></span></div><div id="header-device-line" class="header-device-line"><span id="device"></span><button id="bluetooth" type="button" class="text-button"></button></div><div id="wired-selector" class="wired-selector" hidden><button type="button" aria-expanded="false" aria-controls="wired-toolbar" id="wired-selector-toggle" class="wired-selector-toggle" hidden>Fühler auswählen <span aria-hidden="true">⌄</span></button><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></div></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
     <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><div id="hero-forecast" class="hero-forecast" hidden><span class="hero-forecast-label">GESCHÄTZTE RESTZEIT</span><strong id="hero-forecast-value"></strong><span id="hero-forecast-eta" class="hero-forecast-eta" hidden></span></div></div>
@@ -1853,6 +1851,7 @@ class WLANThermo extends IPSModuleStrict
   <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title probe-section-heading"><h2>Fühlerübersicht</h2></div><p id="wired-empty" class="empty" role="status" hidden>Alle kabelgebundenen Fühler sind ausgeblendet. Über die Leiste kannst du sie wieder einblenden.</p><div id="channels" class="probe-grid"></div></section>
   <section id="pitmasters-section" aria-label="Pitmaster"><div class="section-title"><h2>Pitmaster</h2><span class="subtle">Regelung am Mini V3</span></div><div id="pitmasters" class="pitmaster-grid"></div></section>
 
+  <div id="mobile-device-info" class="mobile-device-info"></div>
   <p id="notice" role="status" aria-live="polite" hidden></p>
   <p id="device-error" role="status" hidden></p>
 </main>
@@ -1916,6 +1915,25 @@ class WLANThermo extends IPSModuleStrict
 
 /* Physische Reihenfolge statt CSS-Grid-Umsortierung: Infos, Bluetooth-Zeile, Fühler. */
 .header-status{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.header-info-only{display:flex;flex-direction:column;align-items:flex-end;gap:4px;width:100%;font-size:10px;line-height:1.5;color:var(--muted)}.header-status .header-info-only #telemetry,.header-status .header-info-only #updated{flex:0 0 auto;margin:0;text-align:right}.header-device-line{display:flex;align-items:center;justify-content:flex-end;gap:10px;width:100%;font-size:10px;color:var(--muted)}.header-status>.wired-selector{margin-top:0}.no-details .header-info-only,.no-details .header-device-line{display:none}
+
+/* Schmale Kacheln: Messwert neben Verbindung, Geräteinfos unter den Fühlern. */
+.mobile-device-info:empty{display:none}.mobile-device-info{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 18px;padding-top:10px;border-top:1px solid var(--border);color:var(--muted)}.mobile-device-info .header-info-only{width:auto;align-items:flex-start}.mobile-device-info .header-device-line{width:auto}.no-details .mobile-device-info{display:none}
+@media(max-width:940px){
+ .topbar,.has-header-temperature .topbar{grid-template-columns:minmax(125px,.8fr) minmax(0,1.5fr);gap:12px 14px;align-items:center}
+ .header-brand-column{display:contents}.brand{grid-column:1/-1;grid-row:1}.header-brand-column .top-actions{grid-column:1;grid-row:2;align-self:center;flex-wrap:wrap}
+ .header-temperature{grid-column:2;grid-row:2;max-width:380px;min-height:110px;padding:12px;gap:6px}
+ .header-temperature.has-header-images{grid-template-columns:44px minmax(0,1fr) 44px}.header-image-slot .brand-image{width:44px;height:64px}.header-temperature h2{font-size:12px}.header-temperature-reading strong{font-size:34px}
+ .header-status{grid-column:1/-1;grid-row:3}.header-status .wired-toolbar{justify-content:flex-end}
+ body:not(.has-header-temperature) .header-brand-column .top-actions{grid-column:1/-1}
+}
+@media(max-width:400px){
+ .topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1fr);gap:12px}
+ .header-brand-column .top-actions{grid-column:1;grid-row:2;flex-wrap:nowrap}.header-temperature{grid-column:1;grid-row:3;max-width:100%}.header-status{grid-column:1;grid-row:4}
+}
+/* Eigene Touch-Tasten statt Android-Bildschirmtastatur. */
+.touch-keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:4px}.touch-keypad button{min-width:0;min-height:44px;padding:6px 2px;font-size:16px;touch-action:manipulation}.touch-keypad button:nth-last-child(2){font-size:11px}.touch-keypad button:hover{border-color:var(--accent)}
+
+.touch-preset-toggle{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0}.touch-preset-list{display:grid;gap:6px;margin-top:8px;max-height:240px;overflow-y:auto;overscroll-behavior:contain}.touch-preset-list button{font-size:12px;min-height:44px;text-align:left;padding:8px;overflow-wrap:anywhere}
 ````
 
 ## WLANThermo/tile.js
@@ -1925,6 +1943,17 @@ class WLANThermo extends IPSModuleStrict
 (() => {
   const $ = id => document.getElementById(id);
   let state = {}, selected = 0, pending = null, pendingAction = '', timeout = null;
+  const narrowLayout = window.matchMedia ? window.matchMedia('(max-width: 940px)') : null;
+  const touchInput = Boolean(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  function arrangeDeviceInfo() {
+    const host = narrowLayout?.matches ? $('mobile-device-info') : $('header-status');
+    for (const id of ['details', 'header-device-line']) {
+      if (narrowLayout?.matches) host.append($(id));
+      else host.insertBefore($(id), $('wired-selector'));
+    }
+  }
+  if (narrowLayout?.addEventListener) narrowLayout.addEventListener('change', arrangeDeviceInfo);
+  arrangeDeviceInfo();
   const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
@@ -2016,10 +2045,41 @@ class WLANThermo extends IPSModuleStrict
     try { window.requestAction('TileAction', JSON.stringify({requestId, action, ...values})); }
     catch (error) { clearTimeout(timeout); pending = null; pendingAction = ''; announce('Anfrage konnte nicht gesendet werden.', true); render(); }
   }
+  function validNumber(input) {
+    const value = String(input.value).trim(), number = Number(value);
+    const valid = value !== '' && Number.isInteger(number) && number >= Number(input.min) && number <= Number(input.max);
+    if (!valid) announce('Bitte eine ganze Zahl zwischen ' + input.min + ' und ' + input.max + ' eingeben.', true);
+    return valid;
+  }
   function field(label, type, min, max) {
     const wrapper = node('label', 'field'); wrapper.append(node('span', '', label));
     const input = node('input'); input.type = type; input.step = '1'; input.min = String(min); input.max = String(max); input.required = true;
-    wrapper.append(input); return {wrapper, input};
+    wrapper.append(input);
+    if (touchInput && type === 'number') {
+      input.readOnly = true; input.inputMode = 'none';
+      const keypad = node('div', 'touch-keypad'); keypad.hidden = true;
+      let replace = true;
+      const toggle = () => { if (!input.disabled) { keypad.hidden = !keypad.hidden; replace = true; } };
+      input.addEventListener('click', toggle);
+      input.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); } if (event.key === 'Escape') keypad.hidden = true; });
+      for (const key of ['1','2','3','4','5','6','7','8','9','±','0','⌫','−1','Fertig','+1']) {
+        const button = node('button', '', key); button.type = 'button';
+        button.setAttribute('aria-label', key === '⌫' ? 'Letzte Ziffer löschen' : key === '±' ? 'Vorzeichen wechseln' : key);
+        button.addEventListener('click', event => {
+          event.preventDefault(); if (input.disabled) return;
+          if (key === 'Fertig') { keypad.hidden = true; return; }
+          let value = String(input.value);
+          if (key === '⌫') value = value.slice(0,-1);
+          else if (key === '±') value = value.startsWith('-') ? value.slice(1) : '-' + value;
+          else if (key === '−1' || key === '+1') value = String(Math.min(Number(input.max), Math.max(Number(input.min), (Number(value) || 0) + (key === '+1' ? 1 : -1))));
+          else value = (replace ? '' : value) + key;
+          input.value = value; replace = false;
+          input.dispatchEvent(new Event('input', {bubbles:true}));
+        }); keypad.append(button);
+      }
+      wrapper.append(keypad);
+    }
+    return {wrapper, input};
   }
   function probe(ch) {
     const el = node('article', 'probe'); el.tabIndex = 0; el.setAttribute('aria-label', 'Kanal ' + ch.number);
@@ -2037,6 +2097,11 @@ class WLANThermo extends IPSModuleStrict
     const presetEditor = node('div', 'preset-editor'), presetSelect = node('select'), presetApply = node('button', '', 'Übernehmen');
     presetSelect.className = 'preset-direct-select'; presetSummary.append(presetSelect); presetApply.type = 'button'; presetEditor.append(presetApply); presetBox.append(presetSummary, presetEditor);
     presetSelect.setAttribute('aria-label', 'Kerntemperatur-Vorlage für Kanal ' + ch.number);
+    const touchPresetToggle = node('button', 'touch-preset-toggle'); touchPresetToggle.type = 'button';
+    touchPresetToggle.hidden = !touchInput; touchPresetToggle.setAttribute('aria-label', 'Vorgaben auswählen'); touchPresetToggle.setAttribute('aria-expanded', 'false');
+    const touchPresetList = node('div', 'touch-preset-list'); touchPresetList.hidden = true;
+    if (touchInput) { presetSelect.hidden = true; presetSummary.append(touchPresetToggle); presetBox.append(touchPresetList); }
+    touchPresetToggle.addEventListener('click', event => { event.preventDefault(); if (!touchPresetToggle.disabled) { touchPresetList.hidden = !touchPresetList.hidden; touchPresetToggle.setAttribute('aria-expanded', String(!touchPresetList.hidden)); } });
     const presetKey = item => JSON.stringify([item.name, item.temperature]);
     const selectedPreset = () => (state.config?.corePresets || []).find(item => presetKey(item) === presetSelect.value);
     presetSelect.addEventListener('change', () => { const ui = probes.get(ch.number); if (ui) ui.presetDirty = true; render(); });
@@ -2049,8 +2114,8 @@ class WLANThermo extends IPSModuleStrict
     const choose = () => { if (state.config?.hero && !state.config?.primary) { selected = ch.number; render(); } };
     head.addEventListener('click', choose); value.addEventListener('click', choose);
     el.addEventListener('keydown', event => { if (event.target === el && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); choose(); } });
-    form.addEventListener('submit', event => { event.preventDefault(); if (form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
-    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null, presetValue, presetName, presetEditor, presetDirty:false};
+    form.addEventListener('submit', event => { event.preventDefault(); if (validNumber(max.input) && form.reportValidity()) send('channel', {number:ch.number, max:Number(max.input.value)}); });
+    return {el, name, value, label, bar, rail, high, details, forecast, max:max.input, submit, presetBox, presetSelect, presetApply, presetKey, selectedPreset, presetSignature:null, presetValue, presetName, presetEditor, touchPresetToggle, touchPresetList, presetDirty:false};
   }
   function pitmaster(pm) {
     const el = node('article', 'pitmaster'), heading = node('div', 'pm-heading'), title = node('h3', '', 'Pitmaster ' + pm.id), meta = node('span', 'pm-meta'); heading.append(title, meta);
@@ -2062,7 +2127,7 @@ class WLANThermo extends IPSModuleStrict
     const sync = () => { target.wrapper.hidden = mode.value !== 'auto'; output.wrapper.hidden = mode.value !== 'manual'; target.input.disabled = mode.disabled || mode.value !== 'auto'; output.input.disabled = mode.disabled || mode.value !== 'manual'; };
     mode.addEventListener('change', () => { form.dataset.dirty = 'true'; sync(); });
     form.addEventListener('input', () => { form.dataset.dirty = 'true'; });
-    form.addEventListener('submit', event => { event.preventDefault(); if (!form.reportValidity()) return; const values = {id:pm.id, mode:mode.value}; if (mode.value === 'auto') values.target = Number(target.input.value); if (mode.value === 'manual') values.output = Number(output.input.value); send('pitmaster', values); });
+    form.addEventListener('submit', event => { event.preventDefault(); if (!form.reportValidity() || (mode.value === 'auto' && !validNumber(target.input)) || (mode.value === 'manual' && !validNumber(output.input))) return; const values = {id:pm.id, mode:mode.value}; if (mode.value === 'auto') values.target = Number(target.input.value); if (mode.value === 'manual') values.output = Number(output.input.value); send('pitmaster', values); });
     return {el, meta, form, mode, target:target.input, targetLabel:target.wrapper.firstChild, output:output.input, submit, sync};
   }
   function render() {
@@ -2203,6 +2268,14 @@ class WLANThermo extends IPSModuleStrict
         ui.presetSelect.replaceChildren(placeholder);
         for (const item of presets) { const option = node('option', '', item.name + ' · ' + fmt(item.temperature) + ' ' + state.unit); option.value = ui.presetKey(item); ui.presetSelect.append(option); }
         ui.presetSelect.value = presets.some(item => ui.presetKey(item) === choice) ? choice : '';
+        ui.touchPresetList.replaceChildren();
+        if (touchInput) for (const item of presets) {
+          const option = node('button', '', item.name + ' · ' + fmt(item.temperature) + ' ' + state.unit); option.type = 'button';
+          option.addEventListener('click', () => {
+            if (ui.presetSelect.disabled) return;
+            ui.presetSelect.value = ui.presetKey(item); ui.presetDirty = true; ui.touchPresetList.hidden = true; ui.touchPresetToggle.setAttribute('aria-expanded', 'false'); render();
+          }); ui.touchPresetList.append(option);
+        }
         ui.presetSignature = presetSignature;
       }
       if (!ui.presetDirty) { ui.presetSelect.value = ch.selectedPreset && presets.some(item => ui.presetKey(item) === ui.presetKey(ch.selectedPreset)) ? ui.presetKey(ch.selectedPreset) : ''; }
@@ -2215,7 +2288,8 @@ class WLANThermo extends IPSModuleStrict
       ui.presetEditor.hidden = (!editable && !preservingVisibility) || !ui.presetDirty || !displayedPreset;
       ui.presetBox.hidden = ambientOnly || cfg.controls === false || presets.length === 0;
       ui.el.classList.toggle('has-presets', !ui.presetBox.hidden);
-      ui.presetSelect.disabled = !editable;
+      ui.presetSelect.disabled = ui.touchPresetToggle.disabled = !editable;
+      if (!editable) { ui.touchPresetList.hidden = true; ui.touchPresetToggle.setAttribute('aria-expanded', 'false'); }
       ui.presetApply.disabled = !editable || !ui.selectedPreset();
     });
     $('channels-section').hidden = cards.length === 0 && wired.length === 0;
@@ -3276,6 +3350,14 @@ trait WLTNotifications
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.7: Schmale Ansicht und Touch-Eingabe
+
+Bis 940 px stehen Titel, Verbindung und Kopftemperatur kompakter oben; Akku/WLAN/Zeit und Gerätekennung/Bluetooth werden in einen eigenen Bereich unter den Fühlern verschoben. Bei größerer Breite kehren sie in die bestätigte Desktop-Anordnung zurück. Bis 400 px steht die Kopftemperatur für ausreichende Lesbarkeit in einer eigenen Zeile. Die Fühlerauswahl bleibt oben erreichbar.
+
+Auf Geräten mit primärer Touch-Bedienung öffnen Zahlenfelder einen eigenen Ziffernblock (Ziffern, Löschen, Vorzeichen, ±1). „Fertig“ schließt die Eingabe; erst „Übernehmen“ sendet die Änderung. Die Zahlenfelder sind schreibgeschützt und verwenden `inputmode=none`; leere, nicht ganzzahlige oder außerhalb der Feldgrenzen liegende Werte werden zusätzlich ausdrücklich geprüft. Auch die Temperaturvorlagen verwenden auf Touch-Geräten eine eigene Liste statt eines System-Auswahldialogs. Maus-/Tastaturgeräte behalten die bisherige Eingabe.
+
+Damit entfällt die Systemtastatur als möglicher Auslöser der Android-Navigationsleiste. Das Modul kann den Vollbildzustand der umgebenden Symcon-App oder die Android-Systemleisten nicht garantieren. Keine erzwungenen Vollbildwechsel. Prüfung auf dem betroffenen Tablet und im Symcon-Raster steht aus; die Ursache der bisherigen Android-Reaktion ist nicht nachgewiesen. Grundlage: [HTML-Standard zu Eingabemodalitäten](https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute).
+
 ## Version 1.11.6: Markierte Bereiche tatsächlich im Aufbau tauschen
 
 Der rechte Kopfbereich besteht jetzt aus drei im HTML fest aufeinanderfolgenden Gruppen: oben Akku/WLAN und Aktualisierungszeit, darunter Gerätekennung/Bluetooth, zuletzt die Fühlerauswahl. Die bisherige CSS-Grid-Umsortierung im Footer entfällt zugunsten separater normaler Blöcke. Die Kopfspalte verwendet eine feste vertikale Flex-Reihenfolge. Ohne Gerätedetails bleiben nur die Fühlerbuttons sichtbar.
@@ -3797,3 +3879,4 @@ jobs:
       - name: HTTP transport
         run: python3 tests/http_transport.py php
 ````
+

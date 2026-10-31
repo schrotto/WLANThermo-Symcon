@@ -1,5 +1,11 @@
 # Änderungen
 
+## 1.11.7 – 31.10.2026
+
+- Schmale Ansicht mit Kopftemperatur neben Verbindung und Geräteinfos unter den Fühlern; Desktop-Anordnung beim Breitenwechsel wiederhergestellt.
+- Eigener Touch-Ziffernblock und Touch-Vorlagenliste vermeiden Systemtastatur und native Vorlagendialoge. Explizite Zahlenprüfung auch bei Readonly-Feldern.
+- 302 PHP- und 130 JavaScript-Vertragsprüfungen erfolgreich. Android-Vollbild und tatsächliches Browserlayout am Zielgerät noch zu prüfen.
+
 ## 1.11.6 – 31.10.2026
 
 - Rechte Kopfgruppen physisch im HTML geordnet: Akku/WLAN/Zeit, Gerätekennung/Bluetooth, Fühlerauswahl.

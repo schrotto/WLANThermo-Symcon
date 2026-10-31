@@ -16,6 +16,7 @@ class Element {
   removeAttribute(key) { delete this.attrs[key]; if (key === 'src') this.src = ''; }
   addEventListener(name, handler) { this.events[name] = handler; }
   dispatch(name, extra={}) { return this.events[name]?.({target:this, preventDefault(){}, stopPropagation(){}, ...extra}); }
+  dispatchEvent(event) { this.dispatch(event.type); if (event.bubbles && this.parent) this.parent.dispatchEvent(event); return true; }
   focus() { this.focused = true; }
   reportValidity() { return true; }
   get classList() { return {add:cls => { this.className = (this.className + ' ' + cls).trim(); },toggle:(cls,on) => { const classes = new Set(this.className.split(' ').filter(Boolean)); if (on) classes.add(cls); else classes.delete(cls); this.className = [...classes].join(' '); }}; }
@@ -289,4 +290,43 @@ data.channels = data.channels.filter(ch=>ch.number!==1); data.wiredChannels[0].v
 check(!elements['wired-toolbar'].children[0].disabled && elements['wired-toolbar'].children[0].attrs['aria-pressed'] === 'false', 'Antwort gibt den Schalter ohne Größenänderung für erneute Bedienung frei');
 window.handleMessage({enabled:false});
 check(elements.refresh.disabled && elements.connection.textContent === 'Kachel deaktiviert', 'Deaktivierung sperrt die bereits geöffnete Kachel');
+// Zweite Laufzeit: Touch-Tablet startet schmal und wechselt anschließend die Breite.
+const touchElements = Object.fromEntries(taggedIDs.map(match => [match[2], new Element(match[1])]));
+touchElements['initial-state'].textContent = JSON.stringify(fixture);
+let layoutChange;
+const narrow = {matches:true, addEventListener:(_name, callback) => {layoutChange = callback;}};
+const touchRequested = [];
+const touchWindow = {matchMedia:query => query.includes('max-width') ? narrow : {matches:true},requestAction:(_ident,value) => touchRequested.push(JSON.parse(value))};
+const touchDocument = {...document, getElementById:id => {assert(touchElements[id]); return touchElements[id];}, body:new Element('body'),documentElement:new Element('html')};
+const touchContext = vm.createContext({document:touchDocument,window:touchWindow,console,Intl,Date,Math,JSON,Number,Boolean,String,Map,Set,Event:class {constructor(type,options={}){this.type=type;this.bubbles=options.bubbles;}},setTimeout:()=>1,clearTimeout:()=>{}});
+vm.runInContext(fs.readFileSync(__dirname + '/../WLANThermo/tile.js','utf8'), touchContext);
+check(touchElements.details.parentElement === touchElements['mobile-device-info'] && touchElements['header-device-line'].parentElement === touchElements['mobile-device-info'], 'Schmale Ansicht verschiebt Geräteinformationen physisch ans Ende');
+narrow.matches = false; layoutChange();
+check(touchElements['header-status'].children[0] === touchElements.details && touchElements['header-status'].children[1] === touchElements['header-device-line'], 'Breitenwechsel stellt die bewährte Desktop-Reihenfolge wieder her');
+narrow.matches = true; layoutChange();
+check(touchElements.details.parentElement === touchElements['mobile-device-info'], 'Erneutes Verkleinern verschiebt Infos ohne doppelte Elemente');
+const touchProbe = touchElements.channels.children[0];
+const touchForm = touchProbe.children[6].children[1];
+const touchValue = touchForm.children[0].children[1], keypad = touchForm.children[0].children[2];
+check(touchValue.readOnly && touchValue.inputMode === 'none' && keypad.hidden, 'Touch-Zahlenfeld öffnet keine Systemtastatur und hält Ziffernblock zunächst verborgen');
+touchProbe.children[6].open = true;
+touchValue.dispatch('click');
+check(!keypad.hidden, 'Antippen öffnet eigenen Ziffernblock');
+keypad.children[8].dispatch('click'); keypad.children[3].dispatch('click');
+check(touchValue.value === '94' && touchRequested.length === 0, 'Zifferntasten ersetzen den bisherigen Wert ohne unbestätigten Gerätezugriff');
+keypad.children[13].dispatch('click');
+check(keypad.hidden && touchRequested.length === 0, 'Fertig schließt nur die Eingabe, ohne den Wert zu senden');
+touchValue.value = ''; touchForm.dispatch('submit');
+check(touchRequested.length === 0, 'Leere Readonly-Touch-Eingabe wird trotz umgangener nativer Validierung abgewiesen');
+touchValue.value = '1000'; touchForm.dispatch('submit');
+check(touchRequested.length === 0, 'Touch-Eingabe oberhalb des Feldmaximums bleibt gesperrt');
+touchValue.value = '94'; touchForm.dispatch('submit');
+check(touchRequested.length === 1 && touchRequested[0].max === 94, 'Explizite Bestätigung sendet den gültigen Touch-Wert genau einmal');
+let touchData = clone(); touchData.response = {requestId:touchRequested[0].requestId,ok:true,message:'OK'};touchWindow.handleMessage(touchData);
+const touchPresets = touchProbe.children[7], touchSummary = touchPresets.children[0], touchList = touchPresets.children[2];
+check(touchSummary.children[4].hidden && !touchSummary.children[5].hidden, 'Touch-Vorgaben verwenden eigene Buttons statt des nativen Auswahldialogs');
+touchSummary.children[5].dispatch('click');
+check(!touchList.hidden && touchSummary.children[5].attrs['aria-expanded'] === 'true', 'Touch-Vorgaben öffnen direkt die Liste');
+touchList.children[0].dispatch('click');
+check(touchList.hidden && !touchPresets.children[1].hidden && touchRequested.length === 1, 'Vorlagenauswahl bleibt sichtbar und wartet vor Gerätezugriff auf Übernehmen');
 console.log(count + ' UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.');
