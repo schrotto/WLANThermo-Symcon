@@ -2,7 +2,7 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.10.1"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.10.2"
         },
         {
             "type": "ExpansionPanel",
@@ -361,21 +361,21 @@
                 {
                     "type": "Select",
                     "name": "TileBrandLayout",
-                    "caption": "Anordnung der Titelbilder",
+                    "caption": "Anordnung der Bilder an der Kopftemperatur",
                     "options": [
                         {
-                            "caption": "Ein Bild vor und ein Bild hinter dem Titel",
+                            "caption": "Bild 1 links und Bild 2 rechts vom Temperaturwert",
                             "value": "split"
                         },
                         {
-                            "caption": "Beide Bilder untereinander vor dem Titel",
+                            "caption": "Beide Bilder untereinander links vom Temperaturwert",
                             "value": "stacked"
                         }
                     ]
                 },
                 {
                     "type": "Label",
-                    "caption": "Maximal 256 KiB und 2048 × 2048 Pixel pro Bild. Die Bilder werden in der Instanz gespeichert und direkt in der Kachel angezeigt. Ohne eingeblendete Bilder erscheint das Flammensymbol."
+                    "caption": "Maximal 256 KiB und 2048 × 2048 Pixel pro Bild. Bei sichtbarer Kopftemperatur stehen die Bilder in deren Kachel. Ohne gültige Kopftemperatur erscheinen sie wieder am Titel. Ohne eingeblendete Bilder erscheint das Flammensymbol."
                 },
                 {
                     "type": "CheckBox",

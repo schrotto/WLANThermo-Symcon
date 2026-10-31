@@ -1,6 +1,14 @@
-# Prüfbericht 1.10.1 – 31. Oktober 2026
+# Prüfbericht 1.10.2 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.10.2
+
+298 PHP- und 102 JavaScript-Vertragsprüfungen erfolgreich. Neue UI-Verträge prüfen Bilder links/rechts in der gültigen Kopftemperatur, untereinander links sowie Rückkehr an den Titel bei ausgeschalteter Kopftemperatur. Das Verschieben verwendet bestehende Bildknoten; unveränderte Bilddaten werden nicht neu gesetzt.
+
+Timer-Verträge prüfen sichtbare neue Rückmeldung, vollständiges Ausblenden/Leeren durch den aktuellen Timer und Schutz einer neueren Rückmeldung vor einem veralteten Callback. Zeitdauern sind im Code vier Sekunden für normale Hinweise und acht Sekunden für Fehler. Testtimer führen die Callbacks kontrolliert aus; sie messen keine reale Browserzeit. Dauerhafte Gerätedatenfehler sind von der temporären Infoleiste getrennt.
+
+CSS reserviert gleich breite Bildspalten um den mittleren Messwert und verkleinert Bildspalten/Schrift bei schmalen Kacheln. Keine gerenderte IPSView-/Browser-Prüfung. Am Zielsystem prüfen: beide/ein/keine Bilder, beide Anordnungen, ungültige Kopftemperatur, schmale Breite und schnell wechselnde Rückmeldungen.
 
 ## Änderungen und Nachweise 1.10.1
 

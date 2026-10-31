@@ -2,6 +2,14 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.10.2: Kurze Rückmeldungen und Bilder an der Kopftemperatur
+
+Die Infoleiste mit Rückmeldungen wie „Fühler eingeblendet“ wird nach **vier Sekunden** automatisch vollständig ausgeblendet. Fehlerrückmeldungen bleiben **acht Sekunden** sichtbar. Ein neuer Hinweis erhält seine eigene Anzeigedauer; ein älterer Timer kann ihn nicht vorzeitig entfernen. Dauerhafte Geräte-/Pushover-Fehler bleiben weiterhin im separaten Fehlerbereich sichtbar.
+
+Wenn die Kopftemperatur einen gültigen Wert zeigt, stehen die hochgeladenen Bilder jetzt direkt in ihrer Kachel: **Bild 1 links, Bild 2 rechts** vom Messwert. Name und Temperatur bleiben im mittleren Bereich; auch bei nur einem Bild wird dafür Platz symmetrisch reserviert. Die vorhandene Anordnung „untereinander“ zeigt beide Bilder links vom Messwert. Ohne gültige/eingeschaltete Kopftemperatur erscheinen die Bilder wieder beim Titel, sodass Uploads nicht verschwinden. Einzelnes Ausblenden und die ursprünglichen Uploads bleiben erhalten.
+
+Der linke Titelbereich wird damit bei sichtbarer Kopftemperatur von den Bildern entlastet. Die Darstellung skaliert auf schmalen Flächen herunter. Nach dem Update Kachel/IPSView neu laden. Echte Zielclient-Darstellung bleibt zu prüfen.
+
 ## Version 1.10.1: Direkte Vorgabenwahl und mehr Platz im Kopfbereich
 
 Die Drahtfühler-Buttons zeigen nur noch Augen-Icon und Fühlernamen; die bisher zusätzlich sichtbare Kanalnummer entfällt. Die Kanalnummer bleibt intern zur eindeutigen Zuordnung sowie im barrierefreien Bedienlabel erhalten.

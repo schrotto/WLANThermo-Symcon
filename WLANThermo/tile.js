@@ -5,7 +5,13 @@
   const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
-  const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
+  let noticeTimer = null, noticeGeneration = 0;
+  const announce = (message, error = false) => {
+    if (noticeTimer !== null) clearTimeout(noticeTimer);
+    const generation = ++noticeGeneration;
+    $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message;
+    if (message) noticeTimer = setTimeout(() => { if (generation === noticeGeneration) { $('notice').hidden = true; $('notice').textContent = ''; noticeTimer = null; } }, error ? 8000 : 4000);
+  };
   const fraction = ch => state.config?.forecast !== false && Number.isFinite(ch.forecast?.progress) ? ch.forecast.progress : ch.valid && Number.isFinite(ch.max) && ch.max > 0 ? Math.max(0, Math.min(1, ch.temperature / ch.max)) : 0;
   const aboveMaximum = ch => ch.valid && Number.isFinite(ch.max) && ch.temperature > ch.max;
   const forecastIsRunning = ch => ch.valid && ch.forecast?.status === 'estimated' && ch.temperature < ch.max;
@@ -167,16 +173,26 @@
       ui.button.classList.toggle('is-hidden',!ch.visible); ui.strike.setAttribute('visibility',ch.visible ? 'hidden' : 'visible'); ui.button.disabled = Boolean(pending);
     }
     $('wired-toolbar').hidden = wired.length === 0;
+    const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
+    const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
     $('tile-title').textContent = cfg.title || 'Grillstation';
     const images = cfg.brandImages || ['',''], stacked = cfg.brandLayout === 'stacked';
     const showImage = (id, source) => { const image = $(id); image.hidden = !source; if (source) { if (image.src !== source) image.src = source; } else image.removeAttribute('src'); };
     showImage('brand-image-1', images[0]); showImage('brand-image-2-stack', stacked ? images[1] : ''); showImage('brand-image-2-after', stacked ? '' : images[1]);
     $('brand-images').hidden = !images[0] && !(stacked && images[1]);
     $('brand-default').hidden = Boolean(images[0] || images[1]);
+    const leading = $('brand-images'), trailing = $('brand-image-2-after');
+    if (showHeader) {
+      if (leading.parentElement !== $('header-image-left')) $('header-image-left').append(leading);
+      if (trailing.parentElement !== $('header-image-right')) $('header-image-right').append(trailing);
+    } else {
+      if (leading.parentElement !== $('brand')) $('brand').insertBefore(leading, $('brand-title'));
+      if (trailing.parentElement !== $('brand')) $('brand').append(trailing);
+    }
+    $('header-temperature').classList.toggle('has-header-images', Boolean(images[0] || images[1]));
+
 
     $('grill').setAttribute('aria-label', 'WLANThermo · ' + (cfg.title || 'Grillstation'));
-    const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
-    const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
     $('header-temperature').hidden = !showHeader;
     document.body.classList.toggle('has-header-temperature', showHeader);
     $('header-temperature-name').textContent = cfg.headerName || 'Grilltemperatur';

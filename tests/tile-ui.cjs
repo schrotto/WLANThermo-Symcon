@@ -4,8 +4,9 @@ const fs = require('node:fs');
 const assert = require('node:assert/strict');
 class Element {
   constructor(tag) { this.tagName = tag; this.children = []; this.attrs = {}; this.events = {}; this.dataset = {}; this.style = {setProperty:(key,value) => {this.style[key] = value;}}; this.className = ''; this.value = ''; this.hidden = false; this.open = false; this.disabled = false; this._text = ''; }
-  append(...children) { for (const child of children) { child.parent = this; this.children.push(child); } }
-  insertBefore(child, reference) { child.parent = this; const index = this.children.indexOf(reference); if (index < 0) this.children.push(child); else this.children.splice(index,0,child); }
+  get parentElement() { return this.parent || null; }
+  append(...children) { for (const child of children) { child.remove(); child.parent = this; this.children.push(child); } }
+  insertBefore(child, reference) { child.remove(); child.parent = this; const index = this.children.indexOf(reference); if (index < 0) this.children.push(child); else this.children.splice(index,0,child); }
   replaceChildren(...children) { this.children = []; this._text = ''; this.append(...children); }
   remove() { if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }
   set textContent(text) { this._text = String(text); this.children = []; }
@@ -237,6 +238,20 @@ coreCard = elements.channels.children.find(el => el.attrs['aria-label']?.startsW
 check(collection.tagName === 'div' && collection.children[0].tagName === 'label' && select.tagName === 'select' && select.parent === collection.children[0] && collection.children[1].hidden, 'Vorgaben-Wertfläche enthält direkt das native Auswahlmenü ohne vorgelagertes Details-Element');
 const beforeDirectChoice = requested.length; select.value = select.children[1].value; select.dispatch('change');
 check(!collection.children[1].hidden && !apply.disabled && requested.length === beforeDirectChoice, 'Direkte Auswahl blendet ausschließlich die ausdrückliche Übernahme ein und sendet noch nichts');
+data = clone(); data.config.headerEnabled = true; data.config.brandImages = ['data:image/png;base64,AAA','data:image/png;base64,BBB']; data.config.brandLayout = 'split'; window.handleMessage(data);
+check(elements['brand-images'].parentElement === elements['header-image-left'] && elements['brand-image-2-after'].parentElement === elements['header-image-right'] && !elements['header-temperature'].hidden, 'Titelbilder stehen bei gültiger Kopftemperatur links und rechts in deren Kachel');
+data.config.brandLayout = 'stacked'; window.handleMessage(data);
+check(!elements['brand-image-2-stack'].hidden && elements['brand-image-2-after'].hidden && elements['brand-images'].parentElement === elements['header-image-left'], 'Untereinander angeordnete Bilder stehen gemeinsam links in der Temperaturkachel');
+data.config.headerEnabled = false; window.handleMessage(data);
+check(elements['brand-images'].parentElement === elements.brand && elements['brand-image-2-after'].parentElement === elements.brand, 'Ohne sichtbare Kopftemperatur kehren die Bilder an den Titel zurück');
+elements.refresh.dispatch('click'); data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Fühler eingeblendet.'}; window.handleMessage(data);
+const firstDismiss = timers.at(-1);
+check(!elements.notice.hidden, 'Neue Infoleiste ist zunächst sichtbar'); firstDismiss();
+check(elements.notice.hidden && elements.notice.textContent === '', 'Automatisches Ausblenden entfernt den Infotext vollständig');
+elements.refresh.dispatch('click'); data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Ältere Meldung'}; window.handleMessage(data); const olderDismiss = timers.at(-1);
+elements.refresh.dispatch('click'); data.response = {requestId:requested.at(-1).requestId,ok:true,message:'Neuere Meldung'}; window.handleMessage(data); const newerDismiss = timers.at(-1);
+olderDismiss(); check(!elements.notice.hidden && elements.notice.textContent === 'Neuere Meldung', 'Abgelaufener alter Timer kann eine neuere Meldung nicht vorzeitig ausblenden');
+newerDismiss(); check(elements.notice.hidden, 'Aktueller Timer blendet die zugehörige neuere Meldung aus');
 window.handleMessage({enabled:false});
 check(elements.refresh.disabled && elements.connection.textContent === 'Kachel deaktiviert', 'Deaktivierung sperrt die bereits geöffnete Kachel');
 console.log(count + ' UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.');

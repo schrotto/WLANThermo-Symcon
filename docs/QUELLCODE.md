@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.10.1
+# Vollständiger Quellcode – WLANThermo 1.10.2
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.10.1",
-    "build": 20,
+    "version": "1.10.2",
+    "build": 21,
     "date": 1793404800
 }
 ````
@@ -1006,7 +1006,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.10.1"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.10.2"
         },
         {
             "type": "ExpansionPanel",
@@ -1365,21 +1365,21 @@ class WLANThermo extends IPSModuleStrict
                 {
                     "type": "Select",
                     "name": "TileBrandLayout",
-                    "caption": "Anordnung der Titelbilder",
+                    "caption": "Anordnung der Bilder an der Kopftemperatur",
                     "options": [
                         {
-                            "caption": "Ein Bild vor und ein Bild hinter dem Titel",
+                            "caption": "Bild 1 links und Bild 2 rechts vom Temperaturwert",
                             "value": "split"
                         },
                         {
-                            "caption": "Beide Bilder untereinander vor dem Titel",
+                            "caption": "Beide Bilder untereinander links vom Temperaturwert",
                             "value": "stacked"
                         }
                     ]
                 },
                 {
                     "type": "Label",
-                    "caption": "Maximal 256 KiB und 2048 × 2048 Pixel pro Bild. Die Bilder werden in der Instanz gespeichert und direkt in der Kachel angezeigt. Ohne eingeblendete Bilder erscheint das Flammensymbol."
+                    "caption": "Maximal 256 KiB und 2048 × 2048 Pixel pro Bild. Bei sichtbarer Kopftemperatur stehen die Bilder in deren Kachel. Ohne gültige Kopftemperatur erscheinen sie wieder am Titel. Ohne eingeblendete Bilder erscheint das Flammensymbol."
                 },
                 {
                     "type": "CheckBox",
@@ -1842,8 +1842,8 @@ class WLANThermo extends IPSModuleStrict
 <body>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div>
-    <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></section>
+    <div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div>
+    <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div id="header-image-left" class="header-image-slot"></div><div class="header-temperature-main"><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></div><div id="header-image-right" class="header-image-slot"></div></section>
     <div class="header-status"><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
@@ -1898,6 +1898,8 @@ class WLANThermo extends IPSModuleStrict
 .probe-section-heading{flex-wrap:wrap;align-items:center;gap:12px 18px}.wired-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;margin-left:auto}.wired-toggle{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 10px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:10px;background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--text);font-size:11px;line-height:1.4}.wired-toggle-icon{width:16px;height:16px;color:var(--accent);stroke-width:1.6}.wired-number{font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}.wired-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wired-toggle.is-hidden{background:var(--surface);border-color:var(--border);color:var(--muted)}.wired-toggle.is-hidden .wired-toggle-icon{color:var(--muted)}.wired-toggle[aria-pressed="true"] .wired-number{color:var(--accent)}#wired-empty{padding:3px 0 12px}@media(max-width:520px){.wired-toolbar{justify-content:flex-start;margin-left:0;width:100%}.wired-name{max-width:125px}}@media(pointer:coarse){.wired-toggle{min-height:44px}}
 /* Direktwahl: das native Select liegt auf der Wertfläche, ohne vorgelagertes Aufklappen. */
 .preset-summary{position:relative;cursor:pointer}.preset-direct-select{position:absolute;inset:0;width:100%;height:100%;min-height:100%;opacity:0;cursor:pointer;padding:0;border:0;font-size:16px}.preset-direct-select:disabled{cursor:default}.preset-direct-select option{background:var(--surface);color:var(--text)}.preset-summary:focus-within{outline:3px solid var(--accent);outline-offset:3px}.core-presets .preset-editor:not([hidden]){display:block}.preset-editor>button{width:100%}.brand{gap:16px}.brand-title{flex:1 1 auto}.brand-images{gap:10px}.brand-image{width:80px;height:88px}.wired-name{max-width:170px}@media(min-width:941px){.topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1.25fr) minmax(250px,380px) minmax(0,.75fr)}}@media(max-width:520px){.brand-image{width:54px;height:60px}.brand{gap:10px}.brand-images{gap:7px}}
+/* Titelbilder flankieren den Messwert; die Mitte bleibt für Name und Temperatur frei. */
+.header-temperature{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:14px 18px;min-height:116px}.header-temperature-main{grid-column:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:0}.header-temperature.has-header-images{grid-template-columns:80px minmax(0,1fr) 80px}.has-header-images .header-temperature-main{grid-column:2}#header-image-left{grid-column:1;grid-row:1}#header-image-right{grid-column:3;grid-row:1}.header-temperature-main{grid-row:1}.header-image-slot{display:flex;justify-content:center;align-items:center;min-width:0}.header-image-slot .brand-image{width:80px;height:88px}.header-temperature h2{overflow-wrap:anywhere}.header-image-slot .brand-images{align-items:center}.header-temperature:not(.has-header-images) .header-image-slot{display:none}.brand-title{flex:1 1 auto}@media(max-width:520px){.header-temperature.has-header-images{grid-template-columns:54px minmax(0,1fr) 54px;gap:8px;padding:14px}.header-image-slot .brand-image{width:54px;height:64px}.header-temperature-reading strong{font-size:36px}.header-temperature-reading>span{font-size:14px}}
 ````
 
 ## WLANThermo/tile.js
@@ -1910,7 +1912,13 @@ class WLANThermo extends IPSModuleStrict
   const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
-  const announce = (message, error = false) => { $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message; };
+  let noticeTimer = null, noticeGeneration = 0;
+  const announce = (message, error = false) => {
+    if (noticeTimer !== null) clearTimeout(noticeTimer);
+    const generation = ++noticeGeneration;
+    $('notice').textContent = message; $('notice').className = error ? 'error' : ''; $('notice').hidden = !message;
+    if (message) noticeTimer = setTimeout(() => { if (generation === noticeGeneration) { $('notice').hidden = true; $('notice').textContent = ''; noticeTimer = null; } }, error ? 8000 : 4000);
+  };
   const fraction = ch => state.config?.forecast !== false && Number.isFinite(ch.forecast?.progress) ? ch.forecast.progress : ch.valid && Number.isFinite(ch.max) && ch.max > 0 ? Math.max(0, Math.min(1, ch.temperature / ch.max)) : 0;
   const aboveMaximum = ch => ch.valid && Number.isFinite(ch.max) && ch.temperature > ch.max;
   const forecastIsRunning = ch => ch.valid && ch.forecast?.status === 'estimated' && ch.temperature < ch.max;
@@ -2072,16 +2080,26 @@ class WLANThermo extends IPSModuleStrict
       ui.button.classList.toggle('is-hidden',!ch.visible); ui.strike.setAttribute('visibility',ch.visible ? 'hidden' : 'visible'); ui.button.disabled = Boolean(pending);
     }
     $('wired-toolbar').hidden = wired.length === 0;
+    const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
+    const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
     $('tile-title').textContent = cfg.title || 'Grillstation';
     const images = cfg.brandImages || ['',''], stacked = cfg.brandLayout === 'stacked';
     const showImage = (id, source) => { const image = $(id); image.hidden = !source; if (source) { if (image.src !== source) image.src = source; } else image.removeAttribute('src'); };
     showImage('brand-image-1', images[0]); showImage('brand-image-2-stack', stacked ? images[1] : ''); showImage('brand-image-2-after', stacked ? '' : images[1]);
     $('brand-images').hidden = !images[0] && !(stacked && images[1]);
     $('brand-default').hidden = Boolean(images[0] || images[1]);
+    const leading = $('brand-images'), trailing = $('brand-image-2-after');
+    if (showHeader) {
+      if (leading.parentElement !== $('header-image-left')) $('header-image-left').append(leading);
+      if (trailing.parentElement !== $('header-image-right')) $('header-image-right').append(trailing);
+    } else {
+      if (leading.parentElement !== $('brand')) $('brand').insertBefore(leading, $('brand-title'));
+      if (trailing.parentElement !== $('brand')) $('brand').append(trailing);
+    }
+    $('header-temperature').classList.toggle('has-header-images', Boolean(images[0] || images[1]));
+
 
     $('grill').setAttribute('aria-label', 'WLANThermo · ' + (cfg.title || 'Grillstation'));
-    const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
-    const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
     $('header-temperature').hidden = !showHeader;
     document.body.classList.toggle('has-header-temperature', showHeader);
     $('header-temperature-name').textContent = cfg.headerName || 'Grilltemperatur';
@@ -3214,6 +3232,14 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.10.2: Kurze Rückmeldungen und Bilder an der Kopftemperatur
+
+Die Infoleiste mit Rückmeldungen wie „Fühler eingeblendet“ wird nach **vier Sekunden** automatisch vollständig ausgeblendet. Fehlerrückmeldungen bleiben **acht Sekunden** sichtbar. Ein neuer Hinweis erhält seine eigene Anzeigedauer; ein älterer Timer kann ihn nicht vorzeitig entfernen. Dauerhafte Geräte-/Pushover-Fehler bleiben weiterhin im separaten Fehlerbereich sichtbar.
+
+Wenn die Kopftemperatur einen gültigen Wert zeigt, stehen die hochgeladenen Bilder jetzt direkt in ihrer Kachel: **Bild 1 links, Bild 2 rechts** vom Messwert. Name und Temperatur bleiben im mittleren Bereich; auch bei nur einem Bild wird dafür Platz symmetrisch reserviert. Die vorhandene Anordnung „untereinander“ zeigt beide Bilder links vom Messwert. Ohne gültige/eingeschaltete Kopftemperatur erscheinen die Bilder wieder beim Titel, sodass Uploads nicht verschwinden. Einzelnes Ausblenden und die ursprünglichen Uploads bleiben erhalten.
+
+Der linke Titelbereich wird damit bei sichtbarer Kopftemperatur von den Bildern entlastet. Die Darstellung skaliert auf schmalen Flächen herunter. Nach dem Update Kachel/IPSView neu laden. Echte Zielclient-Darstellung bleibt zu prüfen.
 
 ## Version 1.10.1: Direkte Vorgabenwahl und mehr Platz im Kopfbereich
 

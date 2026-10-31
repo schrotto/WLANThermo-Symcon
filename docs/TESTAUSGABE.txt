@@ -392,5 +392,12 @@ UI OK 91: Bestätigte Sichtbarkeitsänderung erhält ungespeicherte Grenzänderu
 UI OK 92: Fühlerleiste zeigt ausschließlich Icon und Fühlername ohne zusätzliche Kanalnummer
 UI OK 93: Vorgaben-Wertfläche enthält direkt das native Auswahlmenü ohne vorgelagertes Details-Element
 UI OK 94: Direkte Auswahl blendet ausschließlich die ausdrückliche Übernahme ein und sendet noch nichts
-UI OK 95: Deaktivierung sperrt die bereits geöffnete Kachel
-95 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.
+UI OK 95: Titelbilder stehen bei gültiger Kopftemperatur links und rechts in deren Kachel
+UI OK 96: Untereinander angeordnete Bilder stehen gemeinsam links in der Temperaturkachel
+UI OK 97: Ohne sichtbare Kopftemperatur kehren die Bilder an den Titel zurück
+UI OK 98: Neue Infoleiste ist zunächst sichtbar
+UI OK 99: Automatisches Ausblenden entfernt den Infotext vollständig
+UI OK 100: Abgelaufener alter Timer kann eine neuere Meldung nicht vorzeitig ausblenden
+UI OK 101: Aktueller Timer blendet die zugehörige neuere Meldung aus
+UI OK 102: Deaktivierung sperrt die bereits geöffnete Kachel
+102 UI-Vertragsprüfungen erfolgreich. Keine Aussage zu Browserlayout oder echtem Symcon-Host.

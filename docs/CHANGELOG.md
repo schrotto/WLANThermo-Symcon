@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.10.2 – 31.10.2026
+
+- Infoleiste automatisch nach vier Sekunden ausblenden, Fehlerrückmeldungen nach acht Sekunden.
+- Schutz gegen veraltete Ausblend-Timer bei rasch aufeinanderfolgenden Meldungen.
+- Bilder flankieren die gültige Kopftemperatur; Name/Messwert bleiben mittig. Ohne Kopftemperatur Rückkehr an den Titel.
+- 298 PHP- und 102 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.10.1 – 31.10.2026
 
 - Drahtfühlerbuttons verwenden nur den Fühlernamen ohne zusätzliche Kanalnummer.

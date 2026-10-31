@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.10.1
+# Veröffentlichung – WLANThermo 1.10.2
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -54,3 +54,5 @@ Version 1.9.0: einstellbare rote Temperaturwarnung, optionaler Puls und Pushover
 Version 1.10.0 ergänzt eine persistente Drahtfühler-Buttonleiste für die Ansicht. Keine Geräteänderungen oder zusätzlichen Variablen. Versteckte Drahtfühler bleiben abfragbar, lösen aber keine Pushover-Zielmeldung aus. 298 PHP-/92 JavaScript-Vertragsprüfungen erfolgreich; Zielclientprüfung offen.
 
 Version 1.10.1: reine Fühlernamen in der Leiste, mehr Titelbreite/größere Bilder, leicht nach rechts versetzte Kopftemperatur und direkte native Vorgabenwahl. Übernehmen bleibt erforderlich. 298 PHP-/95 JavaScript-Vertragsprüfungen erfolgreich; Clientdarstellung offen.
+
+Version 1.10.2: temporäre Rückmeldungen automatisch ausblenden, Bilder links/rechts am Kopf-Messwert mit mittigem Text und Rückfall an den Titel. 298 PHP-/102 JavaScript-Vertragsprüfungen erfolgreich; echte Clientdarstellung offen.
