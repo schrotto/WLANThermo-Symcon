@@ -2,6 +2,16 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.0: Kompakter Kopf und skalierbare Fühlerauswahl
+
+Der freigegebene Entwurf ist umgesetzt: Titel höher links, Verbindung und Aktualisierung direkt darunter, Temperaturkachel mit Bildern in der Mitte und Drahtfühlerauswahl oben rechts über den Geräteinformationen. Die Fühlerübersicht benötigt keine eigene Schalterzeile mehr und rückt damit näher an den Kopfbereich.
+
+Bis vier gültige Drahtfühler stehen die Schalter direkt im Kopf. Drei bzw. vier Buttons bilden ein zweispaltiges Raster mit zwei Zeilen; lange Namen werden sichtbar gekürzt, bleiben aber vollständig in Tooltip/Bedienlabel erhalten. Ab **fünf** Drahtfühlern erscheint stattdessen **Fühler auswählen**. Die native aufklappbare Liste zeigt alle Fühler einschließlich ausgeblendeter Kacheln. Ihre Buttons behalten die bisherigen Sichtbarkeitseinstellungen. Die Liste bleibt bei Live-Daten und nach einer Auswahl geöffnet; Escape schließt sie mit Fokus zurück am Schalter. Bei sinkender Fühlerzahl kehren die direkten Buttons zurück.
+
+Das aufgeklappte Menü liegt über dem Inhalt und vergrößert die Kopfzeile nicht. Die Kopftemperatur bleibt oben ausgerichtet, auch wenn die direkte Buttonleiste mehrere Zeilen benötigt. Auf schmalen Flächen werden Kopfbereiche weiterhin umgebrochen; der Menüinhalt bleibt innerhalb der Fensterbreite. Alle bisherigen Sichtbarkeits-, Warn-, Vorgaben- und Pushover-Funktionen bleiben erhalten.
+
+Nach dem Update Kachel/IPSView neu laden. Der zuvor gezeigte Bildentwurf ist eine gestalterische Vorlage; reale Pixelabstände und die Menübedienung im Zielclient sind noch zu prüfen.
+
 ## Version 1.10.2: Kurze Rückmeldungen und Bilder an der Kopftemperatur
 
 Die Infoleiste mit Rückmeldungen wie „Fühler eingeblendet“ wird nach **vier Sekunden** automatisch vollständig ausgeblendet. Fehlerrückmeldungen bleiben **acht Sekunden** sichtbar. Ein neuer Hinweis erhält seine eigene Anzeigedauer; ein älterer Timer kann ihn nicht vorzeitig entfernen. Dauerhafte Geräte-/Pushover-Fehler bleiben weiterhin im separaten Fehlerbereich sichtbar.

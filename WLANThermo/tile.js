@@ -5,7 +5,7 @@
   const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
-  let noticeTimer = null, noticeGeneration = 0;
+  let noticeTimer = null, noticeGeneration = 0, wiredMenuMode = false;
   const announce = (message, error = false) => {
     if (noticeTimer !== null) clearTimeout(noticeTimer);
     const generation = ++noticeGeneration;
@@ -173,6 +173,14 @@
       ui.button.classList.toggle('is-hidden',!ch.visible); ui.strike.setAttribute('visibility',ch.visible ? 'hidden' : 'visible'); ui.button.disabled = Boolean(pending);
     }
     $('wired-toolbar').hidden = wired.length === 0;
+    $('wired-selector').hidden = wired.length === 0;
+    const useWiredMenu = wired.length >= 5;
+    if (useWiredMenu !== wiredMenuMode) { $('wired-selector').open = !useWiredMenu; wiredMenuMode = useWiredMenu; }
+    else if (!useWiredMenu) $('wired-selector').open = true;
+    $('wired-selector').classList.toggle('is-menu', useWiredMenu);
+    $('wired-selector').classList.toggle('is-multi-row', !useWiredMenu && wired.length >= 3);
+    $('wired-selector-toggle').hidden = !useWiredMenu;
+
     const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
     const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
     $('tile-title').textContent = cfg.title || 'Grillstation';
@@ -317,6 +325,7 @@
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
+  $('wired-selector').addEventListener('keydown', event => { if (event.key === 'Escape' && wiredMenuMode && $('wired-selector').open) { $('wired-selector').open = false; $('wired-selector-toggle').focus(); } });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }

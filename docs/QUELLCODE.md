@@ -1,4 +1,4 @@
-# Vollständiger Quellcode – WLANThermo 1.10.2
+# Vollständiger Quellcode – WLANThermo 1.11.0
 
 Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentation liegen zusätzlich im Paket.
 
@@ -13,8 +13,8 @@ Vollständige Laufzeit- und Konfigurationsdateien. Tests und weitere Dokumentati
     "compatibility": {
         "version": "9.0"
     },
-    "version": "1.10.2",
-    "build": 21,
+    "version": "1.11.0",
+    "build": 22,
     "date": 1793404800
 }
 ````
@@ -1006,7 +1006,7 @@ class WLANThermo extends IPSModuleStrict
     "elements": [
         {
             "type": "Label",
-            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.10.2"
+            "caption": "WLANThermo Mini V3 · IP-Symcon ab 9.0 · Version 1.11.0"
         },
         {
             "type": "ExpansionPanel",
@@ -1842,16 +1842,16 @@ class WLANThermo extends IPSModuleStrict
 <body>
 <main id="grill" aria-label="WLANThermo Grillstation">
   <header class="topbar">
-    <div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div>
+    <div class="header-brand-column"><div id="brand" class="brand"><span id="brand-default" class="brandmark icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2c1 5-5 5-3 10 2-1 3-3 3-5 4 4 6 6 6 9a7 7 0 0 1-14 0c0-4 3-7 8-14Z"/></svg></span><div id="brand-images" class="brand-images" hidden><img id="brand-image-1" class="brand-image" alt="" hidden><img id="brand-image-2-stack" class="brand-image" alt="" hidden></div><div id="brand-title" class="brand-title"><h1 id="tile-title">Grillstation</h1></div><img id="brand-image-2-after" class="brand-image" alt="" hidden></div><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div></div>
     <section id="header-temperature" class="header-temperature" aria-label="Grilltemperatur" hidden><div id="header-image-left" class="header-image-slot"></div><div class="header-temperature-main"><div class="header-temperature-copy"><h2 id="header-temperature-name">Grilltemperatur</h2></div><div class="header-temperature-reading"><strong id="header-temperature-value">—</strong><span id="header-temperature-unit">°C</span></div></div><div id="header-image-right" class="header-image-slot"></div></section>
-    <div class="header-status"><div class="top-actions"><span id="connection" class="badge">Warte auf Daten</span><button id="refresh" class="icon-button" type="button" aria-label="Messwerte aktualisieren" title="Messwerte aktualisieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12 0l2 5M4 12l2 5a7 7 0 0 0 12 0"/></svg></button></div><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
+    <div class="header-status"><details id="wired-selector" class="wired-selector" hidden><summary id="wired-selector-toggle" class="wired-selector-toggle" hidden>Fühler auswählen <span aria-hidden="true">⌄</span></summary><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></details><footer id="details"><span id="device"></span><span id="telemetry"></span><button id="bluetooth" type="button" class="text-button"></button><span id="updated"></span></footer></div>
   </header>
   <section id="hero" class="hero" aria-label="Hauptmesswert" hidden>
     <div class="hero-copy"><span id="hero-channel" class="eyebrow">TEMPERATUR</span><h2 id="hero-name">Noch keine Messwerte</h2><div class="hero-value"><span id="hero-temperature">—</span><span id="hero-unit" class="unit">°C</span></div><div id="hero-state" class="state-line">Verbindung in der Instanz konfigurieren.</div><div id="hero-range" class="range-summary"></div><div id="hero-forecast" class="hero-forecast" hidden><span class="hero-forecast-label">GESCHÄTZTE RESTZEIT</span><strong id="hero-forecast-value"></strong><span id="hero-forecast-eta" class="hero-forecast-eta" hidden></span></div></div>
     <div id="gauge" class="gauge" aria-label="Temperatur im Verhältnis zur Obergrenze"><div class="gauge-core"><svg class="icon probe-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0V5Zm2 3v9"/></svg><span class="gauge-label">OBERGRENZE</span><strong id="gauge-range">—</strong></div></div>
   </section>
   <p id="empty-state" class="empty" role="status" hidden>Keine gültigen Fühlerwerte verfügbar.</p>
-  <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title probe-section-heading"><h2>Fühlerübersicht</h2><div id="wired-toolbar" class="wired-toolbar" role="group" aria-label="Kabelgebundene Fühler ein- und ausblenden" hidden></div></div><p id="wired-empty" class="empty" role="status" hidden>Alle kabelgebundenen Fühler sind ausgeblendet. Über die Leiste kannst du sie wieder einblenden.</p><div id="channels" class="probe-grid"></div></section>
+  <section id="channels-section" aria-label="Temperaturfühler"><div class="section-title probe-section-heading"><h2>Fühlerübersicht</h2></div><p id="wired-empty" class="empty" role="status" hidden>Alle kabelgebundenen Fühler sind ausgeblendet. Über die Leiste kannst du sie wieder einblenden.</p><div id="channels" class="probe-grid"></div></section>
   <section id="pitmasters-section" aria-label="Pitmaster"><div class="section-title"><h2>Pitmaster</h2><span class="subtle">Regelung am Mini V3</span></div><div id="pitmasters" class="pitmaster-grid"></div></section>
 
   <p id="notice" role="status" aria-live="polite" hidden></p>
@@ -1900,6 +1900,9 @@ class WLANThermo extends IPSModuleStrict
 .preset-summary{position:relative;cursor:pointer}.preset-direct-select{position:absolute;inset:0;width:100%;height:100%;min-height:100%;opacity:0;cursor:pointer;padding:0;border:0;font-size:16px}.preset-direct-select:disabled{cursor:default}.preset-direct-select option{background:var(--surface);color:var(--text)}.preset-summary:focus-within{outline:3px solid var(--accent);outline-offset:3px}.core-presets .preset-editor:not([hidden]){display:block}.preset-editor>button{width:100%}.brand{gap:16px}.brand-title{flex:1 1 auto}.brand-images{gap:10px}.brand-image{width:80px;height:88px}.wired-name{max-width:170px}@media(min-width:941px){.topbar,.has-header-temperature .topbar{grid-template-columns:minmax(0,1.25fr) minmax(250px,380px) minmax(0,.75fr)}}@media(max-width:520px){.brand-image{width:54px;height:60px}.brand{gap:10px}.brand-images{gap:7px}}
 /* Titelbilder flankieren den Messwert; die Mitte bleibt für Name und Temperatur frei. */
 .header-temperature{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:14px 18px;min-height:116px}.header-temperature-main{grid-column:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:0}.header-temperature.has-header-images{grid-template-columns:80px minmax(0,1fr) 80px}.has-header-images .header-temperature-main{grid-column:2}#header-image-left{grid-column:1;grid-row:1}#header-image-right{grid-column:3;grid-row:1}.header-temperature-main{grid-row:1}.header-image-slot{display:flex;justify-content:center;align-items:center;min-width:0}.header-image-slot .brand-image{width:80px;height:88px}.header-temperature h2{overflow-wrap:anywhere}.header-image-slot .brand-images{align-items:center}.header-temperature:not(.has-header-images) .header-image-slot{display:none}.brand-title{flex:1 1 auto}@media(max-width:520px){.header-temperature.has-header-images{grid-template-columns:54px minmax(0,1fr) 54px;gap:8px;padding:14px}.header-image-slot .brand-image{width:54px;height:64px}.header-temperature-reading strong{font-size:36px}.header-temperature-reading>span{font-size:14px}}
+/* Kompakter Kopf: Titel/Verbindung links, Messwert mittig, Fühlerwahl/Status rechts. */
+#grill{gap:18px}.topbar,.has-header-temperature .topbar{align-items:start}.header-brand-column{grid-column:1;grid-row:1;display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0;padding-top:5px}.header-brand-column .top-actions{justify-content:flex-start;gap:10px}.header-status{grid-column:3;grid-row:1;gap:10px;align-self:start}.header-temperature{align-self:start}.probe-section-heading{margin-bottom:12px}.header-status .wired-toolbar{justify-content:flex-end;margin:0;width:100%}.wired-selector{position:relative;min-width:0;width:100%;margin:0;padding:0;border:0}.wired-selector:not(.is-menu){max-width:100%}.wired-selector-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;list-style:none;color:var(--text);font-size:12px;font-weight:550}.wired-selector-toggle::-webkit-details-marker{display:none}.wired-selector-toggle>span{color:var(--muted)}.wired-selector.is-menu[open]>.wired-selector-toggle>span{transform:rotate(180deg)}.wired-selector.is-menu:not([open])>.wired-toolbar{display:none}.wired-selector.is-menu[open]>.wired-toolbar{position:absolute;z-index:30;right:0;top:calc(100% + 8px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:min(340px,calc(100vw - 40px));padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:0 12px 32px #0005}.wired-selector .wired-toggle{min-width:0}.wired-selector.is-menu .wired-name{min-width:0;max-width:100%}.wired-selector:not(.is-menu) .wired-name{max-width:140px}@media(max-width:940px){.header-brand-column{grid-column:1;grid-row:1}.header-status{grid-column:2;grid-row:1}.header-brand-column .top-actions{grid-column:auto;grid-row:auto}.header-temperature{grid-column:1/-1;grid-row:2}}@media(max-width:300px){.header-status{grid-column:1;grid-row:2;justify-self:stretch;align-items:flex-end}.header-temperature{grid-row:3}.header-brand-column{grid-column:1;grid-row:1}}@media(pointer:coarse){.wired-selector-toggle{min-height:44px}}
+.wired-selector.is-multi-row>.wired-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.wired-selector.is-multi-row .wired-name{min-width:0;max-width:100%}.wired-selector.is-multi-row .wired-toggle{justify-content:flex-start}
 ````
 
 ## WLANThermo/tile.js
@@ -1912,7 +1915,7 @@ class WLANThermo extends IPSModuleStrict
   const probes = new Map(), pitmasters = new Map(), wiredButtons = new Map();
   const fmt = value => typeof value === 'number' && Number.isFinite(value) ? new Intl.NumberFormat('de-DE', {maximumFractionDigits:1}).format(value) : '—';
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
-  let noticeTimer = null, noticeGeneration = 0;
+  let noticeTimer = null, noticeGeneration = 0, wiredMenuMode = false;
   const announce = (message, error = false) => {
     if (noticeTimer !== null) clearTimeout(noticeTimer);
     const generation = ++noticeGeneration;
@@ -2080,6 +2083,14 @@ class WLANThermo extends IPSModuleStrict
       ui.button.classList.toggle('is-hidden',!ch.visible); ui.strike.setAttribute('visibility',ch.visible ? 'hidden' : 'visible'); ui.button.disabled = Boolean(pending);
     }
     $('wired-toolbar').hidden = wired.length === 0;
+    $('wired-selector').hidden = wired.length === 0;
+    const useWiredMenu = wired.length >= 5;
+    if (useWiredMenu !== wiredMenuMode) { $('wired-selector').open = !useWiredMenu; wiredMenuMode = useWiredMenu; }
+    else if (!useWiredMenu) $('wired-selector').open = true;
+    $('wired-selector').classList.toggle('is-menu', useWiredMenu);
+    $('wired-selector').classList.toggle('is-multi-row', !useWiredMenu && wired.length >= 3);
+    $('wired-selector-toggle').hidden = !useWiredMenu;
+
     const headerChannel = channels.find(ch => ch.number === cfg.headerChannel);
     const showHeader = cfg.headerEnabled === true && Boolean(headerChannel);
     $('tile-title').textContent = cfg.title || 'Grillstation';
@@ -2224,6 +2235,7 @@ class WLANThermo extends IPSModuleStrict
       render();
     } catch (error) { announce('Kacheldaten konnten nicht verarbeitet werden.', true); }
   };
+  $('wired-selector').addEventListener('keydown', event => { if (event.key === 'Escape' && wiredMenuMode && $('wired-selector').open) { $('wired-selector').open = false; $('wired-selector-toggle').focus(); } });
   $('refresh').addEventListener('click', () => send('refresh'));
   $('bluetooth').addEventListener('click', () => send('bluetooth', {enabled:!state.bluetooth}));
   try { window.handleMessage(JSON.parse($('initial-state').textContent)); } catch (error) { announce('Initiale Kacheldaten fehlen.', true); }
@@ -3232,6 +3244,16 @@ trait WLTNotifications
 # WLANThermo für IP-Symcon
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
+
+## Version 1.11.0: Kompakter Kopf und skalierbare Fühlerauswahl
+
+Der freigegebene Entwurf ist umgesetzt: Titel höher links, Verbindung und Aktualisierung direkt darunter, Temperaturkachel mit Bildern in der Mitte und Drahtfühlerauswahl oben rechts über den Geräteinformationen. Die Fühlerübersicht benötigt keine eigene Schalterzeile mehr und rückt damit näher an den Kopfbereich.
+
+Bis vier gültige Drahtfühler stehen die Schalter direkt im Kopf. Drei bzw. vier Buttons bilden ein zweispaltiges Raster mit zwei Zeilen; lange Namen werden sichtbar gekürzt, bleiben aber vollständig in Tooltip/Bedienlabel erhalten. Ab **fünf** Drahtfühlern erscheint stattdessen **Fühler auswählen**. Die native aufklappbare Liste zeigt alle Fühler einschließlich ausgeblendeter Kacheln. Ihre Buttons behalten die bisherigen Sichtbarkeitseinstellungen. Die Liste bleibt bei Live-Daten und nach einer Auswahl geöffnet; Escape schließt sie mit Fokus zurück am Schalter. Bei sinkender Fühlerzahl kehren die direkten Buttons zurück.
+
+Das aufgeklappte Menü liegt über dem Inhalt und vergrößert die Kopfzeile nicht. Die Kopftemperatur bleibt oben ausgerichtet, auch wenn die direkte Buttonleiste mehrere Zeilen benötigt. Auf schmalen Flächen werden Kopfbereiche weiterhin umgebrochen; der Menüinhalt bleibt innerhalb der Fensterbreite. Alle bisherigen Sichtbarkeits-, Warn-, Vorgaben- und Pushover-Funktionen bleiben erhalten.
+
+Nach dem Update Kachel/IPSView neu laden. Der zuvor gezeigte Bildentwurf ist eine gestalterische Vorlage; reale Pixelabstände und die Menübedienung im Zielclient sind noch zu prüfen.
 
 ## Version 1.10.2: Kurze Rückmeldungen und Bilder an der Kopftemperatur
 

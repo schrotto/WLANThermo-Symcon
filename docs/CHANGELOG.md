@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.11.0 – 31.10.2026
+
+- Freigegebenes Kopflayout: Titel/Verbindung links, Drahtfühlerauswahl und Geräteinfos rechts.
+- Direkte Fühlerbuttons bis vier Sensoren; drei/vier in zwei Zeilen. Ab fünf kompakte Auswahl mit aufklappbarer Liste.
+- Geöffnete Liste bei Live-Daten und Auswahl erhalten; Escape schließt mit Fokuswiederherstellung.
+- Kopftemperatur bleibt oben ausgerichtet, geöffnete Liste verschiebt sie nicht.
+- 298 PHP- und 110 JavaScript-Vertragsprüfungen erfolgreich.
+
 ## 1.10.2 – 31.10.2026
 
 - Infoleiste automatisch nach vier Sekunden ausblenden, Fehlerrückmeldungen nach acht Sekunden.
