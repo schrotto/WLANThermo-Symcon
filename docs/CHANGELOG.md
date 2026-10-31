@@ -1,5 +1,10 @@
 # Änderungen
 
+## 1.11.9 – 31.10.2026
+
+- Formularbutton-Regeln auf direkte Kinder begrenzt: Touch-Zifferntasten belegen jeweils eine statt aller drei Spalten und behalten ihre größere Schrift.
+- Ziffernblock: 1–2–3 / 4–5–6 / 7–8–9, darunter Zusatzfunktionen.
+
 ## 1.11.8 – 31.10.2026
 
 - In der schmalen Ansicht Verbindung/Aktualisieren ebenfalls unter die Fühler verschoben. Bleiben auch ohne Gerätedetails sichtbar.

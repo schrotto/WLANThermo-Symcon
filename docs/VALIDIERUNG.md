@@ -1,6 +1,10 @@
-# Prüfbericht 1.11.8 – 31. Oktober 2026
+# Prüfbericht 1.11.9 – 31. Oktober 2026
 
 Zielsystem: IP-Symcon ab 9.0, WLANThermo Mini V3 und dessen unterstützte Fühler. Die Firmwareanbindung bleibt gegenüber 1.3.0 erhalten. Die neue Kachel verwendet das offizielle HTML-SDK ohne zusätzliche Statusvariablen.
+
+## Änderungen und Nachweise 1.11.9
+
+Die CSS-Regel `.limits-form button` hatte alle verschachtelten Zifferntasten mit `grid-column:1/-1` über drei Spalten gespannt. Sie und die speziellere Schriftregel sind auf `.limits-form>button` begrenzt. Das vorhandene Dreispaltenraster des Ziffernblocks kann dadurch wirken. Keine Änderung der Eingabe-/Sende-Logik. Bestehende 302 PHP- und 132 JavaScript-Vertragsprüfungen sowie Struktur-/Syntaxprüfung erfolgreich. Die Prüfungen ersetzen keine gerenderte Browserkontrolle; Darstellung am Tablet prüfen.
 
 ## Änderungen und Nachweise 1.11.8
 

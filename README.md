@@ -2,6 +2,10 @@
 
 PHP-Modul für **IP-Symcon 9.0**, **WLANThermo Mini V3** und daran angebundene **MEATER-/Bluetooth-Fühler**. Kommunikation lokal über HTTP; ein MQTT-Broker und ein MEATER-Cloud-Konto sind nicht erforderlich. Unabhängiges Community-Modul, kein offizielles Produkt von Symcon, WLANThermo oder MEATER.
 
+## Version 1.11.9: Ziffernblock mit drei Tasten pro Zeile
+
+Die Touch-Eingabe zeigt 1–2–3, 4–5–6 und 7–8–9 nebeneinander. Darunter folgen ± / 0 / Löschen sowie −1 / Fertig / +1. Eine zu weit gefasste CSS-Regel für den Übernehmen-Button hatte auch die Zifferntasten über alle drei Spalten gespannt. Die Regel gilt jetzt nur für den direkten Formularbutton; die Zifferntasten behalten das vorhandene Dreispaltenraster und ihre größere Schrift.
+
 ## Version 1.11.8: Verbindung unten, Temperatur links und Fühler daneben
 
 In der schmalen Ansicht bis 940 px stehen Verbindung und Aktualisieren jetzt ebenfalls unter den Fühlerkacheln, zwischen Messwertinformationen und Gerätekennung/Bluetooth. Sie bleiben bei ausgeblendeten Gerätedetails bedienbar. Die Kopftemperatur steht links unter dem Titel, die Fühlerauswahl direkt rechts daneben. Bis 400 px werden beide Bereiche für ausreichend breite Bedienelemente untereinander angeordnet. Bei größerer Breite kehren alle Elemente zur bisherigen Desktop-Anordnung zurück. Die Touch-Eingabe aus 1.11.7 bleibt erhalten.

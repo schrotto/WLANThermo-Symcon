@@ -1,4 +1,4 @@
-# Veröffentlichung – WLANThermo 1.11.8
+# Veröffentlichung – WLANThermo 1.11.9
 
 Die Metadaten sind weiterhin für `schrotto/WLANThermo-Symcon` vorbereitet. In dieser Sitzung wurden weder Repository noch Store-Eintrag veröffentlicht. Bibliotheks- und Modul-GUIDs bleiben unverändert.
 
@@ -74,3 +74,5 @@ Version 1.11.6 ordnet die rechten Kopfgruppen fest im HTML statt per Footer-Grid
 Version 1.11.7 ergänzt die schmale Kopfansicht mit Geräteinfos am Ende und eigene Touch-Eingaben für Zahlen/Vorlagen ohne Systemtastatur. 302 PHP-/130 JavaScript-Vertragsprüfungen erfolgreich. Android-Systemleisten werden vom Modul nicht gesteuert; Zielclientprüfung ausstehend.
 
 Version 1.11.8 verschiebt Verbindung/Aktualisieren in schmaler Ansicht nach unten, Kopftemperatur nach links und Fühlerauswahl daneben. Desktop-Anordnung bleibt bei großer Breite erhalten. 302 PHP-/132 JavaScript-Vertragsprüfungen erfolgreich; Zielclientlayout offen.
+
+Version 1.11.9 korrigiert den Touch-Ziffernblock auf drei nebeneinanderliegende Tasten pro Zeile durch Begrenzung der Formularbutton-CSS-Regeln.
